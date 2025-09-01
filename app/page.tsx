@@ -1,6 +1,12 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import mongoose from "mongoose"
 
-export default function Home() {
+export default async function Home() {
+  try {
+    const conn = await mongoose.connect("mongodb://localhost:27017/");
+    console.log(`MongoDB Connected ${conn.connection.host}`);
+  } catch (error: any) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
+  }
   return <h1>lmao</h1>;
 }
