@@ -1,3 +1,5 @@
+"use client"
+
 import { FormEvent } from "react";
 // import { useRouter } from "next/router";
 
@@ -17,17 +19,18 @@ export default function LoginPage() {
       body: JSON.stringify({ email, password }),
     });
 
-    // if (response.ok) {
-    //   router.push("/profile");
-    // } else {
-    //   // Handle errors
-    // }
+    if (response.ok) {
+      console.log("Logined successfully.");
+      // router.push("/profile");
+    } else {
+      // Handle errors
+    }
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="password" name="password" placeholder="Password" required />
+      <input type="email" name="email" placeholder="Email" defaultValue={""} required />
+      <input type="password" name="password" placeholder="Password" defaultValue={""} required />
       <button type="submit">Login</button>
     </form>
   );
