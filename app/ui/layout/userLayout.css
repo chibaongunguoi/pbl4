@@ -2,7 +2,7 @@ ul {
   list-style: none;
 }
 .container {
-  padding: 0 15px;
+  padding: 0 55px;
   position: relative;
   display: flex;
   justify-content: space-between;
@@ -84,7 +84,6 @@ ul {
 
 .form-control:focus {
   outline: none;
-  background-color: #fff;
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
