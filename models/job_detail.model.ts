@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const JobDetailSchema = new mongoose.Schema({
   url: {
@@ -43,6 +43,8 @@ const JobDetailSchema = new mongoose.Schema({
   },
 });
 
-const JobDetail = mongoose.model("JobDetail", JobDetailSchema, "job_detail")
+const JobDetail =
+  mongoose.models.JobDetail ||
+  mongoose.model("JobDetail", JobDetailSchema, "job_detail");
 
 export default JobDetail;
