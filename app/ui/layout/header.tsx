@@ -18,13 +18,7 @@ export default function Header() {
               aria-current="page"
               className="router-link-exact-active router-link-active"
             >
-              <img
-                src="/_ipx/f_webp/logo-dark-s.png"
-                width="110px"
-                height="20px"
-                alt="DevWork"
-                className="dark"
-              />
+              <div className="logo">KrowlworK</div>
             </a>
           </h1>
         </div>{" "}
@@ -37,7 +31,7 @@ export default function Header() {
                   type="email"
                   name="text"
                   placeholder="Tìm kiếm việc làm nhận thưởng..."
-                  value=""
+                  defaultValue=""
                   className="form-control"
                 />{" "}
                 <button aria-label="Tìm kiếm" className="btn">
@@ -51,7 +45,7 @@ export default function Header() {
               <a href="#" className="">
                 Việc làm
               </a>{" "}
-              <ul>
+              <ul className="sub-menu">
                 <li>
                   <a href="/viec-lam?country=vietnam" className="">
                     IT Việt Nam
@@ -77,7 +71,7 @@ export default function Header() {
               <a href="#" className="">
                 Tin tức
               </a>{" "}
-              <ul>
+              <ul className="sub-menu">
                 <li>
                   <a href="/blog/category/6/tin-cong-nghe" className="">
                     Tin công nghệ
@@ -109,7 +103,7 @@ export default function Header() {
               <a href="#" className="">
                 Công cụ
               </a>{" "}
-              <ul>
+              <ul className="sub-menu">
                 <li>
                   <a href="/tai-lieu-mien-phi" className="">
                     Tài liệu miễn phí

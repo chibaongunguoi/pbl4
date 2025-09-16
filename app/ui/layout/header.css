@@ -1,3 +1,6 @@
+ul {
+  list-style: none;
+}
 .container {
   padding: 0 15px;
   position: relative;
@@ -8,7 +11,9 @@
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
+.sub-menu {
+  z-index: 999;
+}
 .logo {
   flex-shrink: 0;
 }

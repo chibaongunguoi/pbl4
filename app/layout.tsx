@@ -31,7 +31,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen`}
       >
         <Header />
-        <main className="pt-16">{children}</main>
+        <main className="pt-16 content-body">{children}</main>
       </body>
     </html>
   );
