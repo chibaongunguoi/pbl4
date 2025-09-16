@@ -29,7 +29,7 @@ export default function LoginPage() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="email" name="email" placeholder="Email" defaultValue={""} required />
+      <input type="text" name="email" placeholder="Email" defaultValue={""} required />
       <input type="password" name="password" placeholder="Password" defaultValue={""} required />
       <button type="submit">Login</button>
     </form>
