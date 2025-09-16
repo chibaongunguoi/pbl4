@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import "./header.css";
+import "./userLayout.css";
 import { useState } from "react";
 
 export default function Header() {
@@ -30,7 +30,7 @@ export default function Header() {
                 <input
                   type="email"
                   name="text"
-                  placeholder="Tìm kiếm việc làm nhận thưởng..."
+                  placeholder="Tìm kiếm việc làm "
                   defaultValue=""
                   className="form-control"
                 />{" "}
@@ -67,7 +67,7 @@ export default function Header() {
                 </li>
               </ul>
             </li>{" "}
-            <li>
+            {/* <li>
               <a href="#" className="">
                 Tin tức
               </a>{" "}
@@ -98,8 +98,8 @@ export default function Header() {
                   </a>
                 </li>
               </ul>
-            </li>{" "}
-            <li>
+            </li>{" "} */}
+            {/* <li>
               <a href="#" className="">
                 Công cụ
               </a>{" "}
@@ -125,7 +125,7 @@ export default function Header() {
                   </a>
                 </li>
               </ul>
-            </li>{" "}
+            </li>{" "} */}
             <li>
               <a href="/login?callback=%2F" className="">
                 Đăng nhập
