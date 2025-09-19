@@ -202,6 +202,9 @@ const sampleJobs = [
 ];
 
 export default function Home() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [jobs, setJobs] = useState([]); // State để lưu dữ liệu từ API
+
   useEffect(() => {
     (async () => {
       const response = await fetch("/api/demo", {
@@ -213,17 +216,24 @@ export default function Home() {
       if (response.ok) {
         const data = await response.json();
         console.log(data.data);
+        // Cập nhật state jobs với data.data
+        if (data.data) {
+          setJobs(data.data);
+        }
       }
     })();
   }, []);
-  const [currentPage, setCurrentPage] = useState(1);
+
   const jobsPerPage = 24;
-  const totalPages = Math.ceil(sampleJobs.length / jobsPerPage);
+  const totalPages = Math.ceil(jobs.length / jobsPerPage);
 
   // Calculate jobs for current page
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = sampleJobs.slice(indexOfFirstJob, indexOfLastJob);
+  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  console.log("Jobs state:", jobs);
+  console.log("Current jobs:", currentJobs);
 
   // Pagination handlers
   const handlePageChange = (pageNumber: number) => {
@@ -255,18 +265,18 @@ export default function Home() {
       {/* Job Cards Grid */}
       <div className="jobs-grid">
         {currentJobs.map((job) => (
-          <div key={job.id} className="job-card">
+          <div key={job._id} className="job-card">
             <div className="job-header">
               <div className="company-logo">
                 <Image
-                  src="https://devwork.vn/_ipx/f_webp/https://static.devworks.jp/images/company/aGnkOEGECWpD1wXCiNFKY7cM6qZNtMNWWXjDVncb.png"
-                  alt={job.company}
+                  src={job.thumbnail}
+                  alt={job.company_name}
                   width={64}
                   height={64}
                 />
               </div>
               <div className="job-info">
-                <h3 className="job-title">{job.title}</h3>
+                <h3 className="job-title">{job.company_name}</h3>
                 <div className="job-details">
                   <span className="detail-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
