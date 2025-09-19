@@ -8,12 +8,12 @@ if (!cache) {
   cache = (global as any).mongoose = { conn: null, promise: null };
 }
 
-export default async function connectDb() {
+async function connectDb() {
   if (cache.conn) return cache.conn;
 
   if (!cache.promise) {
     mongoose.pluralize(null);
-    cache.promise = mongoose.connect(MONGODB_URI, {
+    cache.promise = await mongoose.connect(MONGODB_URI, {
       bufferCommands: false,
     }).then((mongoose) => mongoose);
   }
@@ -21,3 +21,5 @@ export default async function connectDb() {
   cache.conn = await cache.promise;
   return cache.conn;
 }
+
+export default connectDb;

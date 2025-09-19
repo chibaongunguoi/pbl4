@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import "./lib/db";
 import Header from "./ui/layout/header";
 import Footer from "./ui/layout/footer";
-import connectDb from "./lib/db";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,7 +34,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  connectDb();
   return (
     <html lang="en">
       <head>

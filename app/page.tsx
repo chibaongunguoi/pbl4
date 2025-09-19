@@ -1,10 +1,9 @@
 "use client";
 
-import JobDetail from "@/models/job_detail.model";
 import Link from "next/link";
 import Image from "next/image";
 import "@/app/styles/home.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Sample job data
 const sampleJobs = [
@@ -203,6 +202,23 @@ const sampleJobs = [
 ];
 
 export default function Home() {
+  useEffect(
+    () => {
+      (async () => {
+        const response = await fetch("/api/demo", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+        }
+      })();
+    }, []
+  );
+
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 24;
   const totalPages = Math.ceil(sampleJobs.length / jobsPerPage);
@@ -316,9 +332,8 @@ export default function Home() {
           (pageNumber) => (
             <button
               key={pageNumber}
-              className={`pagination-button ${
-                currentPage === pageNumber ? "active" : ""
-              }`}
+              className={`pagination-button ${currentPage === pageNumber ? "active" : ""
+                }`}
               onClick={() => handlePageChange(pageNumber)}
             >
               {pageNumber}
