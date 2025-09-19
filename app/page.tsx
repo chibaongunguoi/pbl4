@@ -36,9 +36,6 @@ export default function Home() {
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
 
-  console.log("Jobs state:", jobs);
-  console.log("Current jobs:", currentJobs);
-
   // Pagination handlers
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -60,7 +57,7 @@ export default function Home() {
     <div className="home-container">
       {/* Header Section */}
       <div className="header-section">
-        <h1>Cơ hội nhận thưởng</h1>
+        <h1>Cơ hội việc làm</h1>
         <Link href="/jobs">
           Xem thêm <span className="arrow-icon">→</span>
         </Link>
