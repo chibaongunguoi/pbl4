@@ -201,25 +201,21 @@ const sampleJobs = [
   },
 ];
 
-const fetchData = async () => {
-  const response = await fetch("/api/demo", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (response.ok) {
-    const result = await response.json();
-    console.log(result);
-  } else {
-  }
-};
-
 export default function Home() {
-  const [job, setJob] = useState(fetchData());
-  console.log(job);
-
+  useEffect(() => {
+    (async () => {
+      const response = await fetch("/api/demo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.data);
+      }
+    })();
+  }, []);
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 24;
   const totalPages = Math.ceil(sampleJobs.length / jobsPerPage);
