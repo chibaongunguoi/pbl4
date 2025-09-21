@@ -13,7 +13,17 @@ export async function POST(req: Request) {
     }
 
     const token = await signToken(username, user.role);
-    const res = NextResponse.json({ success: true }, { status: 200 })
+    const redirect = (() => {
+      switch (user.role) {
+        case "admin":
+          return "/admin/profile"
+        case "user":
+          return "/user/profile"
+        default:
+          return "/"
+      }
+    })();
+    const res = NextResponse.json({ success: true, redirect }, { status: 200 })
     res.cookies.set("auth", token, {
       httpOnly: true,
       secure: true,

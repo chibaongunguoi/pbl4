@@ -35,7 +35,10 @@ export default function LoginPage() {
 
     if (response.ok) {
       console.log("Logined successfully.");
-      router.push("/user/profile");
+      const data = await response.json();
+      if (data?.redirect) {
+        router.push(data.redirect);
+      }
     } else if (status_code == 401) {
       setErrorMessage("Sai tên đăng nhập hoặc mật khẩu.");
     } else {
