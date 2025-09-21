@@ -127,7 +127,7 @@ export default function Header() {
               </ul>
             </li>{" "} */}
             <li>
-              <a href="/login?callback=%2F" className="">
+              <a href="/login" className="">
                 Đăng nhập
               </a>
             </li>{" "}

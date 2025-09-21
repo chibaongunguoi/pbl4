@@ -140,9 +140,8 @@ export default function Home() {
           (pageNumber) => (
             <button
               key={pageNumber}
-              className={`pagination-button ${
-                currentPage === pageNumber ? "active" : ""
-              }`}
+              className={`pagination-button ${currentPage === pageNumber ? "active" : ""
+                }`}
               onClick={() => handlePageChange(pageNumber)}
             >
               {pageNumber}
