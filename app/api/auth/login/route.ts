@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import User from "@/models/user"
+import User from "@/models/User"
 import connectDb from "@/app/lib/db";
 import { signToken } from "@/app/lib/auth";
 
@@ -33,6 +33,7 @@ export async function POST(req: Request) {
     return res;
   }
   catch (e) {
+    console.log(e);
     return NextResponse.json({ error: "Something went wrong." }, { status: 500 });
   }
 }

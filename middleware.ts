@@ -17,7 +17,6 @@ const rules: Array<Rule> = [
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get("auth")?.value;
-  console.log(token)
   const user = token ? await verifyToken(token) : null;
   const { pathname } = req.nextUrl;
 

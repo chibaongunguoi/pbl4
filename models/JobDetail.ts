@@ -43,6 +43,6 @@ const JobDetailSchema = new mongoose.Schema({
   },
 });
 
-const JobDetail = mongoose.models.JobDetail || mongoose.model("JobDetail", JobDetailSchema, "job_detail");
+const JobDetail = mongoose.models.JobDetail || mongoose.model("JobDetail", JobDetailSchema, "JobDetail");
 
 export default JobDetail;
