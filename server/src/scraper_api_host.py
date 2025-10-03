@@ -4,13 +4,13 @@ from pydantic import BaseModel, ValidationError
 import uvicorn
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from typing import Optional
 from src.scrape_manager import AggregationMode, ScrapeManager
 
 
 class ValidateCrawlInput(BaseModel):
     urls: list[str]
-    callback_url: Optional[str] = None  # Optional callback URL
+    callback_url: str | None = None
+    metadata: dict = {}
 
 
 class ApiHost:
@@ -49,6 +49,7 @@ class ScraperApiHost(ApiHost):
                     self.scrape_manager.scrapeUrlsWithCallback,
                     validated_input.urls,
                     validated_input.callback_url,
+                    validated_input.metadata,
                 )
 
                 return JSONResponse(
@@ -60,7 +61,7 @@ class ScraperApiHost(ApiHost):
                 )
 
             else:
-                job_urls = await loop.run_in_executor(
+                urls = await loop.run_in_executor(
                     self.executor, self.scrape_manager.scrapeUrls, validated_input.urls
                 )
 
@@ -68,8 +69,8 @@ class ScraperApiHost(ApiHost):
                     status_code=200,
                     content={
                         "status": "success",
-                        "count": len(job_urls),
-                        "job_urls": job_urls,
+                        "count": len(urls),
+                        "job_urls": urls,
                     },
                 )
 

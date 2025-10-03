@@ -1,33 +1,10 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
 from requests import Response
-import uvicorn
-from typing import Optional
 from datetime import datetime, timezone
 from src.scraper_api_host import ScraperApiHost
 
 
 def now():
     return datetime.now(timezone.utc).isoformat()
-
-
-class ValidateCrawlInput(BaseModel):
-    urls: list[str]
-    callback_url: Optional[str] = None  # Optional callback URL
-
-
-class ApiHost:
-    def __init__(self, host: str, port: int):
-        self.host = host
-        self.port = port
-        self.app = FastAPI()
-        self.route()
-
-    def route(self):
-        raise NotImplementedError()
-
-    def run(self):
-        uvicorn.run(self.app, host=self.host, port=self.port)
 
 
 def content_function(response: Response):

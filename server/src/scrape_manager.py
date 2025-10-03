@@ -1,6 +1,6 @@
 from enum import Enum, auto
-from typing import Optional
 from datetime import datetime, timezone
+import time
 
 
 class AggregationMode(Enum):
@@ -12,28 +12,23 @@ def now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def sendCallback(
-    callback_url: str,
-    data,
-    success: bool = True,
-    error_message: Optional[str] = None,
-):
+def sendCallback(callback_url: str, data, success: bool = True, metadata: dict = {}):
     try:
         import requests
 
-        payload: dict = {"status": "success" if success else "error"}
+        payload: dict = {
+            "status": "success" if success else "error",
+            "data": data,
+        }
+
+        metadata = metadata.copy()
+        metadata["finish_at"] = time.time()
+        metadata["completed_in_seconds"] = metadata["finish_at"] - metadata["start_at"]
 
         if isinstance(data, list):
-            payload["count"] = len(data)
+            metadata["count"] = len(data)
 
-        payload.update(
-            {
-                "data": data,
-                "timestamp": now(),
-            }
-        )
-        if not success and error_message:
-            payload["error"] = error_message
+        payload["metadata"] = metadata
 
         print(f"Sending callback to: {callback_url}")
         response = requests.post(
@@ -106,7 +101,9 @@ class ScrapeManager:
                             if result is not None:
                                 batch_result.append(result)
                     except Exception as e:
-                        print(f"Error processing {url}: {e}")
+                        print(
+                            f"[ERROR at ScrapeManager.scrapeUrls] Error processing {url}: {e}"
+                        )
 
             return batch_result
 
@@ -114,17 +111,16 @@ class ScrapeManager:
             print(f"Error in crawl_urls: {e}")
             return []
 
-    def scrapeUrlsWithCallback(self, urls: list[str], callback_url: str):
+    def scrapeUrlsWithCallback(
+        self, urls: list[str], callback_url: str, metadata: dict = {}
+    ):
         try:
             data = self.scrapeUrls(urls)
-            sendCallback(callback_url=callback_url, data=data)
+            sendCallback(callback_url=callback_url, data=data, metadata=metadata)
 
-        except Exception as e:
-            error_msg = str(e)
-            print(f"Error in scrapeUrlsWIthCrawlBack: {error_msg}")
+        except Exception:
             sendCallback(
                 callback_url=callback_url,
                 data=[],
                 success=False,
-                error_message=error_msg,
             )
