@@ -1,6 +1,8 @@
 from enum import Enum, auto
 from datetime import datetime, timezone
 import time
+import traceback
+from .scrape_strategies import ScrapeStrategy
 
 
 class AggregationMode(Enum):
@@ -47,10 +49,10 @@ def sendCallback(callback_url: str, data, success: bool = True, metadata: dict =
 class ScrapeManager:
     def __init__(
         self,
-        content_function,
+        scrape_strategy: ScrapeStrategy,
         aggregation_mode: AggregationMode = AggregationMode.flatten,
     ):
-        self.content_function = content_function
+        self.scrape_strategy = scrape_strategy
         self.aggregation_mode = aggregation_mode
 
     def scrapeSingle(self, url: str):
@@ -66,7 +68,7 @@ class ScrapeManager:
 
             response = requests.get(url, headers=headers, timeout=30)
             response.raise_for_status()
-            result = self.content_function(response)
+            result = self.scrape_strategy.scrape(response)
             print(f"Scraped {url} successfully.")
             return result
 
@@ -102,8 +104,9 @@ class ScrapeManager:
                                 batch_result.append(result)
                     except Exception as e:
                         print(
-                            f"[ERROR at ScrapeManager.scrapeUrls] Error processing {url}: {e}"
+                            f"[ERROR at ScrapeManager.scrapeUrls] Error processing {url}: {str(e)}"
                         )
+                        traceback.print_exc()
 
             return batch_result
 

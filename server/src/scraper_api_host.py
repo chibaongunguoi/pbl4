@@ -5,6 +5,7 @@ import uvicorn
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from src.scrape_manager import AggregationMode, ScrapeManager
+from .scrape_strategies import ScrapeStrategy
 
 
 class ValidateCrawlInput(BaseModel):
@@ -28,11 +29,17 @@ class ApiHost:
 
 
 class ScraperApiHost(ApiHost):
-    def __init__(self, host: str, port: int, content_function):
+    def __init__(
+        self,
+        host: str,
+        port: int,
+        scrape_strategy: ScrapeStrategy,
+        aggregation_mode: AggregationMode,
+    ):
         super().__init__(host, port)
         self.executor = ThreadPoolExecutor(max_workers=4)
         self.scrape_manager = ScrapeManager(
-            content_function=content_function, aggregation_mode=AggregationMode.append
+            scrape_strategy=scrape_strategy, aggregation_mode=aggregation_mode
         )
 
     def route(self):
