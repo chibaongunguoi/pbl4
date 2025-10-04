@@ -1,4 +1,5 @@
 from enum import Enum, auto
+import requests
 from datetime import datetime, timezone
 import time
 import traceback
@@ -56,31 +57,49 @@ class ScrapeManager:
         self.aggregation_mode = aggregation_mode
 
     def scrapeSingle(self, url: str):
-        try:
-            import requests
+        print(f"Scraping URL: {url}")
+        response = None
+        for _ in range(3):
+            try:
+                response = requests.get(
+                    url,
+                    headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                    },
+                    timeout=30,
+                )
+                response.raise_for_status()
+            except Exception:
+                time.sleep(2)
 
-            print(f"Scraping URL: {url}")
-
-            # Make request to the URL
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-            }
-
-            response = requests.get(url, headers=headers, timeout=30)
-            response.raise_for_status()
-            result = self.scrape_strategy.scrape(response)
-            print(f"Scraped {url} successfully.")
-            return result
-
-        except Exception as e:
-            print(f"Error scraping {url}: {e}")
+        if response is None:
+            print(f"Failed to scrape {url}, connection failed after 3 times.")
             if self.aggregation_mode == AggregationMode.flatten:
                 return []
             else:
                 return None
 
+        try:
+            result = self.scrape_strategy.scrape(response)
+            print(f"Scraped {url} successfully.")
+            return result
+
+        except Exception:
+            print(f"[!! ERROR !!] Fail to scrape {url}.")
+            traceback.print_exc()
+
+        if self.aggregation_mode == AggregationMode.flatten:
+            return []
+        else:
+            return None
+
     def scrapeUrls(self, urls: list[str]) -> list:
         """Crawl the provided URLs in parallel using ThreadPoolExecutor"""
+        if not urls:
+            print("[-- INFO --] ScrapeManager.scrapeUrls: No URLs provided.")
+            return []
+
+        print(f"[-- INFO --] ScrapeManager.scrapeUrls: {len(urls)} URL(s) provided.")
         try:
             from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -111,7 +130,7 @@ class ScrapeManager:
             return batch_result
 
         except Exception as e:
-            print(f"Error in crawl_urls: {e}")
+            print(f"[!! ERROR !!] ScrapeManager.crawl_urls: {e}")
             return []
 
     def scrapeUrlsWithCallback(

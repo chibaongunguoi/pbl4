@@ -9,7 +9,7 @@ def now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def removeConsecutiveSpaces(s: str):
+def removeConsecutiveSpaces(s: str) -> str:
     lines = [line.strip() for line in s.split("\n") if line.strip() != ""]
     s = "\n".join(lines)
 
@@ -221,15 +221,22 @@ class TopCvScrapeStrategy(ScrapeStrategy):
             thumbnail = page.find(
                 "img", attrs={"src": re.compile(r"^https://cdn-new.topcv.vn/")}
             ).get("src")
+            thumbnail = removeConsecutiveSpaces(thumbnail)
         except Exception:
             pass
         return thumbnail
 
     def scrapeTitle(self, page) -> str:
-        return page.find("", attrs={"class": "job-detail__info--title"}).text
+        title = page.find("h1", attrs={"class": "job-detail__info--title"})
+        if title is None:
+            raise Exception("Cannot find title.")
+
+        title = title.text
+        title = removeConsecutiveSpaces(title)
+        return title
 
     def scrapeCompanyInfo(self, page) -> dict:
-        result = {"company_name": None, "company_url": None}
+        result: dict = {"company_name": None, "company_url": None}
         company_name_element = page.find(
             "a",
             attrs={
@@ -238,19 +245,17 @@ class TopCvScrapeStrategy(ScrapeStrategy):
             },
         )
 
-        result["company_name"] = company_name_element.text
+        result["company_name"] = removeConsecutiveSpaces(company_name_element.text)
         result["company_url"] = company_name_element.get("href")
         return result
 
     def scrapeUpperPart(self, page) -> dict:
         result = {"salary": None, "province": None}
-        for result in page.find_all(
-            "div", attrs={"class": "job-detail__info--section"}
-        ):
-            title = result.find(
+        for item in page.find_all("div", attrs={"class": "job-detail__info--section"}):
+            title = item.find(
                 "div", attrs={"class": "job-detail__info--section-content-title"}
             )
-            value = result.find(
+            value = item.find(
                 "div", attrs={"class": "job-detail__info--section-content-value"}
             )
 
@@ -278,7 +283,7 @@ class TopCvScrapeStrategy(ScrapeStrategy):
             if content is None or title is None:
                 continue
 
-            result["descriptions"][title.text] = content.text
+            result["descriptions"][title.text] = removeConsecutiveSpaces(content.text)
 
         return result
 
@@ -351,14 +356,14 @@ class TopCvScrapeStrategy(ScrapeStrategy):
 class OverallScrapeStrategy(ScrapeStrategy):
     def __init__(self):
         self.sub_strategies: dict[str, ScrapeStrategy] = {
-            r"^https://devwork.com/": DevworkScrapeStrategy(),
-            r"^https://www.topcv.vn/": TopCvScrapeStrategy(),
+            r"^https://devwork\.vn/": DevworkScrapeStrategy(),
+            r"^https://www\.topcv\.vn/": TopCvScrapeStrategy(),
         }
 
     def scrape(self, response: Response):
         url = response.url
         for platform, sub_strategy in self.sub_strategies.items():
-            if re.match(url, platform):
+            if re.match(platform, url):
                 return sub_strategy.scrape(response)
 
 
