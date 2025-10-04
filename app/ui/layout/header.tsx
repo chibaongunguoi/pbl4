@@ -67,65 +67,11 @@ export default function Header() {
                 </li>
               </ul>
             </li>{" "}
-            {/* <li>
-              <a href="#" className="">
-                Tin tức
-              </a>{" "}
-              <ul className="sub-menu">
-                <li>
-                  <a href="/blog/category/6/tin-cong-nghe" className="">
-                    Tin công nghệ
-                  </a>
-                </li>
-                <li>
-                  <a href="/blog/category/4/company-tour" className="">
-                    Company Tour
-                  </a>
-                </li>
-                <li>
-                  <a href="/blog/category/3/khoi-nghiep-ky-su" className="">
-                    Khởi Nghiệp Ký Sự
-                  </a>
-                </li>
-                <li>
-                  <a href="/blog/category/2/tam-su-hr" className="">
-                    Tâm sự HR
-                  </a>
-                </li>
-                <li>
-                  <a href="/blog/category/1/cam-nang-tuyen-dung" className="">
-                    Cẩm nang tuyển dụng
-                  </a>
-                </li>
-              </ul>
-            </li>{" "} */}
-            {/* <li>
-              <a href="#" className="">
-                Công cụ
-              </a>{" "}
-              <ul className="sub-menu">
-                <li>
-                  <a href="/tai-lieu-mien-phi" className="">
-                    Tài liệu miễn phí
-                  </a>
-                </li>{" "}
-                <li>
-                  <a href="#" className="">
-                    Chuyển lương Net - Gross
-                  </a>
-                </li>{" "}
-                <li>
-                  <a href="#" className="">
-                    Tính bảo hiểm thất nghiệp
-                  </a>
-                </li>{" "}
-                <li>
-                  <a href="#" className="">
-                    Tính Nenkin
-                  </a>
-                </li>
-              </ul>
-            </li>{" "} */}
+            <li>
+              <a href="/scrape" className="">
+                Cào thông tin việc làm
+              </a>
+            </li>{" "}
             <li>
               <a href="/login" className="">
                 Đăng nhập
