@@ -10,8 +10,9 @@ export default function Header() {
 
   return (
     <header className="sticky-header">
-      <div className="container">
-        <div id="brand" className="logo">
+      <div className="header-container">
+        <nav id="navigation" className="menu d-xs-none">
+          <div id="brand" className="logo">
           <h1>
             <a
               href="/"
@@ -21,8 +22,7 @@ export default function Header() {
               <div className="logo">KrowlworK</div>
             </a>
           </h1>
-        </div>{" "}
-        <nav id="navigation" className="menu d-xs-none">
+        </div>
           <ul className="search">
             <li>
               <div className="form-group form-icon-left">
