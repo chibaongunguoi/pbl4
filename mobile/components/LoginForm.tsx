@@ -11,9 +11,10 @@ export const LoginForm = () => {
   const [is_submitting, setIsSubmitting] = useState(false);
 
   const handleLogin = async () => {
+    console.log("[-- START --] You are logging in...");
     setErrorMessage("");
     setIsSubmitting(true);
-    const response = await fetch("http://192.168.101.5:3000/api/auth/login", {
+    const response = await fetch("http://192.168.187.1:3000/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -33,6 +34,7 @@ export const LoginForm = () => {
       setErrorMessage("Máy chủ đang gặp sự cố, vui lòng thử lại sau.");
     }
     setIsSubmitting(false);
+    console.log("[-- FINISH --] Ended logging in.");
   }
 
   return (

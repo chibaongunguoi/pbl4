@@ -1,9 +1,17 @@
 from enum import Enum, auto
+import threading
+import random
 import requests
+from colorama import Fore, init
 from datetime import datetime, timezone
 import time
 import traceback
 from .scrape_strategies import ScrapeStrategy
+
+rate_lock = threading.BoundedSemaphore(value=1)
+last_request = [0.0]
+
+init(autoreset=True)
 
 
 class AggregationMode(Enum):
@@ -57,10 +65,19 @@ class ScrapeManager:
         self.aggregation_mode = aggregation_mode
 
     def scrapeSingle(self, url: str):
-        print(f"Scraping URL: {url}")
-        response = None
-        for _ in range(3):
+        for i in range(3):
+            if i > 0:
+                with rate_lock:
+                    now = time.time()
+                    elapsed = now - last_request[0]
+                    wait = max(0, 1.0 - elapsed)
+                    if wait > 0:
+                        time.sleep(wait)
+                    last_request[0] = time.time()
+            response = None
+            status_code = None
             try:
+                print(Fore.BLUE + f"[-- START --] Scraping URL: {url}")
                 response = requests.get(
                     url,
                     headers={
@@ -68,26 +85,28 @@ class ScrapeManager:
                     },
                     timeout=30,
                 )
+                status_code = response.status_code
                 response.raise_for_status()
+                result = self.scrape_strategy.scrape(response)
+                print(Fore.GREEN + f"[++ SUCCESS ++] Scraped {url} successfully.")
+                return result
             except Exception:
-                time.sleep(2)
+                traceback.print_exc()
+                time_to_wait = random.uniform(5, 10)
+                if response and status_code and status_code == 429:
+                    try:
+                        retry_after = response.headers.get("Retry-Aftre")
+                        if retry_after:
+                            time_to_wait = min(30.0, float(retry_after))
+                    except Exception:
+                        pass
 
-        if response is None:
-            print(f"Failed to scrape {url}, connection failed after 3 times.")
-            if self.aggregation_mode == AggregationMode.flatten:
-                return []
-            else:
-                return None
+                time.sleep(time_to_wait)
 
-        try:
-            result = self.scrape_strategy.scrape(response)
-            print(f"Scraped {url} successfully.")
-            return result
-
-        except Exception:
-            print(f"[!! ERROR !!] Fail to scrape {url}.")
-            traceback.print_exc()
-
+        print(
+            Fore.RED
+            + f"[-- FAILURE --] Failed to scrape {url}, scraping failed after 3 times."
+        )
         if self.aggregation_mode == AggregationMode.flatten:
             return []
         else:
@@ -96,10 +115,15 @@ class ScrapeManager:
     def scrapeUrls(self, urls: list[str]) -> list:
         """Crawl the provided URLs in parallel using ThreadPoolExecutor"""
         if not urls:
-            print("[-- INFO --] ScrapeManager.scrapeUrls: No URLs provided.")
+            print(
+                Fore.CYAN + "[-- INFO --] ScrapeManager.scrapeUrls: No URLs provided."
+            )
             return []
 
-        print(f"[-- INFO --] ScrapeManager.scrapeUrls: {len(urls)} URL(s) provided.")
+        print(
+            Fore.CYAN
+            + f"[-- INFO --] ScrapeManager.scrapeUrls: {len(urls)} URL(s) provided."
+        )
         try:
             from concurrent.futures import ThreadPoolExecutor, as_completed
 

@@ -4,11 +4,13 @@ import connectDb from "@/app/lib/db";
 import { signToken } from "@/app/lib/auth";
 
 export async function POST(req: Request) {
+  console.log("[-- START --] Responding a request at /api/login");
   try {
     await connectDb();
     const { username, password } = await req.json();
     const user = await User.findOne({ username: username, password: password });
     if (!user) {
+      console.log("[-- FINISH --] Request at /api/login responsed");
       return NextResponse.json({ error: "Bad credentials." }, { status: 401 });
     }
 
@@ -30,6 +32,7 @@ export async function POST(req: Request) {
       sameSite: "strict",
       path: "/", maxAge: 60 * 60,
     });
+    console.log("[-- FINISH --] Request at /api/login responsed");
     return res;
   }
   catch (e) {
