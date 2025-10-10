@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { userSession } from "@/app/lib/userSession";
 
 
 export default function LoginPage() {
@@ -36,9 +37,21 @@ export default function LoginPage() {
     if (response.ok) {
       console.log("Logined successfully.");
       const data = await response.json();
+      
+      // Lưu thông tin user vào session khi đăng nhập thành công
+      if (data?.user) {
+        userSession.setUser(data.user);
+        console.log("User saved to session:", data.user);
+        
+        // Refresh user info trong layout
+        if (typeof window !== 'undefined' && window.refreshUserFromSession) {
+          window.refreshUserFromSession();
+        }
+      }
+      
       if (data?.redirect) {
         router.push(data.redirect);
-      }
+      } 
     } else if (status_code == 401) {
       setErrorMessage("Sai tên đăng nhập hoặc mật khẩu.");
     } else {

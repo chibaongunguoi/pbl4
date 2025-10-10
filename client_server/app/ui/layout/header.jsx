@@ -4,10 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import "./userLayout.css";
 import { useEffect, useState } from "react";
-
+import { userSession } from "@/app/lib/userSession";
 export default function Header({ user }) {
-
-  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <header className="sticky-header">
@@ -73,10 +71,10 @@ export default function Header({ user }) {
                 Cào thông tin việc làm
               </a>
             </li>{" "}
-            {user ? (
+            {userSession.getUser ? (
               <li>
                 <a href="/user/profile" className="">
-                  {user.username}
+                  {userSession.getUser().username}
                 </a>
               </li>
             ) : (

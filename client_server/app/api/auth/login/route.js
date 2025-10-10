@@ -23,7 +23,19 @@ export async function POST(req) {
           return "/"
       }
     })();
-    const res = NextResponse.json({ success: true, redirect }, { status: 200 });
+    
+    // Tạo object user để trả về (không bao gồm password)
+    const userInfo = {
+      username: user.username,
+      role: user.role,
+      _id: user._id
+    };
+    
+    const res = NextResponse.json({ 
+      success: true, 
+      redirect,
+      user: userInfo 
+    }, { status: 200 });
     res.cookies.set("auth", token, {
       httpOnly: true,
       secure: true,
