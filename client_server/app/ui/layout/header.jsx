@@ -5,8 +5,7 @@ import Image from "next/image";
 import "./userLayout.css";
 import { useEffect, useState } from "react";
 import { userSession } from "@/app/lib/userSession";
-export default function Header({ user }) {
-
+export default function Header() {
   return (
     <header className="sticky-header">
       <div className="header-container">
