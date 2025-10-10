@@ -23,7 +23,7 @@ export async function POST(req) {
           return "/"
       }
     })();
-    const res = NextResponse.json({ success: true, redirect }, { status: 200 })
+    const res = NextResponse.json({ success: true, redirect }, { status: 200 });
     res.cookies.set("auth", token, {
       httpOnly: true,
       secure: true,

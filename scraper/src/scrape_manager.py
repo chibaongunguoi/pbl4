@@ -34,7 +34,10 @@ def sendCallback(callback_url: str, data, success: bool = True, metadata: dict =
 
         metadata = metadata.copy()
         metadata["finish_at"] = time.time()
-        metadata["completed_in_seconds"] = metadata["finish_at"] - metadata["start_at"]
+        if "start_at" in metadata:
+            metadata["completed_in_seconds"] = (
+                metadata["finish_at"] - metadata["start_at"]
+            )
 
         if isinstance(data, list):
             metadata["count"] = len(data)

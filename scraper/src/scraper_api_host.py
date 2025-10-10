@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ValidationError
+import traceback
 import uvicorn
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
@@ -43,9 +44,9 @@ class ScraperApiHost(ApiHost):
         )
 
     def route(self):
-        self.app.add_api_route("/api/crawl", self.postCrawl, methods=["POST"])
+        self.app.add_api_route("/api/scrape", self.postScrape, methods=["POST"])
 
-    async def postCrawl(self, request: Request):
+    async def postScrape(self, request: Request):
         try:
             data = await request.json()
             validated_input = ValidateCrawlInput(**data)
@@ -91,6 +92,7 @@ class ScraperApiHost(ApiHost):
                 },
             )
         except Exception as e:
+            traceback.print_exc()
             return JSONResponse(
                 status_code=500,
                 content={

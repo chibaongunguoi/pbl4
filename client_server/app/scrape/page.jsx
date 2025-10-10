@@ -6,8 +6,16 @@ import { useState } from "react";
 export default function Home() {
   const [url, setUrl] = useState("");
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const form_data = new FormData(e.currentTarget);
+    const url = form_data.get("url");
+    fetch("/api/scrape/upload", {
+      method: "POST",
+      headers: { "Content-Type": "application/jsn" },
+      body: JSON.stringify({ url }),
+    });
   };
 
   return (
@@ -17,6 +25,7 @@ export default function Home() {
         <div className="input-group">
           <input
             type="url"
+            name="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="Nhập URL..."
