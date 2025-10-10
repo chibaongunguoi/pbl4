@@ -36,7 +36,6 @@ export default function LoginPage() {
     if (response.ok) {
       console.log("Logined successfully.");
       const data = await response.json();
-      
       if (data?.redirect) {
         router.push(data.redirect);
       } 

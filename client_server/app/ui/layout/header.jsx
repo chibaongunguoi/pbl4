@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 export default function Header() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  
   useEffect(() => {
     setIsLoading(true);
     getUser().then(data => {

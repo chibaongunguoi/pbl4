@@ -4,10 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import "@/app/styles/home.css";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [jobs, setJobs] = useState([]); // State để lưu dữ liệu từ API
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
@@ -53,6 +55,11 @@ export default function Home() {
     }
   };
 
+  // Handle card click
+  const handleCardClick = (jobId) => {
+    router.push(`/job/${jobId}?id=${jobId}`);
+  };
+
   return (
     <div className="home-container">
       {/* Header Section */}
@@ -66,7 +73,11 @@ export default function Home() {
       {/* Job Cards Grid */}
       <div className="jobs-grid">
         {currentJobs.map((job) => (
-          <div key={job._id} className="job-card">
+          <div 
+            key={job._id} 
+            className="job-card clickable-card" 
+            onClick={() => handleCardClick(job._id)}
+          >
             <div className="job-header">
               <div className="company-logo">
                 <Image
