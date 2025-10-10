@@ -3,11 +3,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import "./userLayout.css";
-import { useState } from "react";
-
+import { useEffect, useState,useRef } from "react";
+import getUser from "@/app/conn/conn";
 export default function Header() {
+  const [user, setUser] = useState(null);
+  const checkUser = useRef(false);
   const [searchQuery, setSearchQuery] = useState("");
-
+  if (user === null && !checkUser.current) {
+    checkUser.current = true;
+  getUser().then(data =>{ console.log(data); setUser(data) })}
   return (
     <header className="sticky-header">
       <div className="header-container">
@@ -72,16 +76,26 @@ export default function Header() {
                 Cào thông tin việc làm
               </a>
             </li>{" "}
-            <li>
-              <a href="/login" className="">
-                Đăng nhập
-              </a>
-            </li>{" "}
-            <li>
-              <a href="/dang-ky" className="btn-register btn-warning gradient">
-                Đăng ký tài khoản
-              </a>
-            </li>
+            {user ? (
+              <li>
+                <a href="/user/profile" className="">
+                  {user.username}
+                </a>
+              </li>
+            ) : (
+              <>
+                <li>
+                  <a href="/login" className="">
+                    Đăng nhập
+                  </a>
+                </li>{" "}
+                <li>
+                  <a href="/dang-ky" className="btn-register btn-warning gradient">
+                    Đăng ký tài khoản
+                  </a>
+                </li>
+              </>
+            )}
           </ul>
         </nav>{" "}
         <nav className="d-md-none mobile-nav">

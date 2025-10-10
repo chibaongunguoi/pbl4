@@ -8,7 +8,7 @@ export default function UserInfoPage() {
   const [user, setUser] = useState(null);
   useEffect(() => {
     getUser().then(data => setUser(data))
-  }, [])
+  }, []);
   const router = useRouter();
   async function logOut() {
     await fetch("/api/auth/logout", {
