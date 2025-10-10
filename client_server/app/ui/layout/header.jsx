@@ -4,8 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import "./userLayout.css";
 import { useEffect, useState } from "react";
-import { userSession } from "@/app/lib/userSession";
+import getUser from "@/app/conn/conn";
 export default function Header() {
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    getUser().then(data => setUser(data))
+  }, [])
   return (
     <header className="sticky-header">
       <div className="header-container">
@@ -70,26 +74,28 @@ export default function Header() {
                 Cào thông tin việc làm
               </a>
             </li>{" "}
-            {userSession.getUser ? (
-              <li>
-                <a href="/user/profile" className="">
-                  {userSession.getUser().username}
-                </a>
-              </li>
-            ) : (
-              <>
+            {
+              user ? (
                 <li>
-                  <a href="/login" className="">
-                    Đăng nhập
-                  </a>
-                </li>{" "}
-                <li>
-                  <a href="/dang-ky" className="btn-register btn-warning gradient">
-                    Đăng ký tài khoản
+                  <a href="/user/profile" className="">
+                    {user.username}
                   </a>
                 </li>
-              </>
-            )}
+              ) : (
+                <>
+                  <li>
+                    <a href="/login" className="">
+                      Đăng nhập
+                    </a>
+                  </li>{" "}
+                  <li>
+                    <a href="/dang-ky" className="btn-register btn-warning gradient">
+                      Đăng ký tài khoản
+                    </a>
+                  </li>
+                </>
+              )
+             }
           </ul>
         </nav>{" "}
         <nav className="d-md-none mobile-nav">
