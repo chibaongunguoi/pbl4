@@ -3,15 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import "./userLayout.css";
-import { useEffect, useState,useRef } from "react";
-import getUser from "@/app/conn/conn";
-export default function Header() {
-  const [user, setUser] = useState(null);
-  const checkUser = useRef(false);
+import { useEffect, useState } from "react";
+
+export default function Header({ user }) {
+
   const [searchQuery, setSearchQuery] = useState("");
-  if (user === null && !checkUser.current) {
-    checkUser.current = true;
-  getUser().then(data =>{ console.log(data); setUser(data) })}
+
   return (
     <header className="sticky-header">
       <div className="header-container">
