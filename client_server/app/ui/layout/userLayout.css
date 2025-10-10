@@ -195,6 +195,82 @@ ul {
   font-size: 20px;
 }
 
+/* User Dropdown Styles */
+.user-dropdown {
+  position: relative;
+}
+
+.user-dropdown > a {
+  cursor: pointer;
+  position: relative;
+}
+
+.user-dropdown > a:after {
+  content: "▼";
+  font-size: 10px;
+  margin-left: 8px;
+  transition: transform 0.3s ease;
+}
+
+.user-dropdown:hover > a:after {
+  transform: rotate(180deg);
+}
+
+.user-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  padding: 8px 0;
+  min-width: 180px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  border: 1px solid #e5e5e5;
+}
+
+.user-dropdown:hover .user-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.user-menu li {
+  margin: 0;
+}
+
+.user-menu a {
+  display: block;
+  padding: 12px 20px;
+  color: #333 !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  border-bottom: none;
+}
+
+.user-menu a:hover {
+  background-color: #f8f9fa;
+  color: #007bff !important;
+  padding-left: 24px;
+}
+
+.user-menu li:last-child a {
+  color: #dc3545 !important;
+  border-top: 1px solid #f0f0f0;
+}
+
+.user-menu li:last-child a:hover {
+  background-color: #fff5f5;
+  color: #dc3545 !important;
+}
+
 @media (max-width: 768px) {
   .d-xs-none {
     display: none !important;

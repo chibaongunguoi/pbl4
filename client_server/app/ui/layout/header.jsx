@@ -5,11 +5,30 @@ import Image from "next/image";
 import "./userLayout.css";
 import { useEffect, useState } from "react";
 import getUser from "@/app/conn/conn";
+import { useRouter } from "next/navigation";
 export default function Header() {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
   useEffect(() => {
-    getUser().then(data => setUser(data))
+    setIsLoading(true);
+    getUser().then(data => {
+      setUser(data);
+      setIsLoading(false);
+    }).catch(error => {
+      console.error('Error loading user:', error);
+      setIsLoading(false);
+    });
   }, [])
+  const router = useRouter();
+   async function logOut() {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+    router.push("/login");
+  }
+
   return (
     <header className="sticky-header">
       <div className="header-container">
@@ -74,28 +93,45 @@ export default function Header() {
                 Cào thông tin việc làm
               </a>
             </li>{" "}
-            {
-              user ? (
-                <li>
-                  <a href="/user/profile" className="">
-                    {user.username}
-                  </a>
-                </li>
-              ) : (
-                <>
+            {isLoading ? (
+              <li>
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-blue-600 mr-2"></div>
+                  <span className="text-sm text-gray-500">Đang tải...</span>
+                </div>
+              </li>
+            ) : user ? (
+              <li className="user-dropdown">
+                <a href="#" className="">
+                  {user.username}
+                </a>
+                <ul className="sub-menu user-menu">
                   <li>
-                    <a href="/login" className="">
-                      Đăng nhập
-                    </a>
-                  </li>{" "}
-                  <li>
-                    <a href="/dang-ky" className="btn-register btn-warning gradient">
-                      Đăng ký tài khoản
+                    <a href="/user/profile" className="">
+                      Thông tin tài khoản
                     </a>
                   </li>
-                </>
-              )
-             }
+                  <li>
+                    <a href="#" onClick={logOut} className="">
+                      Đăng xuất
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            ) : (
+              <>
+                <li>
+                  <a href="/login" className="">
+                    Đăng nhập
+                  </a>
+                </li>{" "}
+                <li>
+                  <a href="/dang-ky" className="btn-register btn-warning gradient">
+                    Đăng ký tài khoản
+                  </a>
+                </li>
+              </>
+            )}
           </ul>
         </nav>{" "}
         <nav className="d-md-none mobile-nav">
