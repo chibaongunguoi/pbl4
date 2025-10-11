@@ -73,9 +73,9 @@ export default function Home() {
       {/* Job Cards Grid */}
       <div className="jobs-grid">
         {currentJobs.map((job) => (
-          <div 
-            key={job._id} 
-            className="job-card clickable-card" 
+          <div
+            key={job._id}
+            className="job-card clickable-card"
             onClick={() => handleCardClick(job._id)}
           >
             <div className="job-header">
@@ -88,7 +88,7 @@ export default function Home() {
                 />
               </div>
               <div className="job-info">
-                <h3 className="job-title">{job.company_name}</h3>
+                <h3 className="job-title">{job.job_title}</h3>
                 <div className="job-details">
                   <span className="detail-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

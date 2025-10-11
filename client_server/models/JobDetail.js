@@ -4,6 +4,8 @@ const JobDetailSchema = new mongoose.Schema({
   url: {
     type: String,
     required: true,
+    unique: true,
+    index: true,
   },
   thumbnail: {
     type: String,

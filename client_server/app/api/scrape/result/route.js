@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
+import connectDb from "@/app/lib/db";
+import JobDetail from "@/models/JobDetail";
 
 export async function POST(req) {
   try {
-    const data = await req.json();
-    console.log("Received data:");
+    const res = await req.json();
+    const data = res.data;
+    console.log("Data:");
     console.log(data);
+    await connectDb();
+    await JobDetail.bulkWrite(
+      data.map(record => ({ updateOne: { filter: { url: record.url }, update: { $set: record }, upsert: true } }))
+    );
     return NextResponse.json({}, { status: 200 });
   }
   catch (e) {

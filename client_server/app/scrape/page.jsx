@@ -5,15 +5,17 @@ import { useState } from "react";
 
 export default function Home() {
   const [url, setUrl] = useState("");
+  const [button_active, setButtonActive] = useState(true);
 
 
   const handleSubmit = async (e) => {
+    setButtonActive(false);
     e.preventDefault();
     const form_data = new FormData(e.currentTarget);
     const url = form_data.get("url");
     fetch("/api/scrape/upload", {
       method: "POST",
-      headers: { "Content-Type": "application/jsn" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
     });
   };
@@ -32,7 +34,7 @@ export default function Home() {
             className="url-input"
             required
           />
-          <button type="submit" className="submit-btn">
+          <button type="submit" className="submit-btn disabled:bg-gray-200" disabled={!button_active}>
             Bắt đầu
           </button>
         </div>

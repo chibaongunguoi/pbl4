@@ -218,9 +218,8 @@ class TopCvScrapeStrategy(ScrapeStrategy):
     def getThumbnail(self, page) -> str | None:
         thumbnail = None
         try:
-            thumbnail = page.find(
-                "img", attrs={"src": re.compile(r"^https://cdn-new.topcv.vn/")}
-            ).get("src")
+            a = page.find("a", attrs={"class": "company-logo"})
+            thumbnail = a.find("img").get("src")
             thumbnail = removeConsecutiveSpaces(thumbnail)
         except Exception:
             pass

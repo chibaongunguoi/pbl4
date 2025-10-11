@@ -1,7 +1,8 @@
 from enum import Enum, auto
+
 import threading
-import random
 import requests
+import random
 from colorama import Fore, init
 from datetime import datetime, timezone
 import time
@@ -35,9 +36,7 @@ def sendCallback(callback_url: str, data, success: bool = True, metadata: dict =
         metadata = metadata.copy()
         metadata["finish_at"] = time.time()
         if "start_at" in metadata:
-            metadata["completed_in_seconds"] = (
-                metadata["finish_at"] - metadata["start_at"]
-            )
+            metadata["completed_in_seconds"] = ()
 
         if isinstance(data, list):
             metadata["count"] = len(data)
@@ -58,6 +57,17 @@ def sendCallback(callback_url: str, data, success: bool = True, metadata: dict =
         print(f"Error sending callback to {callback_url}: {e}")
 
 
+USER_AGENTS = [
+    # "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
+    # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15",
+    # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:130.0) Gecko/20100101 Firefox/130.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+]
+REFERERS = ["https://www.google.com", "https://www.bing.com", "https://duckduckgo.com"]
+# ACCEPT_LANGUAGES = ["en-US,en;q=0.9", "en-GB,en;q=0.9", "fr-FR,fr;q=0.9"]
+# DNTS = ["0", "1"]
+
+
 class ScrapeManager:
     def __init__(
         self,
@@ -68,47 +78,47 @@ class ScrapeManager:
         self.aggregation_mode = aggregation_mode
 
     def scrapeSingle(self, url: str):
-        for i in range(3):
-            if i > 0:
+        n_attempts = 5
+        for i in range(n_attempts):
+            if i > 2:  # từ lần 3 trở lên
                 with rate_lock:
                     now = time.time()
                     elapsed = now - last_request[0]
-                    wait = max(0, 1.0 - elapsed)
+                    wait = max(0, 5.0 - elapsed)
                     if wait > 0:
                         time.sleep(wait)
                     last_request[0] = time.time()
             response = None
-            status_code = None
             try:
-                print(Fore.BLUE + f"[-- START --] Scraping URL: {url}")
-                response = requests.get(
-                    url,
-                    headers={
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-                    },
-                    timeout=30,
-                )
-                status_code = response.status_code
+                print(Fore.BLUE + f"[-- START --] Attempt {i + 1} Scraping URL: {url}")
+                headers = {
+                    "User-Agent": random.choice(USER_AGENTS),
+                    # "Accept-Language": random.choice(ACCEPT_LANGUAGES),
+                    "Referer": random.choice(REFERERS),
+                    # "DNT": random.choice(DNTS),
+                    # "Connection": "keep-alive",
+                }
+                response = requests.get(url, headers=headers, timeout=30)
                 response.raise_for_status()
                 result = self.scrape_strategy.scrape(response)
-                print(Fore.GREEN + f"[++ SUCCESS ++] Scraped {url} successfully.")
+                print(
+                    Fore.GREEN
+                    + f"[++ SUCCESS ++] Scraped {url} successfully at attempt {i + 1}."
+                )
                 return result
             except Exception:
                 traceback.print_exc()
-                time_to_wait = random.uniform(5, 10)
-                if response and status_code and status_code == 429:
-                    try:
-                        retry_after = response.headers.get("Retry-Aftre")
-                        if retry_after:
-                            time_to_wait = min(30.0, float(retry_after))
-                    except Exception:
-                        pass
-
-                time.sleep(time_to_wait)
+                print(
+                    Fore.YELLOW
+                    + f"[-- WARNING --] Failed to scrape {url} at attempt {i + 1}."
+                )
+            if i == n_attempts - 1:
+                break
+            time.sleep(random.uniform(5, 10))
 
         print(
             Fore.RED
-            + f"[-- FAILURE --] Failed to scrape {url}, scraping failed after 3 times."
+            + f"[-- FAILURE --] Failed to scrape {url}, scraping failed after {n_attempts} times."
         )
         if self.aggregation_mode == AggregationMode.flatten:
             return []
