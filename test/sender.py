@@ -34,18 +34,22 @@ async def getResponse(urls):
 
 
 urls = [
+    # Client 1
     "https://devwork.vn/viec-lam/13582/fullstack-dev",
     "https://www.topcv.vn/viec-lam/junior-fullstack-developers-fintech-ecommerce/1487371.html?ta_source=JobSearchList_LinkDetail&u_sr_id=cTdCNlJx59TDb1s8uP2w765V0MfVL2WCQJGhXrs9_1759544348",
     "https://devwork.vn/viec-lam/13181/business-developmentsales-jp",
     "https://www.topcv.vn/viec-lam/senior-it-project-manager-japanese-projects-thu-nhap-upto-3000-usd-di-lam-ngay-ha-noi/1894284.html?ta_source=JobSearchList_LinkDetail&u_sr_id=cTdCNlJx59TDb1s8uP2w765V0MfVL2WCQJGhXrs9_1759544348",
+    # Client 2
     "https://devwork.vn/viec-lam/13040/ky-su-cau-noi-brse-n2-tieng-nhat",
     "https://www.topcv.vn/viec-lam/full-stack-developer-java-springboot-react/1783213.html?ta_source=JobSearchList_LinkDetail&u_sr_id=cTdCNlJx59TDb1s8uP2w765V0MfVL2WCQJGhXrs9_1759544348",
     "https://devwork.vn/viec-lam/13022/senior-engineer-technical-leader-n2-tieng-nhat-luong-upto-dollar3000",
     "https://www.topcv.vn/viec-lam/junior-business-analyst-at-bitel-based-in-peru-salary-1-100-1-400/1894336.html?ta_source=JobSearchList_LinkDetail&u_sr_id=cTdCNlJx59TDb1s8uP2w765V0MfVL2WCQJGhXrs9_1759544348",
+    # Client 3
     "https://devwork.vn/viec-lam/12805/brse-lam-viec-tai-tokyo",
     "https://www.topcv.vn/viec-lam/java-backend-leader/1718449.html?ta_source=JobSearchList_LinkDetail&u_sr_id=cTdCNlJx59TDb1s8uP2w765V0MfVL2WCQJGhXrs9_1759544348",
     "https://devwork.vn/viec-lam/11963/pm-remote",
     "https://www.topcv.vn/viec-lam/senior-backend-developer-golang-prefer/1883361.html?ta_source=JobSearchList_LinkDetail&u_sr_id=cTdCNlJx59TDb1s8uP2w765V0MfVL2WCQJGhXrs9_1759544348",
+    #
     # "https://devwork.vn/viec-lam/12483/tech-leader-(tieng-nhat-n1n2)",
     # "https://devwork.vn/viec-lam/11115/junior-android-developer_-thu-viec-100percent-luong",
     # "https://devwork.vn/viec-lam/11286/midsenior-mobile-(-android)_thu-viec-100percent-luong-n1-n4",
