@@ -1,23 +1,14 @@
 import { NextResponse } from 'next/server';
+import connectDb from '@/app/lib/db';
+import JobDetail from '@/models/JobDetail';
 
 export async function GET(request) {
   try {
-    // Count total jobs from scraping API
-    let jobCount = 0;
+    // Connect to database
+    await connectDb();
     
-    try {
-      // Try to get job count from scraping results
-      const baseUrl = request.nextUrl.origin;
-      const response = await fetch(`${baseUrl}/api/scrape/result`);
-      if (response.ok) {
-        const data = await response.json();
-        jobCount = data.jobs ? data.jobs.length : 0;
-      }
-    } catch (error) {
-      console.log('Could not fetch job count from scraping API');
-      // Default count if scraping API is not available
-      jobCount = 287; // Placeholder number based on typical scraping results
-    }
+    // Count total jobs from database
+    const jobCount = await JobDetail.countDocuments();
 
     return NextResponse.json({ 
       count: jobCount,
@@ -26,9 +17,11 @@ export async function GET(request) {
 
   } catch (error) {
     console.error('Error getting job count:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    // Fallback count if database fails
+    return NextResponse.json({ 
+      count: 0,
+      success: false,
+      error: 'Could not fetch job count' 
+    }, { status: 500 });
   }
 }

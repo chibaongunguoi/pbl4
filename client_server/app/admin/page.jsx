@@ -34,8 +34,26 @@ export default function AdminPage() {
             fetch('/api/admin/jobs/count')
           ]);
           
-          const usersData = await usersRes.json();
-          const jobsData = await jobsRes.json();
+          let usersData = { count: 0 };
+          let jobsData = { count: 0 };
+
+          // Handle users response
+          if (usersRes.ok) {
+            try {
+              usersData = await usersRes.json();
+            } catch (e) {
+              console.error('Error parsing users response:', e);
+            }
+          }
+
+          // Handle jobs response  
+          if (jobsRes.ok) {
+            try {
+              jobsData = await jobsRes.json();
+            } catch (e) {
+              console.error('Error parsing jobs response:', e);
+            }
+          }
           
           setStats({
             totalUsers: usersData.count || 0,
@@ -85,7 +103,30 @@ export default function AdminPage() {
     setLoadingJobs(true);
     try {
       const response = await fetch('/api/scrape/result');
-      const data = await response.json();
+      
+      // Check if response is ok and has content
+      if (!response.ok) {
+        console.error('Response not ok:', response.status, response.statusText);
+        setJobs([]);
+        return;
+      }
+
+      // Check if response has content
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Response is not JSON:', contentType);
+        setJobs([]);
+        return;
+      }
+
+      const text = await response.text();
+      if (!text) {
+        console.error('Empty response body');
+        setJobs([]);
+        return;
+      }
+
+      const data = JSON.parse(text);
       setJobs(data.jobs || []);
     } catch (error) {
       console.error('Error fetching jobs:', error);

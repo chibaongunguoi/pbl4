@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { connectDB } from '@/app/lib/db';
+import connectDb from '@/app/lib/db';
 import User from '@/models/User';
 
 export async function GET(request) {
   try {
     // Connect to database
-    await connectDB();
+    await connectDb();
 
     // Get all users with selected fields (exclude password)
     const users = await User.find({}, {
