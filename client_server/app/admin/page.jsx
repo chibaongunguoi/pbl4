@@ -13,6 +13,8 @@ export default function AdminPage() {
     totalJobs: 0
   });
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   
   const router = useRouter();
 
@@ -64,6 +66,19 @@ export default function AdminPage() {
     router.push("/login");
   }
 
+  const fetchUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const response = await fetch('/api/admin/users');
+      const data = await response.json();
+      setUsers(data.users || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setUsers([]);
+    }
+    setLoadingUsers(false);
+  };
+
   const renderDashboard = () => (
     <div>
       <div className="admin-content-header">
@@ -106,10 +121,96 @@ export default function AdminPage() {
     </div>
   );
 
+  const renderUserManagement = () => (
+    <div>
+      <div className="admin-content-header">
+        <h1 className="admin-content-title">Quản lý người dùng</h1>
+        <p className="admin-content-subtitle">Danh sách tất cả người dùng trong hệ thống</p>
+      </div>
+
+      {loadingUsers ? (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          Đang tải danh sách người dùng...
+        </div>
+      ) : (
+        <div className="users-section">
+          <div className="users-header">
+            <h2>Danh sách người dùng ({users.length})</h2>
+            <button className="refresh-btn" onClick={fetchUsers}>
+              <svg className="refresh-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
+              </svg>
+              Làm mới
+            </button>
+          </div>
+          
+          <div className="users-table-container">
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Avatar</th>
+                  <th>Tên người dùng</th>
+                  <th>Email</th>
+                  <th>Vai trò</th>
+                  <th>Ngày tạo</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="no-users">
+                      Không có người dùng nào trong hệ thống
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((user) => (
+                    <tr key={user._id} className="user-row">
+                      <td>
+                        <div className="user-avatar">
+                          <div className="avatar-circle">
+                            {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="username-cell">
+                        <div className="username-info">
+                          <span className="username">{user.username}</span>
+                          <span className="user-id">ID: {user._id}</span>
+                        </div>
+                      </td>
+                      <td className="email-cell">{user.email}</td>
+                      <td>
+                        <span className={`role-badge ${user.role}`}>
+                          {user.role === 'admin' ? 'Quản trị viên' : 'Người dùng'}
+                        </span>
+                      </td>
+                      <td className="date-cell">
+                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN') : 'N/A'}
+                      </td>
+                      <td>
+                        <span className="status-badge active">
+                          Hoạt động
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   const renderContent = () => {
     switch(activeTab) {
       case 'dashboard':
         return renderDashboard();
+      case 'users':
+        return renderUserManagement();
       default:
         return renderDashboard();
     }
@@ -140,6 +241,22 @@ export default function AdminPage() {
                   <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/>
                 </svg>
                 Dashboard
+              </button>
+            </li>
+            <li>
+              <button
+                className={`admin-nav-link ${activeTab === 'users' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('users');
+                  if (users.length === 0) {
+                    fetchUsers();
+                  }
+                }}
+              >
+                <svg className="admin-nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                </svg>
+                Quản lý người dùng
               </button>
             </li>
           </ul>
