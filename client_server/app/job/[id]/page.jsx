@@ -11,6 +11,7 @@ export default function CardDetail() {
   const [isFollowed, setIsFollowed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
+  const [followCount, setFollowCount] = useState(0);
   const router = useRouter();
   const searchParams = useSearchParams();
   const jobId = searchParams.get('id');
@@ -30,6 +31,8 @@ export default function CardDetail() {
       if (response.ok) {
         const data = await response.json();
         setIsFollowed(data.isFollowed);
+        // Update follow count
+        fetchFollowCount(jobId);
       } else {
         const errorData = await response.json();
         if (response.status === 401) {
@@ -64,6 +67,23 @@ export default function CardDetail() {
       console.error('Error fetching follow status:', error);
     }
   };
+
+  // Lấy số lượt follow
+  const fetchFollowCount = async (jobId) => {
+    try {
+      const response = await fetch(`/api/follow/count?jobId=${jobId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFollowCount(data.count);
+      }
+    } catch (error) {
+      console.error('Error fetching follow count:', error);
+    }
+  };
   function convertInlineAsterisks(text) {
   return text
     .split(/\s*\*\s+/)     // Tách bằng dấu *
@@ -76,6 +96,7 @@ export default function CardDetail() {
     if (jobId) {
       fetchJobDetail(jobId);
       fetchFollowStatus(jobId);
+      fetchFollowCount(jobId);
     }
   }, [jobId]);
 
@@ -160,6 +181,14 @@ export default function CardDetail() {
           </div>
         </div>
         <div className="action-buttons">
+          {/* Follow Count Display */}
+          <div className="follow-count-display">
+            <svg className="heart-icon-count" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+            <span className="count-text">{followCount} lượt yêu thích</span>
+          </div>
+          
           <button 
             className={`save-button ${isFollowed ? 'followed' : ''}`} 
             onClick={handleFollow}

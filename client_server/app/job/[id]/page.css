@@ -88,6 +88,26 @@
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+  align-items: center;
+}
+
+.follow-count-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6b7280;
+  font-size: 14px;
+  margin-right: 8px;
+}
+
+.heart-icon-count {
+  width: 16px;
+  height: 16px;
+  color: #ef4444;
+}
+
+.count-text {
+  font-weight: 500;
 }
 
 .apply-button {

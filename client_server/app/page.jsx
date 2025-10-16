@@ -9,26 +9,50 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [jobs, setJobs] = useState([]); // State để lưu dữ liệu từ API
+  const [followCounts, setFollowCounts] = useState({}); // State để lưu số lượt yêu thích
   const router = useRouter();
 
   useEffect(() => {
-    (async () => {
-      const response = await fetch("/api/demo", {
+    fetchJobsAndFollowCounts();
+  }, []);
+
+  const fetchJobsAndFollowCounts = async () => {
+    try {
+      // Fetch jobs
+      const jobsResponse = await fetch("/api/demo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
       });
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data.data);
-        // Cập nhật state jobs với data.data
-        if (data.data) {
-          setJobs(data.data);
+      
+      if (jobsResponse.ok) {
+        const jobsData = await jobsResponse.json();
+        console.log(jobsData.data);
+        
+        if (jobsData.data) {
+          setJobs(jobsData.data);
+          
+          // Fetch follow counts for all jobs
+          const jobIds = jobsData.data.map(job => job._id);
+          const followResponse = await fetch("/api/follow/count", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ jobIds }),
+          });
+          
+          if (followResponse.ok) {
+            const followData = await followResponse.json();
+            setFollowCounts(followData);
+          }
         }
       }
-    })();
-  }, []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   const jobsPerPage = 24;
   const totalPages = Math.ceil(jobs.length / jobsPerPage);
@@ -78,6 +102,16 @@ export default function Home() {
             className="job-card clickable-card"
             onClick={() => handleCardClick(job._id)}
           >
+            {/* Follow Count Badge - Only show if count > 0 */}
+            {(followCounts[job._id] || 0) > 0 && (
+              <div className="follow-count-badge">
+                <svg className="heart-icon-small" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span className="follow-count">{followCounts[job._id]}</span>
+              </div>
+            )}
+            
             <div className="job-header">
               <div className="company-logo">
                 <Image
