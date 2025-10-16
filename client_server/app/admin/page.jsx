@@ -19,7 +19,20 @@ export default function AdminPage() {
   const [loadingJobs, setLoadingJobs] = useState(false);
   
   const router = useRouter();
-
+  function convertDateTime(dateTimeString) {
+    const date = new Date(dateTimeString);
+    
+    // Kiểm tra nếu date không hợp lệ
+    if (isNaN(date.getTime())) {
+        return dateTimeString; // hoặc trả về chuỗi mặc định
+    }
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+}
   useEffect(() => {
     // Get user info and stats
     const fetchData = async () => {
@@ -214,10 +227,7 @@ export default function AdminPage() {
                 <tr>
                   <th>Avatar</th>
                   <th>Tên người dùng</th>
-                  <th>Email</th>
                   <th>Vai trò</th>
-                  <th>Ngày tạo</th>
-                  <th>Trạng thái</th>
                 </tr>
               </thead>
               <tbody>
@@ -243,18 +253,9 @@ export default function AdminPage() {
                           <span className="user-id">ID: {user._id}</span>
                         </div>
                       </td>
-                      <td className="email-cell">{user.email}</td>
                       <td>
                         <span className={`role-badge ${user.role}`}>
                           {user.role === 'admin' ? 'Quản trị viên' : 'Người dùng'}
-                        </span>
-                      </td>
-                      <td className="date-cell">
-                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN') : 'N/A'}
-                      </td>
-                      <td>
-                        <span className="status-badge active">
-                          Hoạt động
                         </span>
                       </td>
                     </tr>
@@ -301,7 +302,6 @@ export default function AdminPage() {
                   <th>Công ty</th>
                   <th>Địa điểm</th>
                   <th>Mức lương</th>
-                  <th>Kinh nghiệm</th>
                   <th>Ngày đăng</th>
                 </tr>
               </thead>
@@ -317,9 +317,11 @@ export default function AdminPage() {
                     <tr key={job.id || index} className="job-row">
                       <td>
                         <div className="job-logo">
-                          {job.logo ? (
+                          {console.log(job)}
+
+                          {job.thumbnail ? (
                             <img 
-                              src={job.logo} 
+                              src={job.thumbnail} 
                               alt={job.company}
                               className="company-logo"
                               onError={(e) => {
@@ -328,9 +330,6 @@ export default function AdminPage() {
                               }}
                             />
                           ) : null}
-                          <div className="logo-placeholder" style={{display: job.logo ? 'none' : 'flex'}}>
-                            {job.company?.charAt(0)?.toUpperCase() || 'C'}
-                          </div>
                         </div>
                       </td>
                       <td className="job-title-cell">
@@ -346,16 +345,15 @@ export default function AdminPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="company-cell">{job.company}</td>
-                      <td className="location-cell">{job.location}</td>
+                      <td className="company-cell">{job.company_name}</td>
+                      <td className="location-cell">{job.province}</td>
                       <td className="salary-cell">
                         <span className="salary-badge">
                           {job.salary || 'Thỏa thuận'}
                         </span>
                       </td>
-                      <td className="experience-cell">{job.experience || 'Không yêu cầu'}</td>
                       <td className="date-cell">
-                        {job.posted_date || 'N/A'}
+                        {convertDateTime(job.collected_at) || 'N/A'}
                       </td>
                     </tr>
                   ))
