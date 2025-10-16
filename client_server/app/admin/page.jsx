@@ -17,6 +17,9 @@ export default function AdminPage() {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
+  const [scrapeUrl, setScrapeUrl] = useState("");
+  const [scrapeButtonActive, setScrapeButtonActive] = useState(true);
+  const [loadingScrape, setLoadingScrape] = useState(false);
   
   const router = useRouter();
   function convertDateTime(dateTimeString) {
@@ -366,6 +369,97 @@ export default function AdminPage() {
     </div>
   );
 
+  const handleScrapeSubmit = async (e) => {
+    setScrapeButtonActive(false);
+    setLoadingScrape(true);
+    e.preventDefault();
+    const form_data = new FormData(e.currentTarget);
+    const url = form_data.get("url");
+    
+    try {
+      const response = await fetch("/api/scrape/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+
+      if (response.ok) {
+        // Reload jobs after scraping
+        fetchJobs();
+        alert("Cào dữ liệu thành công!");
+        setScrapeUrl("");
+      } else {
+        alert("Có lỗi xảy ra khi cào dữ liệu!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Có lỗi xảy ra khi cào dữ liệu!");
+    } finally {
+      setScrapeButtonActive(true);
+      setLoadingScrape(false);
+    }
+  };
+
+  const renderScrapeManagement = () => {
+
+    return (
+      <div>
+        <div className="admin-content-header">
+          <h1 className="admin-content-title">Cào thông tin việc làm</h1>
+          <p className="admin-content-subtitle">Nhập URL để cào dữ liệu việc làm mới</p>
+        </div>
+
+        <div className="scrape-section">
+          <div className="scrape-form-container">
+            <form onSubmit={handleScrapeSubmit} className="scrape-form">
+              <div className="form-group">
+                <label htmlFor="url" className="form-label">
+                  URL cần cào dữ liệu:
+                </label>
+                <div className="input-group">
+                  <input
+                    type="url"
+                    name="url"
+                    id="url"
+                    value={scrapeUrl}
+                    onChange={(e) => setScrapeUrl(e.target.value)}
+                    placeholder="Nhập URL (ví dụ: https://www.topcv.vn/tim-viec-lam)..."
+                    className="url-input"
+                    required
+                  />
+                  <button 
+                    type="submit" 
+                    className={`submit-btn ${!scrapeButtonActive ? 'disabled' : ''}`}
+                    disabled={!scrapeButtonActive}
+                  >
+                    {loadingScrape ? (
+                      <>
+                        <div className="loading-spinner-small"></div>
+                        Đang cào...
+                      </>
+                    ) : (
+                      'Bắt đầu cào'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div className="scrape-instructions">
+            <h3>Hướng dẫn sử dụng:</h3>
+            <ul>
+              <li>Nhập URL của trang web chứa thông tin việc làm</li>
+              <li>Hệ thống sẽ tự động phân tích và trích xuất dữ liệu</li>
+              <li>Dữ liệu sau khi cào sẽ được lưu vào hệ thống</li>
+              <li>Kiểm tra tab "Quản lý công việc" để xem kết quả</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderContent = () => {
     switch(activeTab) {
       case 'dashboard':
@@ -374,6 +468,8 @@ export default function AdminPage() {
         return renderUserManagement();
       case 'jobs':
         return renderJobManagement();
+      case 'scrape':
+        return renderScrapeManagement();
       default:
         return renderDashboard();
     }
@@ -445,6 +541,17 @@ export default function AdminPage() {
                   <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd"/>
                 </svg>
                 Quản lý công việc
+              </button>
+            </li>
+            <li>
+              <button
+                className={`admin-nav-link ${activeTab === 'scrape' ? 'active' : ''}`}
+                onClick={() => setActiveTab('scrape')}
+              >
+                <svg className="admin-nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"/>
+                </svg>
+                Cào thông tin việc làm
               </button>
             </li>
           </ul>

@@ -87,11 +87,7 @@ export default function Header() {
                 </li>
               </ul>
             </li>{" "}
-            <li>
-              <a href="/scrape" className="">
-                Cào thông tin việc làm
-              </a>
-            </li>{" "}
+
             {isLoading ? (
               <li>
                 <div className="flex items-center">
