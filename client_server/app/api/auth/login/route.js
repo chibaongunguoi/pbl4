@@ -12,7 +12,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Bad credentials." }, { status: 401 });
     }
 
-    const token = await signToken(username, user.role);
+    const token = await signToken(username, user.role, user._id.toString());
     const redirect = (() => {
       switch (user.role) {
         case "admin":

@@ -8,10 +8,62 @@ import "./page.css";
 
 export default function CardDetail() {
   const [job, setJob] = useState(null);
+  const [isFollowed, setIsFollowed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const jobId = searchParams.get('id');
+
+  // Xử lý follow/unfollow
+  async function handleFollow() { 
+    if (isFollowLoading) return;
+    
+    try {
+      setIsFollowLoading(true);
+      const response = await fetch("/api/follow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: jobId }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsFollowed(data.isFollowed);
+      } else {
+        const errorData = await response.json();
+        if (response.status === 401) {
+          // User chưa đăng nhập, chuyển đến trang login
+          router.push('/login');
+        } else {
+          console.error('Follow error:', errorData.error);
+          alert('Có lỗi xảy ra khi thực hiện thao tác');
+        }
+      }
+    } catch (error) {
+      console.error('Follow error:', error);
+      alert('Có lỗi xảy ra khi thực hiện thao tác');
+    } finally {
+      setIsFollowLoading(false);
+    }
+  }
+
+  // Lấy trạng thái follow hiện tại
+  const fetchFollowStatus = async (jobId) => {
+    try {
+      const response = await fetch(`/api/follow?jobId=${jobId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsFollowed(data.isFollowed);
+      }
+    } catch (error) {
+      console.error('Error fetching follow status:', error);
+    }
+  };
   function convertInlineAsterisks(text) {
   return text
     .split(/\s*\*\s+/)     // Tách bằng dấu *
@@ -23,6 +75,7 @@ export default function CardDetail() {
   useEffect(() => {
     if (jobId) {
       fetchJobDetail(jobId);
+      fetchFollowStatus(jobId);
     }
   }, [jobId]);
 
@@ -107,8 +160,34 @@ export default function CardDetail() {
           </div>
         </div>
         <div className="action-buttons">
-          <button className="save-button">
-            Yêu thích
+          <button 
+            className={`save-button ${isFollowed ? 'followed' : ''}`} 
+            onClick={handleFollow}
+            disabled={isFollowLoading}
+          >
+            {isFollowLoading ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                Đang xử lý...
+              </div>
+            ) : (
+              <>
+                <svg 
+                  className="heart-icon" 
+                  fill={isFollowed ? "currentColor" : "none"} 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth="2" 
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+                {isFollowed ? 'Đã yêu thích' : 'Yêu thích'}
+              </>
+            )}
           </button>
         </div>
       </div>

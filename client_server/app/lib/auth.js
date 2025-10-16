@@ -14,9 +14,9 @@ async function getKey() {
   );
 }
 
-export async function signToken(username, role, expires_in_minutes = 60) {
+export async function signToken(username, role, userId, expires_in_minutes = 60) {
   const expiry = Date.now() + expires_in_minutes * 60_000;
-  const payload = `${username}|${role}|${expiry}`;
+  const payload = `${username}|${role}|${userId}|${expiry}`;
   const key = await getKey();
   const sigBuf = await crypto.subtle.sign("HMAC", key, strToBuf(payload));
   const sigHex = Array.from(new Uint8Array(sigBuf))
@@ -27,11 +27,11 @@ export async function signToken(username, role, expires_in_minutes = 60) {
 }
 
 export async function verifyToken(token) {
-  const [username, role, expiry, sig] = token.split("|");
-  if (!username || !role || !expiry || !sig) return null;
+  const [username, role, userId, expiry, sig] = token.split("|");
+  if (!username || !role || !userId || !expiry || !sig) return null;
   if (Date.now() > parseInt(expiry)) return null;
 
-  const payload = `${username}|${role}|${expiry}`;
+  const payload = `${username}|${role}|${userId}|${expiry}`;
   const key = await getKey();
   const sigBuf = new Uint8Array(
     sig.match(/.{1,2}/g).map((byte) => parseInt(byte, 16))
@@ -40,5 +40,5 @@ export async function verifyToken(token) {
   const ok = await crypto.subtle.verify("HMAC", key, sigBuf, strToBuf(payload));
   if (!ok) return null;
 
-  return { username, role };
+  return { username, role, userId };
 }
