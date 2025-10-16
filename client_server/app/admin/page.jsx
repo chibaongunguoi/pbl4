@@ -25,6 +25,13 @@ export default function AdminPage() {
     const fetchData = async () => {
       try {
         const userData = await getUser();
+        
+        // Check if user is admin
+        if (!userData || userData.role !== 'admin') {
+          router.push('/error/403');
+          return;
+        }
+        
         setUser(userData);
         
         // Fetch dashboard stats from API
@@ -373,6 +380,18 @@ export default function AdminPage() {
         return renderDashboard();
     }
   };
+
+  // Show loading while checking authentication
+  if (!user) {
+    return (
+      <div className="admin-loading">
+        <div className="admin-loading-content">
+          <div className="loading-spinner"></div>
+          <p>Đang kiểm tra quyền truy cập...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-container">

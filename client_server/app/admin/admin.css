@@ -1,4 +1,39 @@
+/* Admin Body Styles - Remove default margins/padding */
+.admin-body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Admin Loading Styles */
+.admin-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.admin-loading-content {
+  text-align: center;
+  color: #64748b;
+}
+
+.admin-loading-content .loading-spinner {
+  margin: 0 auto 16px;
+}
+
+.admin-loading-content p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
 /* Admin Dashboard Styles */
+.admin-layout {
+  min-height: 100vh;
+}
+
 .admin-container {
   display: flex;
   min-height: 100vh;
