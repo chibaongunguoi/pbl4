@@ -109,7 +109,7 @@ export default function AdminPage() {
   const fetchJobs = async () => {
     setLoadingJobs(true);
     try {
-      const response = await fetch('/api/scrape/result');
+      const response = await fetch('/api/jobDetail');
       
       // Check if response is ok and has content
       if (!response.ok) {
@@ -134,7 +134,7 @@ export default function AdminPage() {
       }
 
       const data = JSON.parse(text);
-      setJobs(data.jobs || []);
+      setJobs(data.data || []);
     } catch (error) {
       console.error('Error fetching jobs:', error);
       setJobs([]);
@@ -399,9 +399,6 @@ export default function AdminPage() {
       <div className="admin-sidebar">
         <div className="admin-header">
           <h1 className="admin-title">
-            <svg className="admin-icon" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd"/>
-            </svg>
             Admin Panel
           </h1>
           <p className="admin-subtitle">Quản trị hệ thống</p>

@@ -26,12 +26,12 @@ export async function GET(req) {
     const follows = await Follow.find({ userId }).sort({ createdAt: -1 });
     const jobIds = follows.map(follow => follow.jobId);
 
-    // Fetch thông tin chi tiết của các jobs từ API demo
+    // Fetch thông tin chi tiết của các jobs từ API jobDetail
     let jobs = [];
     if (jobIds.length > 0) {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/demo`, {
-          method: "POST",
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/jobDetail`, {
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
           },

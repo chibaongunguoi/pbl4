@@ -19,8 +19,8 @@ export default function Home() {
   const fetchJobsAndFollowCounts = async () => {
     try {
       // Fetch jobs
-      const jobsResponse = await fetch("/api/demo", {
-        method: "POST",
+      const jobsResponse = await fetch("/api/jobDetail", {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },

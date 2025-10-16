@@ -103,8 +103,8 @@ export default function CardDetail() {
   const fetchJobDetail = async (id) => {
     try {
       setLoading(true);
-      const response = await fetch("/api/demo", {
-        method: "POST",
+      const response = await fetch("/api/jobDetail", {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
