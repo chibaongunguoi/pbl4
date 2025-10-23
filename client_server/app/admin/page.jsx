@@ -23,6 +23,18 @@ export default function AdminPage() {
   const [scrapeUrl, setScrapeUrl] = useState("");
   const [scrapeButtonActive, setScrapeButtonActive] = useState(true);
   const [loadingScrape, setLoadingScrape] = useState(false);
+  const [newCompany, setNewCompany] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    website: '',
+    logo: '',
+    description: '',
+    address: ''
+  });
+  const [addingCompany, setAddingCompany] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoPreview, setLogoPreview] = useState(null);
   
   const router = useRouter();
   function convertDateTime(dateTimeString) {
@@ -449,12 +461,20 @@ export default function AdminPage() {
         <div className="companies-section">
           <div className="companies-header">
             <h2>Danh sách công ty ({companies.length})</h2>
-            <button className="refresh-btn" onClick={fetchCompanies}>
-              <svg className="refresh-icon" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
-              </svg>
-              Làm mới
-            </button>
+            <div className="companies-header-actions">
+              <button className="add-company-btn" onClick={() => setActiveTab('add-company')}>
+                <svg className="add-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
+                </svg>
+                Thêm công ty
+              </button>
+              <button className="refresh-btn" onClick={fetchCompanies}>
+                <svg className="refresh-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
+                </svg>
+                Làm mới
+              </button>
+            </div>
           </div>
           
           <div className="companies-table-container">
@@ -528,6 +548,281 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+
+  const handleAddCompanySubmit = async (e) => {
+    e.preventDefault();
+    setAddingCompany(true);
+    
+    try {
+      const response = await fetch('/api/admin/companies', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newCompany),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Thêm công ty thành công!');
+        // Reset form
+        setNewCompany({
+          name: '',
+          email: '',
+          phone: '',
+          website: '',
+          logo: '',
+          description: '',
+          address: ''
+        });
+        // Clear logo preview and file input
+        setLogoPreview(null);
+        const fileInput = document.getElementById('company-logo');
+        if (fileInput) fileInput.value = '';
+        // Refresh companies list
+        fetchCompanies();
+        // Go back to companies list
+        setActiveTab('companies');
+      } else {
+        alert(data.error || 'Có lỗi xảy ra khi thêm công ty!');
+      }
+    } catch (error) {
+      console.error('Error adding company:', error);
+      alert('Có lỗi xảy ra khi thêm công ty!');
+    } finally {
+      setAddingCompany(false);
+    }
+  };
+
+  const handleCompanyInputChange = (field, value) => {
+    setNewCompany(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleLogoUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Preview image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setLogoPreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload file
+    setUploadingLogo(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        handleCompanyInputChange('logo', data.logoUrl);
+      } else {
+        alert(data.error || 'Lỗi khi upload ảnh!');
+        setLogoPreview(null);
+      }
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      alert('Lỗi khi upload ảnh!');
+      setLogoPreview(null);
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const clearLogo = () => {
+    setLogoPreview(null);
+    handleCompanyInputChange('logo', '');
+    // Clear file input
+    const fileInput = document.getElementById('company-logo');
+    if (fileInput) fileInput.value = '';
+  };
+
+  const renderAddCompany = () => (
+    <div>
+      <div className="admin-content-header">
+        <h1 className="admin-content-title">Thêm công ty mới</h1>
+        <p className="admin-content-subtitle">Nhập thông tin công ty để thêm vào hệ thống</p>
+      </div>
+
+      <div className="add-company-section">
+        <form onSubmit={handleAddCompanySubmit} className="add-company-form">
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="company-name" className="form-label required">
+                Tên công ty *
+              </label>
+              <input
+                type="text"
+                id="company-name"
+                value={newCompany.name}
+                onChange={(e) => handleCompanyInputChange('name', e.target.value)}
+                className="form-input"
+                placeholder="Nhập tên công ty..."
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="company-email" className="form-label">
+                Email
+              </label>
+              <input
+                type="email"
+                id="company-email"
+                value={newCompany.email}
+                onChange={(e) => handleCompanyInputChange('email', e.target.value)}
+                className="form-input"
+                placeholder="contact@company.com"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="company-phone" className="form-label">
+                Số điện thoại
+              </label>
+              <input
+                type="tel"
+                id="company-phone"
+                value={newCompany.phone}
+                onChange={(e) => handleCompanyInputChange('phone', e.target.value)}
+                className="form-input"
+                placeholder="0123 456 789"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="company-website" className="form-label">
+                Website
+              </label>
+              <input
+                type="url"
+                id="company-website"
+                value={newCompany.website}
+                onChange={(e) => handleCompanyInputChange('website', e.target.value)}
+                className="form-input"
+                placeholder="https://company.com"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group full-width">
+              <label htmlFor="company-logo" className="form-label">
+                Logo công ty
+              </label>
+              <div className="logo-upload-container">
+                <input
+                  type="file"
+                  id="company-logo"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  className="file-input"
+                  disabled={uploadingLogo}
+                />
+                <label htmlFor="company-logo" className={`file-input-label ${uploadingLogo ? 'uploading' : ''}`}>
+                  {uploadingLogo ? (
+                    <>
+                      <div className="loading-spinner-small"></div>
+                      Đang upload...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="upload-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd"/>
+                      </svg>
+                      Chọn ảnh logo
+                    </>
+                  )}
+                </label>
+                {logoPreview && (
+                  <div className="logo-preview">
+                    <img src={logoPreview} alt="Logo preview" className="preview-image" />
+                    <button 
+                      type="button" 
+                      className="remove-logo-btn"
+                      onClick={clearLogo}
+                    >
+                      <svg className="remove-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group full-width">
+              <label htmlFor="company-description" className="form-label">
+                Mô tả công ty
+              </label>
+              <textarea
+                id="company-description"
+                value={newCompany.description}
+                onChange={(e) => handleCompanyInputChange('description', e.target.value)}
+                className="form-textarea"
+                placeholder="Mô tả về công ty..."
+                rows="4"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group full-width">
+              <label htmlFor="company-address" className="form-label">
+                Địa chỉ
+              </label>
+              <input
+                type="text"
+                id="company-address"
+                value={newCompany.address}
+                onChange={(e) => handleCompanyInputChange('address', e.target.value)}
+                className="form-input"
+                placeholder="123 Đường ABC, Quận XYZ, TP. HCM"
+              />
+            </div>
+          </div>
+
+          <div className="form-actions">
+            <button
+              type="button"
+              className="cancel-btn"
+              onClick={() => setActiveTab('companies')}
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className={`submit-btn ${addingCompany ? 'loading' : ''}`}
+              disabled={addingCompany || !newCompany.name.trim()}
+            >
+              {addingCompany ? (
+                <>
+                  <div className="loading-spinner-small"></div>
+                  Đang thêm...
+                </>
+              ) : (
+                'Thêm công ty'
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 
@@ -632,6 +927,8 @@ export default function AdminPage() {
         return renderJobManagement();
       case 'companies':
         return renderCompanyManagement();
+      case 'add-company':
+        return renderAddCompany();
       case 'scrape':
         return renderScrapeManagement();
       default:
