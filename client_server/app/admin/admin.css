@@ -1368,7 +1368,6 @@
 }
 
 .company-detail-grid {
-  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
   margin-bottom: 24px;
@@ -1379,8 +1378,15 @@
   border-radius: 12px;
   padding: 20px;
   border: 1px solid #e5e7eb;
+  flex-grow: 1;
 }
-
+.first-detail-card{
+  margin-right:32px;
+}
+.information-section{
+  display: flex;
+  margin-bottom: 24px;
+}
 .detail-card.full-width {
   grid-column: 1 / -1;
 }

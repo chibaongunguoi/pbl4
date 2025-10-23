@@ -445,10 +445,6 @@ export default function AdminPage() {
                               src={job.thumbnail} 
                               alt={job.company}
                               className="company-logo"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'flex';
-                              }}
                             />
                           ) : null}
                         </div>
@@ -552,10 +548,6 @@ export default function AdminPage() {
                               src={company.logo} 
                               alt={company.name}
                               className="company-logo-img"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'flex';
-                              }}
                             />
                           ) : null}
                           <div className="logo-placeholder" style={{display: company.logo ? 'none' : 'flex'}}>
@@ -740,21 +732,12 @@ export default function AdminPage() {
             <div className="company-basic-info">
               <h2 className="company-detail-name">{selectedCompany.name}</h2>
               <p className="company-detail-id">ID: {selectedCompany._id}</p>
-              {selectedCompany.website && (
-                <a 
-                  href={selectedCompany.website} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="company-detail-website"
-                >
-                  {selectedCompany.website}
-                </a>
-              )}
             </div>
           </div>
 
           <div className="company-detail-grid">
-            <div className="detail-card">
+            <div className="information-section">
+            <div className="detail-card first-detail-card">
               <h3 className="detail-card-title">Thông tin liên hệ</h3>
               <div className="detail-items">
                 <div className="detail-item">
@@ -810,7 +793,7 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
-
+              </div>
             {selectedCompany.description && (
               <div className="detail-card full-width">
                 <h3 className="detail-card-title">Mô tả công ty</h3>
