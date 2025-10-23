@@ -10,13 +10,16 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState({
     totalUsers: 0,
-    totalJobs: 0
+    totalJobs: 0,
+    totalCompanies: 0
   });
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
+  const [companies, setCompanies] = useState([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
   const [scrapeUrl, setScrapeUrl] = useState("");
   const [scrapeButtonActive, setScrapeButtonActive] = useState(true);
   const [loadingScrape, setLoadingScrape] = useState(false);
@@ -52,13 +55,15 @@ export default function AdminPage() {
         
         // Fetch dashboard stats from API
         try {
-          const [usersRes, jobsRes] = await Promise.all([
+          const [usersRes, jobsRes, companiesRes] = await Promise.all([
             fetch('/api/admin/users/count'),
-            fetch('/api/admin/jobs/count')
+            fetch('/api/admin/jobs/count'),
+            fetch('/api/admin/companies/count')
           ]);
           
           let usersData = { count: 0 };
           let jobsData = { count: 0 };
+          let companiesData = { count: 0 };
 
           // Handle users response
           if (usersRes.ok) {
@@ -77,17 +82,28 @@ export default function AdminPage() {
               console.error('Error parsing jobs response:', e);
             }
           }
+
+          // Handle companies response
+          if (companiesRes.ok) {
+            try {
+              companiesData = await companiesRes.json();
+            } catch (e) {
+              console.error('Error parsing companies response:', e);
+            }
+          }
           
           setStats({
             totalUsers: usersData.count || 0,
-            totalJobs: jobsData.count || 0
+            totalJobs: jobsData.count || 0,
+            totalCompanies: companiesData.count || 0
           });
         } catch (error) {
           console.error('Error fetching stats:', error);
           // Fallback to sample data if API fails
           setStats({
             totalUsers: 45,   
-            totalJobs: 287    
+            totalJobs: 287,
+            totalCompanies: 15
           });
         }
         setLoading(false);
@@ -158,6 +174,42 @@ export default function AdminPage() {
     setLoadingJobs(false);
   };
 
+  const fetchCompanies = async () => {
+    setLoadingCompanies(true);
+    try {
+      const response = await fetch('/api/admin/companies');
+      
+      // Check if response is ok and has content
+      if (!response.ok) {
+        console.error('Response not ok:', response.status, response.statusText);
+        setCompanies([]);
+        return;
+      }
+
+      // Check if response has content
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Response is not JSON:', contentType);
+        setCompanies([]);
+        return;
+      }
+
+      const text = await response.text();
+      if (!text) {
+        console.error('Empty response body');
+        setCompanies([]);
+        return;
+      }
+
+      const data = JSON.parse(text);
+      setCompanies(data.companies || []);
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      setCompanies([]);
+    }
+    setLoadingCompanies(false);
+  };
+
   const renderDashboard = () => (
     <div>
       <div className="admin-content-header">
@@ -194,6 +246,18 @@ export default function AdminPage() {
             </div>
             <div className="stat-number">{stats.totalJobs}</div>
             <div className="stat-label">Tổng số công việc</div>
+          </div>
+
+          <div className="stat-card companies">
+            <div className="stat-header">
+              <div className="stat-icon companies">
+                <svg className="admin-nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm3 3a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm0 3a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clipRule="evenodd"/>
+                </svg>
+              </div>
+            </div>
+            <div className="stat-number">{stats.totalCompanies}</div>
+            <div className="stat-label">Tổng số công ty</div>
           </div>
         </div>
       )}
@@ -369,6 +433,104 @@ export default function AdminPage() {
     </div>
   );
 
+  const renderCompanyManagement = () => (
+    <div>
+      <div className="admin-content-header">
+        <h1 className="admin-content-title">Quản lý công ty</h1>
+        <p className="admin-content-subtitle">Danh sách tất cả công ty trong hệ thống</p>
+      </div>
+
+      {loadingCompanies ? (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          Đang tải danh sách công ty...
+        </div>
+      ) : (
+        <div className="companies-section">
+          <div className="companies-header">
+            <h2>Danh sách công ty ({companies.length})</h2>
+            <button className="refresh-btn" onClick={fetchCompanies}>
+              <svg className="refresh-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
+              </svg>
+              Làm mới
+            </button>
+          </div>
+          
+          <div className="companies-table-container">
+            <table className="companies-table">
+              <thead>
+                <tr>
+                  <th>Logo</th>
+                  <th>Tên công ty</th>
+                  <th>Email</th>
+                  <th>Số điện thoại</th>
+                  <th>Website</th>
+                  <th>Ngày tạo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {companies.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="no-companies">
+                      Không có công ty nào trong hệ thống
+                    </td>
+                  </tr>
+                ) : (
+                  companies.map((company) => (
+                    <tr key={company._id} className="company-row">
+                      <td>
+                        <div className="company-logo">
+                          {company.logo ? (
+                            <img 
+                              src={company.logo} 
+                              alt={company.name}
+                              className="company-logo-img"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div className="logo-placeholder" style={{display: company.logo ? 'none' : 'flex'}}>
+                            {company.name?.charAt(0)?.toUpperCase() || 'C'}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="company-name-cell">
+                        <div className="company-name-info">
+                          <span className="company-name">{company.name}</span>
+                          <span className="company-id">ID: {company._id}</span>
+                        </div>
+                      </td>
+                      <td className="email-cell">{company.email || 'N/A'}</td>
+                      <td className="phone-cell">{company.phone || 'N/A'}</td>
+                      <td className="website-cell">
+                        {company.website ? (
+                          <a 
+                            href={company.website} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="website-link"
+                          >
+                            {company.website}
+                          </a>
+                        ) : 'N/A'}
+                      </td>
+                      <td className="date-cell">
+                        {company.createdAt ? convertDateTime(company.createdAt) : 'N/A'}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   const handleScrapeSubmit = async (e) => {
     setScrapeButtonActive(false);
     setLoadingScrape(true);
@@ -468,6 +630,8 @@ export default function AdminPage() {
         return renderUserManagement();
       case 'jobs':
         return renderJobManagement();
+      case 'companies':
+        return renderCompanyManagement();
       case 'scrape':
         return renderScrapeManagement();
       default:
@@ -541,6 +705,22 @@ export default function AdminPage() {
                   <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd"/>
                 </svg>
                 Quản lý công việc
+              </button>
+            </li>
+            <li>
+              <button
+                className={`admin-nav-link ${activeTab === 'companies' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('companies');
+                  if (companies.length === 0) {
+                    fetchCompanies();
+                  }
+                }}
+              >
+                <svg className="admin-nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm3 3a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm0 3a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clipRule="evenodd"/>
+                </svg>
+                Quản lý công ty
               </button>
             </li>
             <li>

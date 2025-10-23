@@ -845,6 +845,157 @@
   line-height: 1.5;
 }
 
+/* Company Management Styles */
+.companies-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.companies-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.companies-header h2 {
+  margin: 0;
+  color: #374151;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.companies-table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.companies-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.companies-table th {
+  background: #f9fafb;
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.companies-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.company-row:hover {
+  background: #f9fafb;
+}
+
+.company-logo {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.company-logo-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+}
+
+.company-name-cell {
+  min-width: 200px;
+}
+
+.company-name-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.company-name {
+  font-weight: 600;
+  color: #374151;
+}
+
+.company-id {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.email-cell, .phone-cell {
+  min-width: 150px;
+}
+
+.website-cell {
+  min-width: 200px;
+}
+
+.website-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.website-link:hover {
+  text-decoration: underline;
+}
+
+.no-companies {
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+  padding: 40px;
+}
+
+.stat-card.companies {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.stat-icon.companies {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .companies-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .companies-table th,
+  .companies-table td {
+    padding: 12px;
+    font-size: 13px;
+  }
+
+  .company-name-cell {
+    min-width: 150px;
+  }
+
+  .email-cell, .phone-cell, .website-cell {
+    min-width: 120px;
+  }
+
+  .company-logo-img, .logo-placeholder {
+    width: 32px;
+    height: 32px;
+  }
+}
+
 @media (max-width: 768px) {
   .scrape-form .input-group {
     flex-direction: column;
