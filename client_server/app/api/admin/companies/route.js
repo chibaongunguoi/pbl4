@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import Company from "@/models/Company";
+import User from "@/models/User";
 import connectDb from "@/app/lib/db";
 
 export async function GET() {
   try {
     await connectDb();
     const companies = await Company.find()
-      .select('name email phone logo website address createdAt')
+      .select('name email phone logo website address username createdAt')
       .sort({ createdAt: -1 });
     
     return NextResponse.json({ 
@@ -36,6 +37,20 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
+    if (!body.username || !body.username.trim()) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Username là bắt buộc" 
+      }, { status: 400 });
+    }
+
+    if (!body.password || !body.password.trim()) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Password là bắt buộc" 
+      }, { status: 400 });
+    }
+
     // Check if company name already exists
     const existingCompany = await Company.findOne({ name: body.name });
     if (existingCompany) {
@@ -43,6 +58,38 @@ export async function POST(request) {
         success: false, 
         error: "Tên công ty đã tồn tại" 
       }, { status: 400 });
+    }
+
+    // Handle user creation if username and password are provided
+    let createdUsername = null;
+    
+    // Check if username already exists
+    const existingUser = await User.findOne({ username: body.username.trim() });
+    if (existingUser) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Username đã tồn tại trong hệ thống" 
+      }, { status: 400 });
+    }
+
+    // Create new user account with role "company"
+    try {
+      // Clear any cached model to ensure fresh schema
+      delete require.cache[require.resolve('@/models/User')];
+      
+      const newUser = new User({
+        username: body.username.trim(),
+        password: body.password, // Lưu password không mã hóa theo yêu cầu
+        role: 'company'
+      });
+      await newUser.save();
+      createdUsername = body.username.trim();
+    } catch (userError) {
+      console.error("Error creating user:", userError);
+      return NextResponse.json({ 
+        success: false, 
+        error: "Không thể tạo tài khoản người dùng: " + userError.message
+      }, { status: 500 });
     }
 
     // Create new company
@@ -53,7 +100,8 @@ export async function POST(request) {
       website: body.website?.trim() || null,
       logo: body.logo?.trim() || null,
       description: body.description?.trim() || null,
-      address: body.address?.trim() || null
+      address: body.address?.trim() || null,
+      username: createdUsername
     });
 
     const savedCompany = await newCompany.save();

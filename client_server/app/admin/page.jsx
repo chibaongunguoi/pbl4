@@ -31,7 +31,9 @@ export default function AdminPage() {
     website: '',
     logo: '',
     description: '',
-    address: ''
+    address: '',
+    username: '',
+    password: ''
   });
   const [addingCompany, setAddingCompany] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -620,6 +622,22 @@ export default function AdminPage() {
           error = 'Website phải bắt đầu bằng http:// hoặc https://';
         }
         break;
+      case 'username':
+        if (!value || !value.trim()) {
+          error = 'Username là bắt buộc';
+        } else if (value.trim().length < 3) {
+          error = 'Username phải có ít nhất 3 ký tự';
+        } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+          error = 'Username chỉ được chứa chữ cái, số và dấu gạch dưới';
+        }
+        break;
+      case 'password':
+        if (!value || !value.trim()) {
+          error = 'Password là bắt buộc';
+        } else if (value.length < 6) {
+          error = 'Password phải có ít nhất 6 ký tự';
+        }
+        break;
     }
     
     setCompanyErrors(prev => ({
@@ -634,7 +652,7 @@ export default function AdminPage() {
     e.preventDefault();
     
     // Validate all fields
-    const fieldsToValidate = ['name', 'email', 'phone', 'website'];
+    const fieldsToValidate = ['name', 'email', 'phone', 'website', 'username', 'password'];
     let hasErrors = false;
     
     fieldsToValidate.forEach(field => {
@@ -670,7 +688,9 @@ export default function AdminPage() {
           website: '',
           logo: '',
           description: '',
-          address: ''
+          address: '',
+          username: '',
+          password: ''
         });
         // Clear errors
         setCompanyErrors({});
@@ -693,6 +713,8 @@ export default function AdminPage() {
           setCompanyErrors(prev => ({ ...prev, name: data.error }));
         } else if (data.error && data.error.includes('email')) {
           setCompanyErrors(prev => ({ ...prev, email: data.error }));
+        } else if (data.error && (data.error.includes('Username') || data.error.includes('username'))) {
+          setCompanyErrors(prev => ({ ...prev, username: data.error }));
         } else {
           setSubmitMessage({ type: 'error', text: data.error || 'Có lỗi xảy ra khi thêm công ty!' });
         }
@@ -1139,6 +1161,52 @@ export default function AdminPage() {
             </div>
           </div>
 
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="company-username" className="form-label required">
+                Username tài khoản *
+              </label>
+              <input
+                type="text"
+                id="company-username"
+                value={newCompany.username}
+                onChange={(e) => handleCompanyInputChange('username', e.target.value)}
+                onBlur={(e) => validateCompanyField('username', e.target.value)}
+                className={`form-input ${companyErrors.username ? 'error' : ''}`}
+                placeholder="username_congty"
+                required
+              />
+              {companyErrors.username && (
+                <div className="error-message">{companyErrors.username}</div>
+              )}
+            </div>
+            <div className="form-group">
+              <label htmlFor="company-password" className="form-label required">
+                Password *
+              </label>
+              <input
+                type="password"
+                id="company-password"
+                value={newCompany.password}
+                onChange={(e) => handleCompanyInputChange('password', e.target.value)}
+                onBlur={(e) => validateCompanyField('password', e.target.value)}
+                className={`form-input ${companyErrors.password ? 'error' : ''}`}
+                placeholder="Nhập password..."
+                required
+              />
+              {companyErrors.password && (
+                <div className="error-message">{companyErrors.password}</div>
+              )}
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group full-width">
+              <small style={{ fontSize: '12px', color: '#6b7280', marginTop: '-8px', display: 'block' }}>
+                * Tài khoản công ty sẽ được tự động tạo với role "company"
+              </small>
+            </div>
+          </div>
+
           <div className="form-actions">
             <button
               type="button"
@@ -1155,7 +1223,7 @@ export default function AdminPage() {
             <button
               type="submit"
               className={`submit-btn ${addingCompany ? 'loading' : ''}`}
-              disabled={addingCompany || !newCompany.name.trim() || Object.values(companyErrors).some(error => error)}
+              disabled={addingCompany || !newCompany.name.trim() || !newCompany.username.trim() || !newCompany.password.trim() || Object.values(companyErrors).some(error => error)}
             >
               {addingCompany ? (
                 <>

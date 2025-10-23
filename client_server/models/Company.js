@@ -41,7 +41,13 @@ const CompanySchema = new Schema({
     required: false,
     maxlength: 2000 
   },
-
+  username: {
+    type: String,
+    ref: 'User',
+    required: false,
+    trim: true
+  }
+  
 }, {
   timestamps: true // Tự động thêm createdAt và updatedAt
 });
