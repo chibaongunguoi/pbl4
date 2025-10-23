@@ -37,9 +37,15 @@ export default function LoginPage() {
     if (response.ok) {
       console.log("Logined successfully.");
       const data = await response.json();
+      
+      // Dispatch custom event to notify Header component
+      window.dispatchEvent(new CustomEvent('userLoginSuccess'));
+      
       if (data?.redirect) {
         router.push(data.redirect);
-      } 
+      } else {
+        router.push('/'); // Default redirect to home
+      }
     } else if (status_code == 401) {
       setErrorMessage("Sai tên đăng nhập hoặc mật khẩu.");
     } else {
@@ -69,7 +75,7 @@ export default function LoginPage() {
             
             <div className="text-center mt-4 text-sm">
               <span className="text-gray-600">Chưa có tài khoản? </span>
-              <Link href="/register" className="text-blue-600 hover:text-blue-800 font-medium">
+              <Link href="/dang-ky" className="text-blue-600 hover:text-blue-800 font-medium">
                 Đăng ký ngay
               </Link>
             </div>

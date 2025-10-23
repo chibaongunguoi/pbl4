@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import User from "@/models/User";
 import connectDb from "@/app/lib/db";
-import bcrypt from "bcrypt";
 
 export async function POST(request) {
   try {
@@ -43,14 +42,10 @@ export async function POST(request) {
       }, { status: 409 });
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
     // Create new user
     const newUser = new User({
       username: username.trim(),
-      password: hashedPassword,
+      password: password,
       role: "user" // Default role for regular users
     });
 

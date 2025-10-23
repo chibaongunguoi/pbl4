@@ -5,26 +5,63 @@ import Image from "next/image";
 import "./userLayout.css";
 import { useEffect, useState } from "react";
 import getUser from "@/app/conn/conn";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 export default function Header() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    setIsLoading(true);
-    getUser().then(data => {
-      setUser(data);
-      setIsLoading(false);
-    }).catch(error => {
-      console.error('Error loading user:', error);
-      setIsLoading(false);
-    });
-  }, [])
   const router = useRouter();
+  const pathname = usePathname();
+
+  const fetchUser = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getUser();
+      setUser(data);
+    } catch (error) {
+      console.error('Error loading user:', error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, [pathname]); // Re-fetch user when route changes
+
+  // Listen for custom login/logout events
+  useEffect(() => {
+    const handleLoginSuccess = () => {
+      fetchUser();
+    };
+
+    const handleLogoutSuccess = () => {
+      setUser(null);
+    };
+
+    // Listen for storage events (cross-tab login/logout)
+    const handleStorageChange = () => {
+      fetchUser();
+    };
+
+    // Add event listeners
+    window.addEventListener('userLoginSuccess', handleLoginSuccess);
+    window.addEventListener('userLogoutSuccess', handleLogoutSuccess);
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('userLoginSuccess', handleLoginSuccess);
+      window.removeEventListener('userLogoutSuccess', handleLogoutSuccess);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
    async function logOut() {
     await fetch("/api/auth/logout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
+    setUser(null); // Immediately update local state
+    window.dispatchEvent(new CustomEvent('userLogoutSuccess'));
     router.push("/login");
   }
 
@@ -121,7 +158,7 @@ export default function Header() {
                   </a>
                 </li>{" "}
                 <li>
-                  <a href="/register" className="btn-register btn-warning gradient">
+                  <a href="/dang-ky" className="btn-register btn-warning gradient">
                     Đăng ký tài khoản
                   </a>
                 </li>
