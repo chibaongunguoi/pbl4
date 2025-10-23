@@ -37,6 +37,8 @@ export default function AdminPage() {
   const [logoPreview, setLogoPreview] = useState(null);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [loadingCompanyDetail, setLoadingCompanyDetail] = useState(false);
+  const [companyJobs, setCompanyJobs] = useState([]);
+  const [loadingCompanyJobs, setLoadingCompanyJobs] = useState(false);
   
   const router = useRouter();
   function convertDateTime(dateTimeString) {
@@ -238,6 +240,8 @@ export default function AdminPage() {
       if (data.success) {
         setSelectedCompany(data.company);
         setActiveTab('company-detail');
+        // Fetch company jobs
+        fetchCompanyJobs(companyId);
       } else {
         alert(data.error || 'Lỗi khi lấy thông tin công ty');
       }
@@ -246,6 +250,32 @@ export default function AdminPage() {
       alert('Lỗi khi lấy thông tin công ty');
     } finally {
       setLoadingCompanyDetail(false);
+    }
+  };
+
+  const fetchCompanyJobs = async (companyId) => {
+    setLoadingCompanyJobs(true);
+    try {
+      const response = await fetch(`/api/admin/companies/${companyId}/jobs`);
+      
+      if (!response.ok) {
+        console.error('Response not ok:', response.status, response.statusText);
+        setCompanyJobs([]);
+        return;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setCompanyJobs(data.jobs || []);
+      } else {
+        console.error(data.error || 'Lỗi khi lấy danh sách công việc');
+        setCompanyJobs([]);
+      }
+    } catch (error) {
+      console.error('Error fetching company jobs:', error);
+      setCompanyJobs([]);
+    } finally {
+      setLoadingCompanyJobs(false);
     }
   };
 
@@ -806,6 +836,92 @@ export default function AdminPage() {
                 <div className="company-description">
                   {selectedCompany.description}
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* Company Jobs Section */}
+          <div className="company-jobs-section">
+            <div className="company-jobs-header">
+              <h3 className="detail-card-title">
+                Danh sách công việc ({companyJobs.length})
+              </h3>
+              <button 
+                className="refresh-jobs-btn"
+                onClick={() => fetchCompanyJobs(selectedCompany._id)}
+                disabled={loadingCompanyJobs}
+              >
+                <svg className="refresh-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
+                </svg>
+                {loadingCompanyJobs ? 'Đang tải...' : 'Làm mới'}
+              </button>
+            </div>
+
+            {loadingCompanyJobs ? (
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
+                Đang tải danh sách công việc...
+              </div>
+            ) : companyJobs.length === 0 ? (
+              <div className="no-jobs-message">
+                <svg className="no-jobs-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd"/>
+                </svg>
+                <p>Chưa có công việc nào từ công ty này</p>
+              </div>
+            ) : (
+              <div className="company-jobs-grid">
+                {companyJobs.map((job, index) => (
+                  <div key={job._id || index} className="job-card">
+                    <div className="job-card-header">
+                      <h4 className="job-title">{job.title}</h4>
+                      {job.salary && (
+                        <span className="job-salary">{job.salary}</span>
+                      )}
+                    </div>
+                    
+                    <div className="job-card-content">
+                      {job.location && (
+                        <div className="job-detail">
+                          <svg className="job-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
+                          </svg>
+                          <span>{job.location}</span>
+                        </div>
+                      )}
+                      
+                      {job.experience && (
+                        <div className="job-detail">
+                          <svg className="job-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd"/>
+                          </svg>
+                          <span>{job.experience}</span>
+                        </div>
+                      )}
+                      
+                      {job.posted_date && (
+                        <div className="job-detail">
+                          <svg className="job-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"/>
+                          </svg>
+                          <span>{job.posted_date}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {job.skills && job.skills.length > 0 && (
+                      <div className="job-skills">
+                        {job.skills.slice(0, 3).map((skill, idx) => (
+                          <span key={idx} className="job-skill-tag">{skill}</span>
+                        ))}
+                        {job.skills.length > 3 && (
+                          <span className="more-skills">+{job.skills.length - 3}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
