@@ -268,6 +268,7 @@ export default function AdminPage() {
       const data = await response.json();
       if (data.success) {
         setCompanyJobs(data.jobs || []);
+        console.log(data.jobs,"1");
       } else {
         console.error(data.error || 'Lỗi khi lấy danh sách công việc');
         setCompanyJobs([]);
@@ -277,6 +278,7 @@ export default function AdminPage() {
       setCompanyJobs([]);
     } finally {
       setLoadingCompanyJobs(false);
+      
     }
   };
 
@@ -458,7 +460,6 @@ export default function AdminPage() {
                     <tr key={job.id || index} className="job-row">
                       <td>
                         <div className="job-logo">
-                          {console.log(job)}
 
                           {job.thumbnail ? (
                             <img 
@@ -874,20 +875,10 @@ export default function AdminPage() {
             ) : (
               <div className="company-jobs-grid">
                 {companyJobs.map((job, index) => {
-                  // Transform job data to match JobCard expected format
-                  const transformedJob = {
-                    _id: job._id || index,
-                    job_title: job.title,
-                    company_name: selectedCompany?.name || 'Unknown Company',
-                    thumbnail: selectedCompany?.logo || '/default-company-logo.png',
-                    salary: job.salary || 'Thỏa thuận',
-                    province: job.location || job.province || 'N/A',
-                    skills: job.skills || []
-                  };
 
                   return (
                     <JobCard
-                      key={transformedJob._id}
+                      key={job._id}
                       job={job}
                       showFollowBadge={false}
                     />

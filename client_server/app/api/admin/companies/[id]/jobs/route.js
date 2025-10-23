@@ -30,7 +30,7 @@ export async function GET(request, { params }) {
     const jobs = await JobDetail.find({ 
       company_name: { $regex: new RegExp(company.name, 'i') }
     }).sort({ createdAt: -1 });
-
+    console.log(jobs,"jobs");
     return NextResponse.json({ 
       success: true, 
       jobs: jobs,
