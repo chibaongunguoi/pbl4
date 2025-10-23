@@ -36,6 +36,8 @@ export default function AdminPage() {
   const [addingCompany, setAddingCompany] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [logoPreview, setLogoPreview] = useState(null);
+  const [companyErrors, setCompanyErrors] = useState({});
+  const [submitMessage, setSubmitMessage] = useState({ type: '', text: '' });
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [loadingCompanyDetail, setLoadingCompanyDetail] = useState(false);
   const [companyJobs, setCompanyJobs] = useState([]);
@@ -244,11 +246,10 @@ export default function AdminPage() {
         // Fetch company jobs
         fetchCompanyJobs(companyId);
       } else {
-        alert(data.error || 'Lỗi khi lấy thông tin công ty');
+        console.error(data.error || 'Lỗi khi lấy thông tin công ty');
       }
     } catch (error) {
       console.error('Error fetching company detail:', error);
-      alert('Lỗi khi lấy thông tin công ty');
     } finally {
       setLoadingCompanyDetail(false);
     }
@@ -500,7 +501,11 @@ export default function AdminPage() {
           <div className="companies-header">
             <h2>Danh sách công ty ({companies.length})</h2>
             <div className="companies-header-actions">
-              <button className="add-company-btn" onClick={() => setActiveTab('add-company')}>
+              <button className="add-company-btn" onClick={() => {
+                setActiveTab('add-company');
+                setSubmitMessage({ type: '', text: '' });
+                setCompanyErrors({});
+              }}>
                 <svg className="add-icon" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
                 </svg>
@@ -589,8 +594,59 @@ export default function AdminPage() {
     </div>
   );
 
+  const validateCompanyField = (field, value) => {
+    let error = '';
+    
+    switch (field) {
+      case 'name':
+        if (!value.trim()) {
+          error = 'Tên công ty không được để trống';
+        } else if (value.trim().length < 2) {
+          error = 'Tên công ty phải có ít nhất 2 ký tự';
+        }
+        break;
+      case 'email':
+        if (value && !/\S+@\S+\.\S+/.test(value)) {
+          error = 'Email không hợp lệ';
+        }
+        break;
+      case 'phone':
+        if (value && !/^[0-9+\-\s()]+$/.test(value)) {
+          error = 'Số điện thoại chỉ được chứa số và ký tự +, -, (), khoảng trắng';
+        }
+        break;
+      case 'website':
+        if (value && !/^https?:\/\/.+/.test(value)) {
+          error = 'Website phải bắt đầu bằng http:// hoặc https://';
+        }
+        break;
+    }
+    
+    setCompanyErrors(prev => ({
+      ...prev,
+      [field]: error
+    }));
+    
+    return error === '';
+  };
+
   const handleAddCompanySubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate all fields
+    const fieldsToValidate = ['name', 'email', 'phone', 'website'];
+    let hasErrors = false;
+    
+    fieldsToValidate.forEach(field => {
+      const isValid = validateCompanyField(field, newCompany[field]);
+      if (!isValid) hasErrors = true;
+    });
+    
+    // If there are validation errors, stop submission
+    if (hasErrors) {
+      return;
+    }
+    
     setAddingCompany(true);
     
     try {
@@ -605,7 +661,7 @@ export default function AdminPage() {
       const data = await response.json();
 
       if (data.success) {
-        alert('Thêm công ty thành công!');
+        setSubmitMessage({ type: 'success', text: 'Thêm công ty thành công!' });
         // Reset form
         setNewCompany({
           name: '',
@@ -616,20 +672,34 @@ export default function AdminPage() {
           description: '',
           address: ''
         });
+        // Clear errors
+        setCompanyErrors({});
         // Clear logo preview and file input
         setLogoPreview(null);
         const fileInput = document.getElementById('company-logo');
         if (fileInput) fileInput.value = '';
-        // Refresh companies list
-        fetchCompanies();
-        // Go back to companies list
-        setActiveTab('companies');
+        
+        // Auto hide success message after 3 seconds and go back
+        setTimeout(() => {
+          setSubmitMessage({ type: '', text: '' });
+          // Refresh companies list
+          fetchCompanies();
+          // Go back to companies list
+          setActiveTab('companies');
+        }, 2000);
       } else {
-        alert(data.error || 'Có lỗi xảy ra khi thêm công ty!');
+        // Set error for specific field if it's a duplicate error
+        if (data.error && data.error.includes('tên công ty')) {
+          setCompanyErrors(prev => ({ ...prev, name: data.error }));
+        } else if (data.error && data.error.includes('email')) {
+          setCompanyErrors(prev => ({ ...prev, email: data.error }));
+        } else {
+          setSubmitMessage({ type: 'error', text: data.error || 'Có lỗi xảy ra khi thêm công ty!' });
+        }
       }
     } catch (error) {
       console.error('Error adding company:', error);
-      alert('Có lỗi xảy ra khi thêm công ty!');
+      setSubmitMessage({ type: 'error', text: 'Có lỗi xảy ra khi thêm công ty!' });
     } finally {
       setAddingCompany(false);
     }
@@ -640,6 +710,14 @@ export default function AdminPage() {
       ...prev,
       [field]: value
     }));
+    
+    // Clear error when user starts typing
+    if (companyErrors[field]) {
+      setCompanyErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
+    }
   };
 
   const handleLogoUpload = async (event) => {
@@ -669,12 +747,12 @@ export default function AdminPage() {
       if (data.success) {
         handleCompanyInputChange('logo', data.logoUrl);
       } else {
-        alert(data.error || 'Lỗi khi upload ảnh!');
+        setCompanyErrors(prev => ({ ...prev, logo: data.error || 'Lỗi khi upload ảnh!' }));
         setLogoPreview(null);
       }
     } catch (error) {
       console.error('Error uploading logo:', error);
-      alert('Lỗi khi upload ảnh!');
+      setCompanyErrors(prev => ({ ...prev, logo: 'Lỗi khi upload ảnh!' }));
       setLogoPreview(null);
     } finally {
       setUploadingLogo(false);
@@ -855,7 +933,7 @@ export default function AdminPage() {
               className="edit-company-btn"
               onClick={() => {
                 // TODO: Implement edit functionality
-                alert('Chức năng sửa sẽ được phát triển sau');
+                console.log('Chức năng sửa sẽ được phát triển sau');
               }}
             >
               <svg className="edit-icon" fill="currentColor" viewBox="0 0 20 20">
@@ -868,7 +946,7 @@ export default function AdminPage() {
               onClick={() => {
                 // TODO: Implement delete functionality
                 if (confirm('Bạn có chắc muốn xóa công ty này?')) {
-                  alert('Chức năng xóa sẽ được phát triển sau');
+                  console.log('Chức năng xóa sẽ được phát triển sau');
                 }
               }}
             >
@@ -891,6 +969,18 @@ export default function AdminPage() {
       </div>
 
       <div className="add-company-section">
+        {submitMessage.text && (
+          <div className={`submit-message ${submitMessage.type}`}>
+            <svg className="message-icon" fill="currentColor" viewBox="0 0 20 20">
+              {submitMessage.type === 'success' ? (
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+              ) : (
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+              )}
+            </svg>
+            {submitMessage.text}
+          </div>
+        )}
         <form onSubmit={handleAddCompanySubmit} className="add-company-form">
           <div className="form-row">
             <div className="form-group">
@@ -902,10 +992,14 @@ export default function AdminPage() {
                 id="company-name"
                 value={newCompany.name}
                 onChange={(e) => handleCompanyInputChange('name', e.target.value)}
-                className="form-input"
+                onBlur={(e) => validateCompanyField('name', e.target.value)}
+                className={`form-input ${companyErrors.name ? 'error' : ''}`}
                 placeholder="Nhập tên công ty..."
                 required
               />
+              {companyErrors.name && (
+                <div className="error-message">{companyErrors.name}</div>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="company-email" className="form-label">
@@ -916,9 +1010,13 @@ export default function AdminPage() {
                 id="company-email"
                 value={newCompany.email}
                 onChange={(e) => handleCompanyInputChange('email', e.target.value)}
-                className="form-input"
+                onBlur={(e) => validateCompanyField('email', e.target.value)}
+                className={`form-input ${companyErrors.email ? 'error' : ''}`}
                 placeholder="contact@company.com"
               />
+              {companyErrors.email && (
+                <div className="error-message">{companyErrors.email}</div>
+              )}
             </div>
           </div>
 
@@ -932,9 +1030,13 @@ export default function AdminPage() {
                 id="company-phone"
                 value={newCompany.phone}
                 onChange={(e) => handleCompanyInputChange('phone', e.target.value)}
-                className="form-input"
+                onBlur={(e) => validateCompanyField('phone', e.target.value)}
+                className={`form-input ${companyErrors.phone ? 'error' : ''}`}
                 placeholder="0123 456 789"
               />
+              {companyErrors.phone && (
+                <div className="error-message">{companyErrors.phone}</div>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="company-website" className="form-label">
@@ -945,9 +1047,13 @@ export default function AdminPage() {
                 id="company-website"
                 value={newCompany.website}
                 onChange={(e) => handleCompanyInputChange('website', e.target.value)}
-                className="form-input"
+                onBlur={(e) => validateCompanyField('website', e.target.value)}
+                className={`form-input ${companyErrors.website ? 'error' : ''}`}
                 placeholder="https://company.com"
               />
+              {companyErrors.website && (
+                <div className="error-message">{companyErrors.website}</div>
+              )}
             </div>
           </div>
 
@@ -995,6 +1101,9 @@ export default function AdminPage() {
                   </div>
                 )}
               </div>
+              {companyErrors.logo && (
+                <div className="error-message">{companyErrors.logo}</div>
+              )}
             </div>
           </div>
 
@@ -1034,14 +1143,19 @@ export default function AdminPage() {
             <button
               type="button"
               className="cancel-btn"
-              onClick={() => setActiveTab('companies')}
+              onClick={() => {
+                setActiveTab('companies');
+                // Clear errors when cancel
+                setCompanyErrors({});
+                setSubmitMessage({ type: '', text: '' });
+              }}
             >
               Hủy
             </button>
             <button
               type="submit"
               className={`submit-btn ${addingCompany ? 'loading' : ''}`}
-              disabled={addingCompany || !newCompany.name.trim()}
+              disabled={addingCompany || !newCompany.name.trim() || Object.values(companyErrors).some(error => error)}
             >
               {addingCompany ? (
                 <>
@@ -1075,14 +1189,14 @@ export default function AdminPage() {
       if (response.ok) {
         // Reload jobs after scraping
         fetchJobs();
-        alert("Cào dữ liệu thành công!");
+        console.log("Cào dữ liệu thành công!");
         setScrapeUrl("");
       } else {
-        alert("Có lỗi xảy ra khi cào dữ liệu!");
+        console.error("Có lỗi xảy ra khi cào dữ liệu!");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Có lỗi xảy ra khi cào dữ liệu!");
+      console.error("Có lỗi xảy ra khi cào dữ liệu!");
     } finally {
       setScrapeButtonActive(true);
       setLoadingScrape(false);

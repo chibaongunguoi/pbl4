@@ -78,7 +78,7 @@ export async function POST(request) {
     if (error.code === 11000) {
       return NextResponse.json({ 
         success: false, 
-        error: "Tên công ty hoặc email đã tồn tại" 
+        error: "Email đã tồn tại" 
       }, { status: 400 });
     }
     
