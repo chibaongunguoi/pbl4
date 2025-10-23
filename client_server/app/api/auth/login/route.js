@@ -16,9 +16,9 @@ export async function POST(req) {
     const redirect = (() => {
       switch (user.role) {
         case "admin":
-          return "/admin/profile"
+          return "/admin"
         case "user":
-          return "/user/profile"
+          return "/"
         default:
           return "/"
       }

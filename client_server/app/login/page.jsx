@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 
 export default function LoginPage() {
@@ -65,6 +66,13 @@ export default function LoginPage() {
             </div>
             <div className="text-red-600 mb-3 text-sm">{error_message}</div>
             <button type="submit" disabled={is_checking_login} className="flex justify-center bg-sky-200 disabled:bg-gray-200 font-bold py-2 text-sm rounded-md">{is_checking_login ? <div className="h-8 w-8 border-4 border-gray-500 border-t-transparent rounded-full animate-spin"></div> : "Đăng nhập"}</button>
+            
+            <div className="text-center mt-4 text-sm">
+              <span className="text-gray-600">Chưa có tài khoản? </span>
+              <Link href="/register" className="text-blue-600 hover:text-blue-800 font-medium">
+                Đăng ký ngay
+              </Link>
+            </div>
           </div>
         </form>
       </div>
