@@ -82,7 +82,7 @@ export default function Home() {
 
   // Handle card click
   const handleCardClick = (jobId) => {
-    router.push(`/job/${jobId}?id=${jobId}`);
+    router.push(`/job/${jobId}`);
   };
 
   return (

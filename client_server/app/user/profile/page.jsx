@@ -272,7 +272,7 @@ export default function UserInfoPage() {
                   <div 
                     key={job._id} 
                     className="favorite-job-card"
-                    onClick={() => router.push(`/job/${job._id}?id=${job._id}`)}
+                    onClick={() => router.push(`/job/${job._id}`)}
                   >
                     <div className="job-card-header">
                       <div className="company-logo-small">

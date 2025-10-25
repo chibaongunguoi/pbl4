@@ -3,7 +3,6 @@ import './JobCard.css';
 
 export default function JobCard({ job, followCount = null, showFollowBadge = false, onClick }) {
   const hasFollowCount = showFollowBadge && followCount !== null && followCount > 0;
-  console.log(job)
   return (
     <div 
       className={`job-card ${onClick ? 'clickable-card' : ''}`}

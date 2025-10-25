@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import "./page.css";
@@ -13,8 +13,8 @@ export default function CardDetail() {
   const [isFollowLoading, setIsFollowLoading] = useState(false);
   const [followCount, setFollowCount] = useState(0);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const jobId = searchParams.get('id');
+  const params = useParams();
+  const jobId = params.id;
 
   // Xử lý follow/unfollow
   async function handleFollow() { 
