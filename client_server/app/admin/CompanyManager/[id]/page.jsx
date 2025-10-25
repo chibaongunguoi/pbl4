@@ -230,27 +230,28 @@ export default function CompanyDetailPage() {
 
           <div className="detail-card-body">
             <div className="detail-grid">
-              <div className="detail-item">
-                <div className="detail-label">
-                  Email
-                </div>
-                <div className="detail-value">{company.email || 'Chưa cập nhật'}</div>
-              </div>
-
-              <div className="detail-item">
-                <div className="detail-label">
-                  Số điện thoại
-                </div>
-                <div className="detail-value">{company.phone || 'Chưa cập nhật'}</div>
-              </div>
-
-              <div className="detail-item">
+                 <div className="detail-item">
                 <div className="detail-label">
                   Username
                 </div>
                 <div className="detail-value">{company.username || 'Chưa cập nhật'}</div>
               </div>
 
+              
+              <div className="detail-item">
+                <div className="detail-label">
+                  Ngày tạo
+                </div>
+                <div className="detail-value">
+                  {company.createdAt ? convertDateTime(company.createdAt) : 'Chưa có thông tin'}
+                </div>
+              </div>
+            <div className="detail-item">
+                <div className="detail-label">
+                  Email
+                </div>
+                <div className="detail-value">{company.email || 'Chưa cập nhật'}</div>
+              </div>
               <div className="detail-item">
                 <div className="detail-label">
 
@@ -271,16 +272,13 @@ export default function CompanyDetailPage() {
                   ) : 'Chưa cập nhật'}
                 </div>
               </div>
-
               <div className="detail-item">
                 <div className="detail-label">
-                  Ngày tạo
+                  Số điện thoại
                 </div>
-                <div className="detail-value">
-                  {company.createdAt ? convertDateTime(company.createdAt) : 'Chưa có thông tin'}
-                </div>
+                <div className="detail-value">{company.phone || 'Chưa cập nhật'}</div>
               </div>
-
+        
               <div className="detail-item">
                 <div className="detail-label">
                   Địa chỉ
