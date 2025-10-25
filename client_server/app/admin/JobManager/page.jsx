@@ -6,6 +6,10 @@ import "../admin.css";
 export default function JobManagerPage() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editingJob, setEditingJob] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
     fetchJobs();
@@ -61,8 +65,71 @@ export default function JobManagerPage() {
   };
 
   const handleEdit = (job) => {
-    // TODO: Implement edit functionality
-    alert(`Chỉnh sửa công việc: ${job.title}\nChức năng này đang được phát triển.`);
+    setEditingJob({...job});
+    setShowEditForm(true);
+    setSubmitMessage({ type: '', text: '' });
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setSubmitMessage({ type: '', text: '' });
+
+    try {
+      const response = await fetch(`/api/jobDetail/${editingJob._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingJob),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSubmitMessage({ type: 'success', text: 'Cập nhật công việc thành công!' });
+        fetchJobs();
+        setTimeout(() => {
+          setShowEditForm(false);
+          setEditingJob(null);
+          setSubmitMessage({ type: '', text: '' });
+        }, 2000);
+      } else {
+        setSubmitMessage({ type: 'error', text: data.error || 'Có lỗi xảy ra khi cập nhật công việc' });
+      }
+    } catch (error) {
+      console.error('Error updating job:', error);
+      setSubmitMessage({ type: 'error', text: 'Có lỗi xảy ra khi cập nhật công việc' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleInputChange = (field, value) => {
+    setEditingJob(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleDescriptionChange = (key, value) => {
+    setEditingJob(prev => ({
+      ...prev,
+      descriptions: {
+        ...prev.descriptions,
+        [key]: value
+      }
+    }));
+  };
+
+  const handleJobInfoChange = (key, value) => {
+    setEditingJob(prev => ({
+      ...prev,
+      job_info: {
+        ...prev.job_info,
+        [key]: value
+      }
+    }));
+  };
+
+  const handleSkillsChange = (value) => {
+    const skillsArray = value.split(',').map(skill => skill.trim()).filter(skill => skill);
+    setEditingJob(prev => ({ ...prev, skills: skillsArray }));
   };
 
   const handleDelete = async (jobId) => {
@@ -78,7 +145,6 @@ export default function JobManagerPage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        alert('Xóa công việc thành công!');
         fetchJobs();
       } else {
         alert(data.error || 'Có lỗi xảy ra khi xóa công việc');
@@ -88,6 +154,299 @@ export default function JobManagerPage() {
       alert('Có lỗi xảy ra khi xóa công việc');
     }
   };
+
+  if (showEditForm && editingJob) {
+    return (
+      <div>
+        <div className="admin-content-header">
+          <h1 className="admin-content-title">Chỉnh sửa công việc</h1>
+          <p className="admin-content-subtitle">Cập nhật thông tin công việc</p>
+        </div>
+
+        <div className="add-company-section">
+          {submitMessage.text && (
+            <div className={`submit-message ${submitMessage.type}`}>
+              <svg className="message-icon" fill="currentColor" viewBox="0 0 20 20">
+                {submitMessage.type === 'success' ? (
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                ) : (
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+                )}
+              </svg>
+              {submitMessage.text}
+            </div>
+          )}
+
+          <form onSubmit={handleSaveEdit} className="add-company-form">
+            {/* Thông tin cơ bản */}
+            <h3 style={{ marginTop: 0, marginBottom: '20px', color: '#374151', fontSize: '18px' }}>Thông tin cơ bản</h3>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Tên công việc </label>
+                <input
+                  type="text"
+                  value={editingJob.job_title || ''}
+                  onChange={(e) => handleInputChange('job_title', e.target.value)}
+                  className="form-input"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">URL công việc</label>
+                <input
+                  type="url"
+                  value={editingJob.url || ''}
+                  onChange={(e) => handleInputChange('url', e.target.value)}
+                  className="form-input"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Tên công ty</label>
+                <input
+                  type="text"
+                  value={editingJob.company_name || ''}
+                  onChange={(e) => handleInputChange('company_name', e.target.value)}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">URL công ty</label>
+                <input
+                  type="url"
+                  value={editingJob.company_url || ''}
+                  onChange={(e) => handleInputChange('company_url', e.target.value)}
+                  className="form-input"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Địa điểm</label>
+                <input
+                  type="text"
+                  value={editingJob.province || ''}
+                  onChange={(e) => handleInputChange('province', e.target.value)}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Mức lương</label>
+                <input
+                  type="text"
+                  value={editingJob.salary || ''}
+                  onChange={(e) => handleInputChange('salary', e.target.value)}
+                  className="form-input"
+                  placeholder="VD: 60-80 triệu"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group full-width">
+                <label className="form-label">URL thumbnail</label>
+                <input
+                  type="url"
+                  value={editingJob.thumbnail || ''}
+                  onChange={(e) => handleInputChange('thumbnail', e.target.value)}
+                  className="form-input"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group full-width">
+                <label className="form-label">Kỹ năng (phân cách bằng dấu phẩy)</label>
+                <input
+                  type="text"
+                  value={editingJob.skills?.join(', ') || ''}
+                  onChange={(e) => handleSkillsChange(e.target.value)}
+                  className="form-input"
+                  placeholder="VD: Bridge Engineer, Java, Python"
+                />
+              </div>
+            </div>
+
+            {/* Mô tả công việc */}
+            <h3 style={{ marginTop: '32px', marginBottom: '20px', color: '#374151', fontSize: '18px' }}>Mô tả công việc</h3>
+
+            <div className="form-row">
+              <div className="form-group full-width">
+                <label className="form-label">Mô tả công việc</label>
+                <textarea
+                  value={editingJob.descriptions?.["Mô tả công việc"] || ''}
+                  onChange={(e) => handleDescriptionChange("Mô tả công việc", e.target.value)}
+                  className="form-textarea"
+                  rows="5"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group full-width">
+                <label className="form-label">Yêu cầu công việc</label>
+                <textarea
+                  value={editingJob.descriptions?.["Yêu cầu công việc"] || ''}
+                  onChange={(e) => handleDescriptionChange("Yêu cầu công việc", e.target.value)}
+                  className="form-textarea"
+                  rows="5"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group full-width">
+                <label className="form-label">Quyền lợi ứng viên</label>
+                <textarea
+                  value={editingJob.descriptions?.["Quyền lợi ứng viên"] || ''}
+                  onChange={(e) => handleDescriptionChange("Quyền lợi ứng viên", e.target.value)}
+                  className="form-textarea"
+                  rows="4"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Thời gian làm việc</label>
+                <textarea
+                  value={editingJob.descriptions?.["Thời gian làm việc"] || ''}
+                  onChange={(e) => handleDescriptionChange("Thời gian làm việc", e.target.value)}
+                  className="form-textarea"
+                  rows="3"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Địa chỉ làm việc</label>
+                <textarea
+                  value={editingJob.descriptions?.["Địa chỉ làm việc"] || ''}
+                  onChange={(e) => handleDescriptionChange("Địa chỉ làm việc", e.target.value)}
+                  className="form-textarea"
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            {/* Thông tin tuyển dụng */}
+            <h3 style={{ marginTop: '32px', marginBottom: '20px', color: '#374151', fontSize: '18px' }}>Thông tin tuyển dụng</h3>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Kinh nghiệm</label>
+                <input
+                  type="text"
+                  value={editingJob.job_info?.["Kinh nghiệm"] || ''}
+                  onChange={(e) => handleJobInfoChange("Kinh nghiệm", e.target.value)}
+                  className="form-input"
+                  placeholder="VD: 3 năm"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Trình độ</label>
+                <input
+                  type="text"
+                  value={editingJob.job_info?.["Trình độ"] || ''}
+                  onChange={(e) => handleJobInfoChange("Trình độ", e.target.value)}
+                  className="form-input"
+                  placeholder="VD: Đại học"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Vị trí</label>
+                <input
+                  type="text"
+                  value={editingJob.job_info?.["Vị trí"] || ''}
+                  onChange={(e) => handleJobInfoChange("Vị trí", e.target.value)}
+                  className="form-input"
+                  placeholder="VD: Middle, Senior"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Hình thức</label>
+                <input
+                  type="text"
+                  value={editingJob.job_info?.["Hình thức"] || ''}
+                  onChange={(e) => handleJobInfoChange("Hình thức", e.target.value)}
+                  className="form-input"
+                  placeholder="VD: Full-time, Part-time"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Số lượng</label>
+                <input
+                  type="text"
+                  value={editingJob.job_info?.["Số lượng"] || ''}
+                  onChange={(e) => handleJobInfoChange("Số lượng", e.target.value)}
+                  className="form-input"
+                  placeholder="VD: 1 người"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Phỏng vấn</label>
+                <input
+                  type="text"
+                  value={editingJob.job_info?.["Phỏng vấn"] || ''}
+                  onChange={(e) => handleJobInfoChange("Phỏng vấn", e.target.value)}
+                  className="form-input"
+                  placeholder="VD: 2 vòng"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group full-width">
+                <label className="form-label">Hạn nộp hồ sơ</label>
+                <input
+                  type="date"
+                  value={editingJob.job_info?.["Hạn nộp hồ sơ"] || ''}
+                  onChange={(e) => handleJobInfoChange("Hạn nộp hồ sơ", e.target.value)}
+                  className="form-input"
+                />
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <button 
+                type="button" 
+                className="cancel-btn"
+                onClick={() => {
+                  setShowEditForm(false);
+                  setEditingJob(null);
+                  setSubmitMessage({ type: '', text: '' });
+                }}
+              >
+                Hủy
+              </button>
+              <button 
+                type="submit" 
+                className="submit-btn"
+                disabled={saving}
+              >
+                {saving ? (
+                  <>
+                    <div className="loading-spinner-small"></div>
+                    Đang lưu...
+                  </>
+                ) : (
+                  'Lưu thay đổi'
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
