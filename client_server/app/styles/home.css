@@ -173,7 +173,7 @@
 
 .detail-item {
   display: flex;
-  align-items: center;
+  /* align-items: center; */
 }
 
 .detail-item svg {

@@ -1377,7 +1377,6 @@
 .detail-card {
   background: #f9fafb;
   border-radius: 12px;
-  padding: 20px;
   border: 1px solid #e5e7eb;
   flex-grow: 1;
 }
@@ -1781,11 +1780,6 @@
   gap: 24px;
 }
 
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 
 .detail-item.full-width {
   grid-column: 1 / -1;
