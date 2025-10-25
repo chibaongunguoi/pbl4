@@ -132,6 +132,95 @@ export default function JobManagerPage() {
     setEditingJob(prev => ({ ...prev, skills: skillsArray }));
   };
 
+  const addDescriptionField = () => {
+    // Thêm một trường mô tả mới với key rỗng
+    setEditingJob(prev => ({
+      ...prev,
+      descriptions: {
+        ...prev.descriptions,
+        [`Trường mới ${Object.keys(prev.descriptions || {}).length + 1}`]: ''
+      }
+    }));
+  };
+
+  const removeDescriptionField = (key) => {
+    if (!confirm(`Bạn có chắc chắn muốn xóa trường "${key}"?`)) {
+      return;
+    }
+    
+    setEditingJob(prev => {
+      const newDescriptions = { ...prev.descriptions };
+      delete newDescriptions[key];
+      return {
+        ...prev,
+        descriptions: newDescriptions
+      };
+    });
+  };
+
+  const updateDescriptionKey = (oldKey, newKey) => {
+    if (oldKey === newKey) return;
+    
+    setEditingJob(prev => {
+      const newDescriptions = {};
+      Object.keys(prev.descriptions || {}).forEach(key => {
+        if (key === oldKey) {
+          newDescriptions[newKey] = prev.descriptions[key];
+        } else {
+          newDescriptions[key] = prev.descriptions[key];
+        }
+      });
+      return {
+        ...prev,
+        descriptions: newDescriptions
+      };
+    });
+  };
+
+  const addJobInfoField = () => {
+    setEditingJob(prev => ({
+      ...prev,
+      job_info: {
+        ...prev.job_info,
+        [`Trường mới ${Object.keys(prev.job_info || {}).length + 1}`]: ''
+      }
+    }));
+  };
+
+  const removeJobInfoField = (key) => {
+    if (!confirm(`Bạn có chắc chắn muốn xóa trường "${key}"?`)) {
+      return;
+    }
+    
+    setEditingJob(prev => {
+      const newJobInfo = { ...prev.job_info };
+      delete newJobInfo[key];
+      return {
+        ...prev,
+        job_info: newJobInfo
+      };
+    });
+  };
+
+  const updateJobInfoKey = (oldKey, newKey) => {
+    if (oldKey === newKey) return;
+    
+    setEditingJob(prev => {
+      const newJobInfo = {};
+      Object.keys(prev.job_info || {}).forEach(key => {
+        if (key === oldKey) {
+          newJobInfo[newKey] = prev.job_info[key];
+        } else {
+          newJobInfo[key] = prev.job_info[key];
+        }
+      });
+      return {
+        ...prev,
+        job_info: newJobInfo
+      };
+    });
+  };
+
   const handleDelete = async (jobId) => {
     if (!confirm('Bạn có chắc chắn muốn xóa công việc này?')) {
       return;
@@ -272,148 +361,119 @@ export default function JobManagerPage() {
             </div>
 
             {/* Mô tả công việc */}
-            <h3 style={{ marginTop: '32px', marginBottom: '20px', color: '#374151', fontSize: '18px' }}>Mô tả công việc</h3>
+            <h3 style={{ marginTop: '32px', marginBottom: '20px', color: '#374151', fontSize: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Mô tả công việc</span>
+              <button 
+                type="button"
+                onClick={addDescriptionField}
+                className="add-company-btn"
+                style={{ marginBottom: 0, padding: '8px 16px', fontSize: '14px' }}
+              >
+                <svg className="add-icon" fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
+                </svg>
+                Thêm trường
+              </button>
+            </h3>
 
-            <div className="form-row">
-              <div className="form-group full-width">
-                <label className="form-label">Mô tả công việc</label>
-                <textarea
-                  value={editingJob.descriptions?.["Mô tả công việc"] || ''}
-                  onChange={(e) => handleDescriptionChange("Mô tả công việc", e.target.value)}
-                  className="form-textarea"
-                  rows="5"
-                />
+            {Object.keys(editingJob.descriptions || {}).map((key, index) => (
+              <div key={index} className="form-row" style={{ position: 'relative', marginBottom: '24px' }}>
+                <div className="form-group full-width">
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      value={key}
+                      onChange={(e) => updateDescriptionKey(key, e.target.value)}
+                      className="form-input"
+                      placeholder="Nhập tên trường (VD: Mô tả công việc, Yêu cầu công việc...)"
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeDescriptionField(key)}
+                      className="delete-company-btn"
+                      style={{ padding: '8px 12px', fontSize: '12px', minWidth: 'auto' }}
+                      title="Xóa trường này"
+                    >
+                      <svg fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <textarea
+                    value={editingJob.descriptions[key] || ''}
+                    onChange={(e) => handleDescriptionChange(key, e.target.value)}
+                    className="form-textarea"
+                    rows="5"
+                    placeholder="Nhập nội dung..."
+                  />
+                </div>
               </div>
-            </div>
+            ))}
 
-            <div className="form-row">
-              <div className="form-group full-width">
-                <label className="form-label">Yêu cầu công việc</label>
-                <textarea
-                  value={editingJob.descriptions?.["Yêu cầu công việc"] || ''}
-                  onChange={(e) => handleDescriptionChange("Yêu cầu công việc", e.target.value)}
-                  className="form-textarea"
-                  rows="5"
-                />
+            {Object.keys(editingJob.descriptions || {}).length === 0 && (
+              <div style={{ textAlign: 'center', padding: '20px', color: '#9ca3af', fontStyle: 'italic' }}>
+                Chưa có trường mô tả nào. Nhấn nút "Thêm trường" để thêm.
               </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group full-width">
-                <label className="form-label">Quyền lợi ứng viên</label>
-                <textarea
-                  value={editingJob.descriptions?.["Quyền lợi ứng viên"] || ''}
-                  onChange={(e) => handleDescriptionChange("Quyền lợi ứng viên", e.target.value)}
-                  className="form-textarea"
-                  rows="4"
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">Thời gian làm việc</label>
-                <textarea
-                  value={editingJob.descriptions?.["Thời gian làm việc"] || ''}
-                  onChange={(e) => handleDescriptionChange("Thời gian làm việc", e.target.value)}
-                  className="form-textarea"
-                  rows="3"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Địa chỉ làm việc</label>
-                <textarea
-                  value={editingJob.descriptions?.["Địa chỉ làm việc"] || ''}
-                  onChange={(e) => handleDescriptionChange("Địa chỉ làm việc", e.target.value)}
-                  className="form-textarea"
-                  rows="3"
-                />
-              </div>
-            </div>
+            )}
 
             {/* Thông tin tuyển dụng */}
-            <h3 style={{ marginTop: '32px', marginBottom: '20px', color: '#374151', fontSize: '18px' }}>Thông tin tuyển dụng</h3>
+            <h3 style={{ marginTop: '32px', marginBottom: '20px', color: '#374151', fontSize: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Thông tin tuyển dụng</span>
+              <button 
+                type="button"
+                onClick={addJobInfoField}
+                className="add-company-btn"
+                style={{ marginBottom: 0, padding: '8px 16px', fontSize: '14px' }}
+              >
+                <svg className="add-icon" fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
+                </svg>
+                Thêm trường
+              </button>
+            </h3>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">Kinh nghiệm</label>
-                <input
-                  type="text"
-                  value={editingJob.job_info?.["Kinh nghiệm"] || ''}
-                  onChange={(e) => handleJobInfoChange("Kinh nghiệm", e.target.value)}
-                  className="form-input"
-                  placeholder="VD: 3 năm"
-                />
+            {Object.keys(editingJob.job_info || {}).map((key, index) => (
+              <div key={index} className="form-row" style={{ position: 'relative', marginBottom: '16px' }}>
+                <div className="form-group full-width">
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      value={key}
+                      onChange={(e) => updateJobInfoKey(key, e.target.value)}
+                      className="form-input"
+                      placeholder="Nhập tên trường (VD: Kinh nghiệm, Trình độ...)"
+                      style={{ flex: '0 0 200px' }}
+                    />
+                    <input
+                      type="text"
+                      value={editingJob.job_info[key] || ''}
+                      onChange={(e) => handleJobInfoChange(key, e.target.value)}
+                      className="form-input"
+                      placeholder="Nhập giá trị..."
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeJobInfoField(key)}
+                      className="delete-company-btn"
+                      style={{ padding: '8px 12px', fontSize: '12px', minWidth: 'auto' }}
+                      title="Xóa trường này"
+                    >
+                      <svg fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="form-group">
-                <label className="form-label">Trình độ</label>
-                <input
-                  type="text"
-                  value={editingJob.job_info?.["Trình độ"] || ''}
-                  onChange={(e) => handleJobInfoChange("Trình độ", e.target.value)}
-                  className="form-input"
-                  placeholder="VD: Đại học"
-                />
-              </div>
-            </div>
+            ))}
 
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">Vị trí</label>
-                <input
-                  type="text"
-                  value={editingJob.job_info?.["Vị trí"] || ''}
-                  onChange={(e) => handleJobInfoChange("Vị trí", e.target.value)}
-                  className="form-input"
-                  placeholder="VD: Middle, Senior"
-                />
+            {Object.keys(editingJob.job_info || {}).length === 0 && (
+              <div style={{ textAlign: 'center', padding: '20px', color: '#9ca3af', fontStyle: 'italic' }}>
+                Chưa có trường thông tin nào. Nhấn nút "Thêm trường" để thêm.
               </div>
-              <div className="form-group">
-                <label className="form-label">Hình thức</label>
-                <input
-                  type="text"
-                  value={editingJob.job_info?.["Hình thức"] || ''}
-                  onChange={(e) => handleJobInfoChange("Hình thức", e.target.value)}
-                  className="form-input"
-                  placeholder="VD: Full-time, Part-time"
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">Số lượng</label>
-                <input
-                  type="text"
-                  value={editingJob.job_info?.["Số lượng"] || ''}
-                  onChange={(e) => handleJobInfoChange("Số lượng", e.target.value)}
-                  className="form-input"
-                  placeholder="VD: 1 người"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Phỏng vấn</label>
-                <input
-                  type="text"
-                  value={editingJob.job_info?.["Phỏng vấn"] || ''}
-                  onChange={(e) => handleJobInfoChange("Phỏng vấn", e.target.value)}
-                  className="form-input"
-                  placeholder="VD: 2 vòng"
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group full-width">
-                <label className="form-label">Hạn nộp hồ sơ</label>
-                <input
-                  type="date"
-                  value={editingJob.job_info?.["Hạn nộp hồ sơ"] || ''}
-                  onChange={(e) => handleJobInfoChange("Hạn nộp hồ sơ", e.target.value)}
-                  className="form-input"
-                />
-              </div>
-            </div>
+            )}
 
             <div className="form-actions">
               <button 
