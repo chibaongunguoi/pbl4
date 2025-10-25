@@ -10,6 +10,7 @@ export default function JobManagerPage() {
   const [editingJob, setEditingJob] = useState(null);
   const [saving, setSaving] = useState(false);
   const [submitMessage, setSubmitMessage] = useState({ type: '', text: '' });
+  const [followCounts, setFollowCounts] = useState({});
 
   useEffect(() => {
     fetchJobs();
@@ -55,12 +56,49 @@ export default function JobManagerPage() {
       }
 
       const data = JSON.parse(text);
-      setJobs(data.data || []);
+      const jobsData = data.data || [];
+      setJobs(jobsData);
+      
+      // Fetch follow counts for all jobs
+      if (jobsData.length > 0) {
+        fetchFollowCounts(jobsData);
+      }
     } catch (error) {
       console.error('Error fetching jobs:', error);
       setJobs([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchFollowCounts = async (jobsList) => {
+    try {
+      const jobIds = jobsList.map(job => job._id);
+      
+      const response = await fetch('/api/follow/count', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ jobIds }),
+      });
+      
+      if (response.ok) {
+        const counts = await response.json();
+        setFollowCounts(counts);
+      } else {
+        console.error('Error fetching follow counts:', response.status);
+        // Set all counts to 0 if failed
+        const zeroCounts = {};
+        jobIds.forEach(id => { zeroCounts[id] = 0; });
+        setFollowCounts(zeroCounts);
+      }
+    } catch (error) {
+      console.error('Error fetching follow counts:', error);
+      // Set all counts to 0 if failed
+      const zeroCounts = {};
+      jobsList.forEach(job => { zeroCounts[job._id] = 0; });
+      setFollowCounts(zeroCounts);
     }
   };
 
@@ -539,13 +577,14 @@ export default function JobManagerPage() {
                   <th>Công ty</th>
                   <th>Địa điểm</th>
                   <th>Ngày đăng</th>
+                  <th>Lượt yêu thích</th>
                   <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {jobs.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="no-jobs">
+                    <td colSpan="8" className="no-jobs">
                       Không có công việc nào trong hệ thống
                     </td>
                   </tr>
@@ -583,6 +622,11 @@ export default function JobManagerPage() {
                 
                       <td className="date-cell">
                         {convertDateTime(job.collected_at) || 'N/A'}
+                      </td>
+                      <td className="date-cell" style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                          <span>{followCounts[job._id] !== undefined ? followCounts[job._id] : '...'}</span>
+                        </div>
                       </td>
                       <td>
                         <div style={{ display: 'flex', gap: '8px' }}>
