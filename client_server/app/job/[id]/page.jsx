@@ -146,11 +146,13 @@ export default function CardDetail() {
 
   return (
     <div className="job-detail-container">
+      {/* Back Button */}
+      <Link href="/" className="back-button">
+        ← Quay lại
+      </Link>
+      
       {/* Header */}
       <div className="job-detail-header">
-        <Link href="/" className="back-button">
-          ← Quay lại
-        </Link>
         <div className="job-header-content">
           <div className="company-logo-large">
             <Image
