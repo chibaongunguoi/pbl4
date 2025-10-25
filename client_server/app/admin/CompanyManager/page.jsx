@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "../admin.css";
+import Pagination from "../components/Pagination";
 
 export default function CompanyManagerPage() {
   const [companies, setCompanies] = useState([]);
@@ -10,6 +11,8 @@ export default function CompanyManagerPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
   const [newCompany, setNewCompany] = useState({
     name: '',
     email: '',
@@ -958,77 +961,90 @@ export default function CompanyManagerPage() {
                     </td>
                   </tr>
                 ) : (
-                  companies.map((company) => (
-                    <tr key={company._id} className="company-row">
-                      <td>
-                        <div className="company-logo">
-                          {company.logo ? (
-                            <img 
-                              src={company.logo} 
-                              alt={company.name}
-                              className="company-logo-img"
-                            />
-                          ) : (
-                            <div className="logo-placeholder">
-                              {company.name?.charAt(0)?.toUpperCase() || 'C'}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="company-name-cell">
-                        <div className="company-name-info">
-                          <span className="company-name">{company.name}</span>
-                          <span className="company-id">ID: {company._id}</span>
-                        </div>
-                      </td>
-                      <td className="email-cell">{company.email || 'N/A'}</td>
-                      <td className="phone-cell">{company.phone || 'N/A'}</td>
-                      <td className="website-cell">
-                        {company.website ? (
-                          <a 
-                            href={company.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="website-link"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {company.website}
-                          </a>
-                        ) : 'N/A'}
-                      </td>
-                      <td className="date-cell">
-                        {company.createdAt ? convertDateTime(company.createdAt) : 'N/A'}
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button
-                            onClick={() => handleEdit(company)}
-                            className="edit-company-btn"
-                            style={{ padding: '6px 12px', fontSize: '12px' }}
-                            title="Chỉnh sửa"
-                          >
-                            <svg className="edit-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
-                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleDelete(company._id)}
-                            className="delete-company-btn"
-                            style={{ padding: '6px 12px', fontSize: '12px' }}
-                            title="Xóa"
-                          >
-                            <svg className="delete-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
-                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                  (() => {
+                    const startIndex = (currentPage - 1) * itemsPerPage;
+                    const endIndex = startIndex + itemsPerPage;
+                    const paginatedCompanies = companies.slice(startIndex, endIndex);
+                    
+                    return paginatedCompanies.map((company) => (
+                      <tr key={company._id} className="company-row">
+                        <td>
+                          <div className="company-logo">
+                            {company.logo ? (
+                              <img 
+                                src={company.logo} 
+                                alt={company.name}
+                                className="company-logo-img"
+                              />
+                            ) : (
+                              <div className="logo-placeholder">
+                                {company.name?.charAt(0)?.toUpperCase() || 'C'}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="company-name-cell">
+                          <div className="company-name-info">
+                            <span className="company-name">{company.name}</span>
+                            <span className="company-id">ID: {company._id}</span>
+                          </div>
+                        </td>
+                        <td className="email-cell">{company.email || 'N/A'}</td>
+                        <td className="phone-cell">{company.phone || 'N/A'}</td>
+                        <td className="website-cell">
+                          {company.website ? (
+                            <a 
+                              href={company.website} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="website-link"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {company.website}
+                            </a>
+                          ) : 'N/A'}
+                        </td>
+                        <td className="date-cell">
+                          {company.createdAt ? convertDateTime(company.createdAt) : 'N/A'}
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              onClick={() => handleEdit(company)}
+                              className="edit-company-btn"
+                              style={{ padding: '6px 12px', fontSize: '12px' }}
+                              title="Chỉnh sửa"
+                            >
+                              <svg className="edit-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => handleDelete(company._id)}
+                              className="delete-company-btn"
+                              style={{ padding: '6px 12px', fontSize: '12px' }}
+                              title="Xóa"
+                            >
+                              <svg className="delete-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ));
+                  })()
                 )}
               </tbody>
             </table>
           </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalItems={companies.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>

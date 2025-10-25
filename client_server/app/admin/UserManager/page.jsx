@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import "../admin.css";
+import Pagination from "../components/Pagination";
 
 export default function UserManagerPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   useEffect(() => {
     fetchUsers();
@@ -117,56 +120,69 @@ export default function UserManagerPage() {
                     </td>
                   </tr>
                 ) : (
-                  users.map((user) => (
-                    <tr key={user._id} className="user-row">
-                      <td>
-                        <div className="user-avatar">
-                          <div className="avatar-circle">
-                            {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                  (() => {
+                    const startIndex = (currentPage - 1) * itemsPerPage;
+                    const endIndex = startIndex + itemsPerPage;
+                    const paginatedUsers = users.slice(startIndex, endIndex);
+                    
+                    return paginatedUsers.map((user) => (
+                      <tr key={user._id} className="user-row">
+                        <td>
+                          <div className="user-avatar">
+                            <div className="avatar-circle">
+                              {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="username-cell">
-                        <div className="username-info">
-                          <span className="username">{user.username}</span>
-                          <span className="user-id">ID: {user._id}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`role-badge`}>
-                          {user.role === 'admin' ? 'Quản trị viên' : user.role === 'company' ? 'Công ty' : 'Người dùng'}
-                        </span>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button
-                            onClick={() => handleEdit(user)}
-                            className="edit-company-btn"
-                            style={{ padding: '6px 12px', fontSize: '12px' }}
-                            title="Chỉnh sửa"
-                          >
-                            <svg className="edit-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
-                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleDelete(user._id)}
-                            className="delete-company-btn"
-                            style={{ padding: '6px 12px', fontSize: '12px' }}
-                            title="Xóa"
-                          >
-                            <svg className="delete-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
-                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                        <td className="username-cell">
+                          <div className="username-info">
+                            <span className="username">{user.username}</span>
+                            <span className="user-id">ID: {user._id}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`role-badge`}>
+                            {user.role === 'admin' ? 'Quản trị viên' : user.role === 'company' ? 'Công ty' : 'Người dùng'}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              onClick={() => handleEdit(user)}
+                              className="edit-company-btn"
+                              style={{ padding: '6px 12px', fontSize: '12px' }}
+                              title="Chỉnh sửa"
+                            >
+                              <svg className="edit-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => handleDelete(user._id)}
+                              className="delete-company-btn"
+                              style={{ padding: '6px 12px', fontSize: '12px' }}
+                              title="Xóa"
+                            >
+                              <svg className="delete-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ));
+                  })()
                 )}
               </tbody>
             </table>
           </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalItems={users.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>
