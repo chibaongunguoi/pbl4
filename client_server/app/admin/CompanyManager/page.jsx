@@ -966,7 +966,12 @@ export default function CompanyManagerPage() {
                     const paginatedCompanies = companies.slice(startIndex, endIndex);
                     
                     return paginatedCompanies.map((company) => (
-                      <tr key={company._id} className="company-row">
+                      <tr 
+                        key={company._id} 
+                        className="company-row"
+                        onClick={() => router.push(`/admin/CompanyManager/${company._id}`)}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <td>
                           <div className="company-logo">
                             {company.logo ? (
@@ -996,7 +1001,10 @@ export default function CompanyManagerPage() {
                         <td>
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button
-                              onClick={() => handleEdit(company)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(company);
+                              }}
                               className="edit-company-btn"
                               style={{ padding: '6px 12px', fontSize: '12px' }}
                               title="Chỉnh sửa"
@@ -1006,7 +1014,10 @@ export default function CompanyManagerPage() {
                               </svg>
                             </button>
                             <button
-                              onClick={() => handleDelete(company._id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(company._id);
+                              }}
                               className="delete-company-btn"
                               style={{ padding: '6px 12px', fontSize: '12px' }}
                               title="Xóa"
