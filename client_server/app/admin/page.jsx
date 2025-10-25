@@ -831,7 +831,7 @@ export default function AdminPage() {
             </div>
             <div className="company-basic-info">
               <h2 className="company-detail-name">{selectedCompany.name}</h2>
-              <p className="company-detail-id">ID: {selectedCompany._id}</p>
+              <p className="detail-label">Username: {selectedCompany.username}</p>
             </div>
           </div>
 
