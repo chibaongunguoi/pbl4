@@ -103,7 +103,7 @@ export default function UserManagerPage() {
                         </div>
                       </td>
                       <td>
-                        <span className={`role-badge ${user.role}`}>
+                        <span className={`role-badge`}>
                           {user.role === 'admin' ? 'Quản trị viên' : user.role === 'company' ? 'Công ty' : 'Người dùng'}
                         </span>
                       </td>
