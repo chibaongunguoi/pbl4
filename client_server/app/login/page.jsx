@@ -75,8 +75,8 @@ export default function LoginPage() {
             
             <div className="text-center mt-4 text-sm">
               <span className="text-gray-600">Chưa có tài khoản? </span>
-              <Link href="/dang-ky" className="text-blue-600 hover:text-blue-800 font-medium">
-                Đăng ký ngay
+              <Link href="/register" className="text-blue-600 hover:text-blue-800 font-medium">
+                Đăng ký 
               </Link>
             </div>
           </div>
