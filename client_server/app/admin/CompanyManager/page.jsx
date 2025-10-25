@@ -948,7 +948,6 @@ export default function CompanyManagerPage() {
                   <th>Tên công ty</th>
                   <th>Email</th>
                   <th>Số điện thoại</th>
-                  <th>Website</th>
                   <th>Ngày tạo</th>
                   <th>Thao tác</th>
                 </tr>
@@ -991,19 +990,6 @@ export default function CompanyManagerPage() {
                         </td>
                         <td className="email-cell">{company.email || 'N/A'}</td>
                         <td className="phone-cell">{company.phone || 'N/A'}</td>
-                        <td className="website-cell">
-                          {company.website ? (
-                            <a 
-                              href={company.website} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="website-link"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {company.website}
-                            </a>
-                          ) : 'N/A'}
-                        </td>
                         <td className="date-cell">
                           {company.createdAt ? convertDateTime(company.createdAt) : 'N/A'}
                         </td>
