@@ -46,6 +46,35 @@ export default function UserManagerPage() {
     }
   };
 
+  const handleEdit = (user) => {
+    // TODO: Implement edit functionality
+    alert(`Chỉnh sửa người dùng: ${user.username}\nChức năng này đang được phát triển.`);
+  };
+
+  const handleDelete = async (userId) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert('Xóa người dùng thành công!');
+        fetchUsers();
+      } else {
+        alert(data.error || 'Có lỗi xảy ra khi xóa người dùng');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Có lỗi xảy ra khi xóa người dùng');
+    }
+  };
+
   return (
     <div>
       <div className="admin-content-header">
@@ -77,12 +106,13 @@ export default function UserManagerPage() {
                   <th>Avatar</th>
                   <th>Tên người dùng</th>
                   <th>Vai trò</th>
+                  <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {users.length === 0 ? (
                   <tr>
-                    <td colSpan="3" className="no-users">
+                    <td colSpan="4" className="no-users">
                       Không có người dùng nào trong hệ thống
                     </td>
                   </tr>
@@ -106,6 +136,30 @@ export default function UserManagerPage() {
                         <span className={`role-badge`}>
                           {user.role === 'admin' ? 'Quản trị viên' : user.role === 'company' ? 'Công ty' : 'Người dùng'}
                         </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            onClick={() => handleEdit(user)}
+                            className="edit-company-btn"
+                            style={{ padding: '6px 12px', fontSize: '12px' }}
+                            title="Chỉnh sửa"
+                          >
+                            <svg className="edit-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
+                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(user._id)}
+                            className="delete-company-btn"
+                            style={{ padding: '6px 12px', fontSize: '12px' }}
+                            title="Xóa"
+                          >
+                            <svg className="delete-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
+                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                            </svg>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
