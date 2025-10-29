@@ -43,7 +43,7 @@ export default function ScrapeManagerPage() {
   return (
     <div>
       <div className="admin-content-header">
-        <h1 className="admin-content-title">Cào thông tin việc làm</h1>
+        <h1 className="admin-content-title">Crawl thông tin việc làm</h1>
         <p className="admin-content-subtitle">Nhập URL để cào dữ liệu việc làm mới</p>
       </div>
 
