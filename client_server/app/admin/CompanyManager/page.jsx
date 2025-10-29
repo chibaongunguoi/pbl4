@@ -166,7 +166,7 @@ export default function CompanyManagerPage() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('/api/scrape/upload', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -174,8 +174,8 @@ export default function CompanyManagerPage() {
       const data = await response.json();
       
       if (data.success) {
-        setNewCompany(prev => ({ ...prev, logo: data.url }));
-        setLogoPreview(data.url);
+        setNewCompany(prev => ({ ...prev, logo: data.logoUrl }));
+        setLogoPreview(data.logoUrl);
         setCompanyErrors(prev => {
           const newErrors = { ...prev };
           delete newErrors.logo;
@@ -368,7 +368,7 @@ export default function CompanyManagerPage() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('/api/scrape/upload', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -376,8 +376,8 @@ export default function CompanyManagerPage() {
       const data = await response.json();
       
       if (data.success) {
-        setEditingCompany(prev => ({ ...prev, logo: data.url }));
-        setLogoPreview(data.url);
+        setEditingCompany(prev => ({ ...prev, logo: data.logoUrl }));
+        setLogoPreview(data.logoUrl);
         setCompanyErrors(prev => {
           const newErrors = { ...prev };
           delete newErrors.logo;
