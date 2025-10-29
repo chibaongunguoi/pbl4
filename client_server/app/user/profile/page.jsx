@@ -12,6 +12,8 @@ export default function UserInfoPage() {
   const [activeTab, setActiveTab] = useState('profile');
   const [favoriteJobs, setFavoriteJobs] = useState([]);
   const [favoritesLoading, setFavoritesLoading] = useState(false);
+  const [applications, setApplications] = useState([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -112,10 +114,43 @@ export default function UserInfoPage() {
     }
   };
 
+  // Fetch applications for company role
+  const fetchApplications = async () => {
+    if (applicationsLoading) return;
+    
+    try {
+      setApplicationsLoading(true);
+      const response = await fetch('/api/company/applications', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setApplications(data.data || []);
+      } else {
+        console.error('Error fetching applications');
+      }
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+    } finally {
+      setApplicationsLoading(false);
+    }
+  };
+
   // Load favorites when switching to favorites tab
   useEffect(() => {
     if (activeTab === 'favorites') {
       fetchFavoriteJobs();
+    }
+  }, [activeTab]);
+
+  // Load applications when switching to applications tab
+  useEffect(() => {
+    if (activeTab === 'applications' && user?.role === 'company') {
+      fetchApplications();
     }
   }, [activeTab]);
 
@@ -244,6 +279,19 @@ export default function UserInfoPage() {
                 Thông tin cá nhân
               </button>
             </li>
+            {user?.role === 'company' && (
+              <li>
+                <button
+                  className={`nav-link ${activeTab === 'applications' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('applications')}
+                >
+                  <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Danh sách ứng tuyển
+                </button>
+              </li>
+            )}
             <li>
               <button
                 className={`nav-link ${activeTab === 'favorites' ? 'active' : ''}`}
@@ -479,6 +527,77 @@ export default function UserInfoPage() {
                         <span className="more-skills">+{job.skills.length - 3}</span>
                       )}
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'applications' && user?.role === 'company' && (
+          <div className="content-section">
+            <h2>Danh sách ứng tuyển</h2>
+            {applicationsLoading ? (
+              <div className="loading-container">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-600"></div>
+                <span>Đang tải...</span>
+              </div>
+            ) : applications.length === 0 ? (
+              <div className="empty-state">
+                <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p>Chưa có ứng viên nào ứng tuyển</p>
+              </div>
+            ) : (
+              <div className="applications-list">
+                {applications.map((application) => (
+                  <div key={application._id} className="application-card">
+                    <div className="application-header">
+                      <div className="user-avatar-small">
+                        {application.userID?.username?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <div className="application-info">
+                        <h4 className="application-username">{application.userID?.username || 'Unknown'}</h4>
+                        <p className="application-time">
+                          Ứng tuyển lúc: {new Date(application.time).toLocaleString('vi-VN')}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {application.userProfile && (
+                      <div className="application-details">
+                        <div className="detail-item">
+                          <strong>Họ tên:</strong> {application.userProfile.name || 'Chưa cập nhật'}
+                        </div>
+                        <div className="detail-item">
+                          <strong>Giới tính:</strong> {application.userProfile.gender === 'male' ? 'Nam' : application.userProfile.gender === 'female' ? 'Nữ' : 'Chưa cập nhật'}
+                        </div>
+                        <div className="detail-item">
+                          <strong>Ngày sinh:</strong> {application.userProfile.birthdate ? new Date(application.userProfile.birthdate).toLocaleDateString('vi-VN') : 'Chưa cập nhật'}
+                        </div>
+                        {application.userProfile.description && (
+                          <div className="detail-item">
+                            <strong>Mô tả:</strong> {application.userProfile.description}
+                          </div>
+                        )}
+                        {application.userProfile.cv && (
+                          <div className="detail-item">
+                            <a 
+                              href={application.userProfile.cv} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="cv-download-btn"
+                            >
+                              <svg className="download-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Xem CV
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
