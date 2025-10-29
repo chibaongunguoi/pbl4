@@ -15,6 +15,7 @@ export default function EditUserProfile() {
 
   const [form, setForm] = useState({
     name: '',
+    phone: '',
     gender: 'nam',
     birthdate: '',
     cv: '',
@@ -31,6 +32,7 @@ export default function EditUserProfile() {
             const p = data.data;
             setForm({
               name: p.name || '',
+              phone: p.phone || '',
               gender: p.gender || 'nam',
               birthdate: p.birthdate ? new Date(p.birthdate).toISOString().slice(0,10) : '',
               cv: p.cv || '',
@@ -155,6 +157,18 @@ export default function EditUserProfile() {
             <div className="form-group">
               <label>Họ & tên</label>
               <input name="name" value={form.name} onChange={handleChange} className="form-input" />
+            </div>
+
+            <div className="form-group">
+              <label>Số điện thoại</label>
+              <input 
+                name="phone" 
+                type="tel"
+                value={form.phone} 
+                onChange={handleChange} 
+                className="form-input" 
+                placeholder="Nhập số điện thoại"
+              />
             </div>
 
             <div className="form-group">

@@ -36,6 +36,7 @@ export async function POST(req) {
     // Ensure username from token is used
     const payload = {
       name: body.name || '',
+      phone: body.phone || '',
       gender: body.gender || '',
       birthdate: body.birthdate ? new Date(body.birthdate) : undefined,
       cv: body.cv || '',
@@ -71,6 +72,7 @@ export async function PUT(req) {
 
     const updates = {
       ...(body.name !== undefined && { name: body.name }),
+      ...(body.phone !== undefined && { phone: body.phone }),
       ...(body.gender !== undefined && { gender: body.gender }),
       ...(body.birthdate !== undefined && { birthdate: body.birthdate ? new Date(body.birthdate) : null }),
       ...(body.cv !== undefined && { cv: body.cv }),

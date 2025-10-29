@@ -3,6 +3,7 @@ const { Schema, model, models } = pkg;
 
 const UserProfileSchema = new Schema({
   name: { type: String, required: true },
+  phone: { type: String, default: null },
   gender: {
     type: String,
     enum: {

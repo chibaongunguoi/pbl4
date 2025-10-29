@@ -423,6 +423,10 @@ export default function UserInfoPage() {
                       <span>{userProfile.name || 'N/A'}</span>
                     </div>
                     <div className="detail-row">
+                      <label>Số điện thoại:</label>
+                      <span>{userProfile.phone || 'N/A'}</span>
+                    </div>
+                    <div className="detail-row">
                       <label>Giới tính:</label>
                       <span>{userProfile.gender || 'N/A'}</span>
                     </div>
@@ -559,6 +563,7 @@ export default function UserInfoPage() {
                     <tr>
                       <th>Username</th>
                       <th>Họ tên</th>
+                      <th>Số điện thoại</th>
                       <th>Giới tính</th>
                       <th>Ngày sinh</th>
                       <th>Mô tả</th>
@@ -578,6 +583,7 @@ export default function UserInfoPage() {
                           </div>
                         </td>
                         <td>{application.userProfile?.name || 'Chưa cập nhật'}</td>
+                        <td>{application.userProfile?.phone || 'Chưa có'}</td>
                         <td>
                           {application.userProfile?.gender === 'male' ? 'Nam' : 
                            application.userProfile?.gender === 'female' ? 'Nữ' : 
