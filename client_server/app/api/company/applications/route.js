@@ -9,11 +9,20 @@ import { verifyToken } from '@/app/lib/auth';
 // GET: Fetch all applications for the company
 export async function GET(request) {
   try {
+    // Get token from cookies
+    const token = request.cookies.get("auth")?.value;
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: 'No authentication token found' },
+        { status: 401 }
+      );
+    }
+
     // Verify token
-    const decoded = verifyToken(request);
+    const decoded = await verifyToken(token);
     if (!decoded) {
       return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
+        { success: false, message: 'Invalid or expired token' },
         { status: 401 }
       );
     }
@@ -31,16 +40,27 @@ export async function GET(request) {
     // Find company by username
     const company = await Company.findOne({ username: decoded.username });
     if (!company) {
+      // Return empty array instead of error - company might not have applications yet
+      console.log('Company not found for username:', decoded.username);
       return NextResponse.json(
-        { success: false, message: 'Company not found' },
-        { status: 404 }
+        {
+          success: true,
+          data: [],
+          count: 0,
+          message: 'No company profile found'
+        },
+        { status: 200 }
       );
     }
+
+    console.log('Found company:', company._id, company.name);
 
     // Find all applications for this company
     const applications = await User_company.find({ companyID: company._id })
       .populate('userID', 'username')
       .sort({ time: -1 }); // Sort by most recent first
+
+    console.log('Found applications:', applications.length);
 
     // Fetch UserProfile for each application
     const applicationsWithProfile = await Promise.all(

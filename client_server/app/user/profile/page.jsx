@@ -127,11 +127,14 @@ export default function UserInfoPage() {
         },
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
         setApplications(data.data || []);
       } else {
-        console.error('Error fetching applications');
+        console.error('Error fetching applications:', data.message || 'Unknown error');
+        console.error('Response status:', response.status);
+        console.error('Response data:', data);
       }
     } catch (error) {
       console.error('Error fetching applications:', error);
@@ -550,56 +553,68 @@ export default function UserInfoPage() {
                 <p>Chưa có ứng viên nào ứng tuyển</p>
               </div>
             ) : (
-              <div className="applications-list">
-                {applications.map((application) => (
-                  <div key={application._id} className="application-card">
-                    <div className="application-header">
-                      <div className="user-avatar-small">
-                        {application.userID?.username?.charAt(0).toUpperCase() || 'U'}
-                      </div>
-                      <div className="application-info">
-                        <h4 className="application-username">{application.userID?.username || 'Unknown'}</h4>
-                        <p className="application-time">
-                          Ứng tuyển lúc: {new Date(application.time).toLocaleString('vi-VN')}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {application.userProfile && (
-                      <div className="application-details">
-                        <div className="detail-item">
-                          <strong>Họ tên:</strong> {application.userProfile.name || 'Chưa cập nhật'}
-                        </div>
-                        <div className="detail-item">
-                          <strong>Giới tính:</strong> {application.userProfile.gender === 'male' ? 'Nam' : application.userProfile.gender === 'female' ? 'Nữ' : 'Chưa cập nhật'}
-                        </div>
-                        <div className="detail-item">
-                          <strong>Ngày sinh:</strong> {application.userProfile.birthdate ? new Date(application.userProfile.birthdate).toLocaleDateString('vi-VN') : 'Chưa cập nhật'}
-                        </div>
-                        {application.userProfile.description && (
-                          <div className="detail-item">
-                            <strong>Mô tả:</strong> {application.userProfile.description}
+              <div className="applications-table-container">
+                <table className="applications-table">
+                  <thead>
+                    <tr>
+                      <th>Username</th>
+                      <th>Họ tên</th>
+                      <th>Giới tính</th>
+                      <th>Ngày sinh</th>
+                      <th>Mô tả</th>
+                      <th>CV</th>
+                      <th>Thời gian ứng tuyển</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {applications.map((application) => (
+                      <tr key={application._id}>
+                        <td>
+                          <div className="username-cell">
+                            <div className="user-avatar-table">
+                              {application.userID?.username?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                            <span>{application.userID?.username || 'Unknown'}</span>
                           </div>
-                        )}
-                        {application.userProfile.cv && (
-                          <div className="detail-item">
+                        </td>
+                        <td>{application.userProfile?.name || 'Chưa cập nhật'}</td>
+                        <td>
+                          {application.userProfile?.gender === 'male' ? 'Nam' : 
+                           application.userProfile?.gender === 'female' ? 'Nữ' : 
+                           'Chưa cập nhật'}
+                        </td>
+                        <td>
+                          {application.userProfile?.birthdate ? 
+                            new Date(application.userProfile.birthdate).toLocaleDateString('vi-VN') : 
+                            'Chưa cập nhật'}
+                        </td>
+                        <td>
+                          <div className="description-cell">
+                            {application.userProfile?.description || 'Chưa có'}
+                          </div>
+                        </td>
+                        <td>
+                          {application.userProfile?.cv ? (
                             <a 
                               href={application.userProfile.cv} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="cv-download-btn"
+                              className="cv-link-table"
                             >
                               <svg className="download-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                               </svg>
                               Xem CV
                             </a>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                          ) : (
+                            <span className="no-cv">Chưa có</span>
+                          )}
+                        </td>
+                        <td>{new Date(application.time).toLocaleString('vi-VN')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

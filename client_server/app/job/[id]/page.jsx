@@ -117,6 +117,33 @@ export default function CardDetail() {
     
     try {
       setIsApplyLoading(true);
+      
+      // Check if user has UserProfile first
+      const profileResponse = await fetch('/api/user/profile', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (profileResponse.status === 401) {
+        router.push('/login');
+        return;
+      }
+
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        
+        // If no profile exists, show message and redirect
+        if (!profileData.data) {
+          alert('Bạn chưa có thông tin cá nhân. Hãy cập nhật trong phần tài khoản!');
+          router.push('/user/profile');
+          return;
+        }
+      } else {
+        alert('Không thể kiểm tra thông tin cá nhân. Vui lòng thử lại!');
+        return;
+      }
+
+      // Proceed with application
       const response = await fetch("/api/user/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
