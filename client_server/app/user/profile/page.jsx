@@ -25,6 +25,33 @@ export default function UserInfoPage() {
   }, []);
   
   const router = useRouter();
+  const [userProfile, setUserProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  // Fetch user profile by username (server reads username from token)
+  const fetchUserProfile = async () => {
+    if (!user?.username) return;
+    try {
+      setProfileLoading(true);
+      const res = await fetch('/api/user/profile', { method: 'GET' });
+      if (!res.ok) {
+        setUserProfile(null);
+        return;
+      }
+      const data = await res.json();
+      setUserProfile(data.data || null);
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
+      setUserProfile(null);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  // When user is loaded, fetch profile
+  useEffect(() => {
+    if (user?.username) fetchUserProfile();
+  }, [user]);
 
   // Fetch favorite jobs
   const fetchFavoriteJobs = async () => {
@@ -224,19 +251,49 @@ export default function UserInfoPage() {
         {activeTab === 'profile' && (
           <div className="content-section">
             <h2>Thông tin cá nhân</h2>
-            <div className="info-card">
-              <div className="info-row">
-                <label>Tên đăng nhập:</label>
-                <span>{user?.username || 'N/A'}</span>
-              </div>
-              <div className="info-row">
-                <label>Vai trò:</label>
-                <span className="role-badge">{user?.role || 'N/A'}</span>
-              </div>
-              <div className="info-row">
-                <label>ID:</label>
-                <span className="user-id">{user?._id || 'N/A'}</span>
-              </div>
+            
+
+            {/* UserProfile section */}
+            <div className="profile-card">
+              {profileLoading ? (
+                <div className="loading-container">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-600"></div>
+                  <span>Đang tải thông tin...</span>
+                </div>
+              ) : userProfile ? (
+                <div className="profile-details">
+                  <div className="detail-row">
+                    <label>Họ & tên:</label>
+                    <span>{userProfile.name || 'N/A'}</span>
+                  </div>
+                  <div className="detail-row">
+                    <label>Giới tính:</label>
+                    <span>{userProfile.gender || 'N/A'}</span>
+                  </div>
+                  <div className="detail-row">
+                    <label>Ngày sinh:</label>
+                    <span>{userProfile.birthdate ? new Date(userProfile.birthdate).toLocaleDateString() : 'N/A'}</span>
+                  </div>
+                  <div className="detail-row">
+                    <label>CV:</label>
+                    <span>
+                      {userProfile.cv ? (
+                        <a href={userProfile.cv} target="_blank" rel="noreferrer" className="cv-link">Xem CV</a>
+                      ) : 'Chưa có'}
+                    </span>
+                  </div>
+                  <div className="detail-row description-row">
+                    <label>Mô tả:</label>
+                    <p className="description-text">{userProfile.description || 'Chưa có mô tả'}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="no-profile">
+                  <h3>Chưa có thông tin cá nhân</h3>
+                  <p>Bạn chưa thêm hồ sơ cá nhân. Thêm thông tin để hoàn thiện hồ sơ ứng tuyển.</p>
+                  <Link href="/user/profile/edit" className="update-btn">Thêm thông tin</Link>
+                </div>
+              )}
             </div>
           </div>
         )}

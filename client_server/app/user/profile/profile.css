@@ -395,6 +395,92 @@
   font-weight: 500;
 }
 
+/* Profile Card Styles */
+.profile-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.profile-details .detail-row {
+  display: flex;
+  padding: 16px 0;
+  border-bottom: 1px solid #f7fafc;
+  align-items: flex-start;
+}
+
+.profile-details .detail-row:last-child {
+  border-bottom: none;
+}
+
+.profile-details .detail-row label {
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 15px;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.profile-details .detail-row span {
+  color: #2d3748;
+  font-weight: 500;
+  flex: 1;
+}
+
+.profile-details .description-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.description-text {
+  margin: 0;
+  color: #4a5568;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.cv-link {
+  color: #3182ce;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.cv-link:hover {
+  color: #2c5aa0;
+  text-decoration: underline;
+}
+
+/* No Profile Placeholder */
+.no-profile {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.no-profile h3 {
+  margin: 0 0 8px 0;
+  color: #4a5568;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.no-profile p {
+  margin: 0 0 24px 0;
+  color: #718096;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.no-profile .update-btn {
+  display: inline-flex;
+  align-items: center;
+}
+
 /* Password Form Styles */
 .password-form {
   background: white;
@@ -445,10 +531,226 @@
   transition: all 0.2s ease;
 }
 
-.update-btn:hover {
+.update-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #3182ce 0%, #2c5aa0 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(49, 130, 206, 0.4);
+}
+
+.update-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Message Styles */
+.message {
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.message.success {
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.message.error {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* Edit Profile Page Styles */
+.edit-profile-page {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  padding: 32px;
+}
+
+.edit-profile-page .content-section {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.profile-form {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.profile-form .form-input {
+  font-family: inherit;
+}
+
+.profile-form textarea.form-input {
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+.profile-form select.form-input {
+  cursor: pointer;
+}
+
+.profile-form small.muted {
+  display: block;
+  margin-top: 6px;
+  color: #9ca3af;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Radio Button Styles */
+.radio-group {
+  display: flex;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  color: #4a5568;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.radio-label:hover {
+  color: #2d3748;
+}
+
+.radio-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e0;
+  border-radius: 50%;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.radio-input:hover {
+  border-color: #3182ce;
+}
+
+.radio-input:checked {
+  border-color: #3182ce;
+  background-color: white;
+}
+
+.radio-input:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #3182ce;
+}
+
+.radio-label span {
+  user-select: none;
+}
+
+/* File Input Styles */
+.file-input {
+  cursor: pointer;
+  padding: 10px 16px;
+}
+
+.file-input::-webkit-file-upload-button {
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 12px;
+}
+
+.file-input::-webkit-file-upload-button:hover {
+  background: linear-gradient(135deg, #3182ce 0%, #2c5aa0 100%);
+}
+
+.file-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.upload-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: #4299e1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cv-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background-color: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+}
+
+.pdf-icon {
+  color: #e53e3e;
+  flex-shrink: 0;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.cancel-link {
+  color: #718096;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: color 0.2s ease;
+}
+
+.cancel-link:hover {
+  color: #4a5568;
+  text-decoration: underline;
+}
+
+.button-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Responsive Design */
@@ -493,8 +795,17 @@
     padding: 24px 16px;
   }
   
-  .password-form {
+  .password-form,
+  .profile-form {
     padding: 24px;
+  }
+  
+  .edit-profile-page {
+    padding: 24px 16px;
+  }
+  
+  .favorites-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -505,11 +816,29 @@
     gap: 8px;
   }
   
+  .profile-details .detail-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .profile-details .detail-row label {
+    min-width: auto;
+  }
+  
   .form-group {
     margin-bottom: 20px;
   }
   
   .update-btn {
     width: 100%;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .cancel-link {
+    text-align: center;
   }
 }
