@@ -27,6 +27,7 @@ export default function UserInfoPage() {
   const router = useRouter();
   const [userProfile, setUserProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState(null);
 
   // Fetch user profile by username (server reads username from token)
   const fetchUserProfile = async () => {
@@ -48,9 +49,41 @@ export default function UserInfoPage() {
     }
   };
 
-  // When user is loaded, fetch profile
+  // Fetch company information for company role
+  const fetchCompanyInfo = async () => {
+    if (!user?.username) return;
+    try {
+      setProfileLoading(true);
+      const res = await fetch(`/api/admin/companies?username=${encodeURIComponent(user.username)}`, {
+        method: 'GET',
+      });
+      if (!res.ok) {
+        setCompanyInfo(null);
+        return;
+      }
+      const data = await res.json();
+      if (data.success && data.companies && data.companies.length > 0) {
+        setCompanyInfo(data.companies[0]);
+      } else {
+        setCompanyInfo(null);
+      }
+    } catch (err) {
+      console.error('Error fetching company info:', err);
+      setCompanyInfo(null);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  // When user is loaded, fetch profile or company info based on role
   useEffect(() => {
-    if (user?.username) fetchUserProfile();
+    if (user?.username) {
+      if (user.role === 'company') {
+        fetchCompanyInfo();
+      } else {
+        fetchUserProfile();
+      }
+    }
   }, [user]);
 
   // Fetch favorite jobs
@@ -252,56 +285,120 @@ export default function UserInfoPage() {
           <div className="content-section">
             <div className="section-header-with-action">
               <h2>Thông tin cá nhân</h2>
-              {userProfile && (
-                <Link href="/user/profile/edit" className="edit-profile-btn">
-                  <svg className="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  Chỉnh sửa
-                </Link>
+              {user?.role === 'company' ? (
+                companyInfo && (
+                  <Link href={`/admin/CompanyManager/${companyInfo._id}`} className="edit-profile-btn">
+                    <svg className="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Xem chi tiết
+                  </Link>
+                )
+              ) : (
+                userProfile && (
+                  <Link href="/user/profile/edit" className="edit-profile-btn">
+                    <svg className="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Chỉnh sửa
+                  </Link>
+                )
               )}
             </div>
 
-            {/* UserProfile section */}
+            {/* UserProfile or Company Info section */}
             <div className="profile-card">
               {profileLoading ? (
                 <div className="loading-container">
                   <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-600"></div>
                   <span>Đang tải thông tin...</span>
                 </div>
-              ) : userProfile ? (
-                <div className="profile-details">
-                  <div className="detail-row">
-                    <label>Họ & tên:</label>
-                    <span>{userProfile.name || 'N/A'}</span>
+              ) : user?.role === 'company' ? (
+                // Display company information
+                companyInfo ? (
+                  <div className="profile-details">
+                    <div className="detail-row">
+                      <label>Tên công ty:</label>
+                      <span>{companyInfo.name || 'N/A'}</span>
+                    </div>
+                    <div className="detail-row">
+                      <label>Email:</label>
+                      <span>{companyInfo.email || 'N/A'}</span>
+                    </div>
+                    <div className="detail-row">
+                      <label>Số điện thoại:</label>
+                      <span>{companyInfo.phone || 'N/A'}</span>
+                    </div>
+                    <div className="detail-row">
+                      <label>Website:</label>
+                      <span>
+                        {companyInfo.website ? (
+                          <a href={companyInfo.website} target="_blank" rel="noreferrer" className="cv-link">
+                            {companyInfo.website}
+                          </a>
+                        ) : 'N/A'}
+                      </span>
+                    </div>
+                    <div className="detail-row">
+                      <label>Địa chỉ:</label>
+                      <span>{companyInfo.address || 'N/A'}</span>
+                    </div>
+                    {companyInfo.logo && (
+                      <div className="detail-row">
+                        <label>Logo:</label>
+                        <span>
+                          <img src={companyInfo.logo} alt="Company Logo" style={{ maxWidth: '100px', borderRadius: '8px' }} />
+                        </span>
+                      </div>
+                    )}
+                    <div className="detail-row description-row">
+                      <label>Mô tả:</label>
+                      <p className="description-text">{companyInfo.description || 'Chưa có mô tả'}</p>
+                    </div>
                   </div>
-                  <div className="detail-row">
-                    <label>Giới tính:</label>
-                    <span>{userProfile.gender || 'N/A'}</span>
+                ) : (
+                  <div className="no-profile">
+                    <h3>Chưa có thông tin công ty</h3>
+                    <p>Công ty của bạn chưa được thiết lập trong hệ thống.</p>
                   </div>
-                  <div className="detail-row">
-                    <label>Ngày sinh:</label>
-                    <span>{userProfile.birthdate ? new Date(userProfile.birthdate).toLocaleDateString() : 'N/A'}</span>
-                  </div>
-                  <div className="detail-row">
-                    <label>CV:</label>
-                    <span>
-                      {userProfile.cv ? (
-                        <a href={userProfile.cv} target="_blank" rel="noreferrer" className="cv-link">Xem CV</a>
-                      ) : 'Chưa có'}
-                    </span>
-                  </div>
-                  <div className="detail-row description-row">
-                    <label>Mô tả:</label>
-                    <p className="description-text">{userProfile.description || 'Chưa có mô tả'}</p>
-                  </div>
-                </div>
+                )
               ) : (
-                <div className="no-profile">
-                  <h3>Chưa có thông tin cá nhân</h3>
-                  <p>Bạn chưa thêm hồ sơ cá nhân. Thêm thông tin để hoàn thiện hồ sơ ứng tuyển.</p>
-                  <Link href="/user/profile/edit" className="update-btn">Thêm thông tin</Link>
-                </div>
+                // Display user profile information
+                userProfile ? (
+                  <div className="profile-details">
+                    <div className="detail-row">
+                      <label>Họ & tên:</label>
+                      <span>{userProfile.name || 'N/A'}</span>
+                    </div>
+                    <div className="detail-row">
+                      <label>Giới tính:</label>
+                      <span>{userProfile.gender || 'N/A'}</span>
+                    </div>
+                    <div className="detail-row">
+                      <label>Ngày sinh:</label>
+                      <span>{userProfile.birthdate ? new Date(userProfile.birthdate).toLocaleDateString() : 'N/A'}</span>
+                    </div>
+                    <div className="detail-row">
+                      <label>CV:</label>
+                      <span>
+                        {userProfile.cv ? (
+                          <a href={userProfile.cv} target="_blank" rel="noreferrer" className="cv-link">Xem CV</a>
+                        ) : 'Chưa có'}
+                      </span>
+                    </div>
+                    <div className="detail-row description-row">
+                      <label>Mô tả:</label>
+                      <p className="description-text">{userProfile.description || 'Chưa có mô tả'}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="no-profile">
+                    <h3>Chưa có thông tin cá nhân</h3>
+                    <p>Bạn chưa thêm hồ sơ cá nhân. Thêm thông tin để hoàn thiện hồ sơ ứng tuyển.</p>
+                    <Link href="/user/profile/edit" className="update-btn">Thêm thông tin</Link>
+                  </div>
+                )
               )}
             </div>
           </div>

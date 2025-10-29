@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { verifyToken } from "@/app/lib/auth";
 
 const rules = [
-  { pattern: /^\/user/, roles: ["user"], permit: true, redirect: "/error/403" },
+  { pattern: /^\/user/, roles: ["user", "company"], permit: true, redirect: "/error/403" },
   { pattern: /^\/admin/, roles: ["admin"], permit: true, redirect: "/error/403" },
   { pattern: /^\/login/, roles: ["guest"], permit: true, redirect: "/error/403" },
   { pattern: /^\/scrape/, roles: ["user", "admin"], permit: true, redirect: "/error/403" }
