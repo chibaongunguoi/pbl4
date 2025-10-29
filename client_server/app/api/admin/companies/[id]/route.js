@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Company from "@/models/Company";
+import User from "@/models/User";
 import connectDb from "@/app/lib/db";
 
 export async function GET(request, { params }) {
@@ -53,8 +54,68 @@ export async function PUT(request, { params }) {
 
     const body = await request.json();
     
-    // Remove fields that shouldn't be updated
+    // Get current company to access old username
+    const currentCompany = await Company.findById(id);
+    if (!currentCompany) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Không tìm thấy công ty" 
+      }, { status: 404 });
+    }
+
+    // Handle username and password update separately
+    const newUsername = body.username?.trim();
+    const newPassword = body.password?.trim();
+    
+    // Update User account if username or password is provided
+    if (newUsername || newPassword) {
+      const oldUsername = currentCompany.username;
+      
+      if (!oldUsername) {
+        return NextResponse.json({ 
+          success: false, 
+          error: "Công ty này chưa có tài khoản người dùng" 
+        }, { status: 400 });
+      }
+
+      // Find the user account
+      const userAccount = await User.findOne({ username: oldUsername });
+      if (!userAccount) {
+        return NextResponse.json({ 
+          success: false, 
+          error: "Không tìm thấy tài khoản người dùng" 
+        }, { status: 404 });
+      }
+
+      // If username is being changed, check if new username already exists
+      if (newUsername && newUsername !== oldUsername) {
+        const existingUser = await User.findOne({ username: newUsername });
+        if (existingUser) {
+          return NextResponse.json({ 
+            success: false, 
+            error: "Username mới đã tồn tại trong hệ thống" 
+          }, { status: 400 });
+        }
+        
+        // Update username in User model
+        userAccount.username = newUsername;
+      }
+
+      // Update password if provided
+      if (newPassword) {
+        userAccount.password = newPassword;
+      }
+
+      await userAccount.save();
+    }
+    
+    // Remove fields that shouldn't be updated directly
     const { _id, __v, createdAt, password, username, ...updateData } = body;
+    
+    // Add username to updateData if it was changed
+    if (newUsername) {
+      updateData.username = newUsername;
+    }
 
     const company = await Company.findByIdAndUpdate(
       id,
@@ -63,7 +124,7 @@ export async function PUT(request, { params }) {
         new: true, 
         runValidators: true 
       }
-    ).select('-password');
+    );
     
     if (!company) {
       return NextResponse.json({ 

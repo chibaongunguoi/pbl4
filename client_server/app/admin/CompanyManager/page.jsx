@@ -280,6 +280,17 @@ export default function CompanyManagerPage() {
     const emailError = validateCompanyField('email', editingCompany.email);
     const phoneError = validateCompanyField('phone', editingCompany.phone);
     const websiteError = validateCompanyField('website', editingCompany.website);
+    
+    // Only validate username and password if they are provided
+    if (editingCompany.username) {
+      const usernameError = validateCompanyField('username', editingCompany.username);
+      if (usernameError) errors.username = usernameError;
+    }
+    
+    if (editingCompany.password) {
+      const passwordError = validateCompanyField('password', editingCompany.password);
+      if (passwordError) errors.password = passwordError;
+    }
 
     if (nameError) errors.name = nameError;
     if (emailError) errors.email = emailError;
@@ -596,6 +607,57 @@ export default function CompanyManagerPage() {
                   className="form-input"
                   placeholder="123 Đường ABC, Quận XYZ, TP. HCM"
                 />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="edit-company-username" className="form-label">
+                  Username tài khoản
+                </label>
+                <input
+                  type="text"
+                  id="edit-company-username"
+                  value={editingCompany.username || ''}
+                  onChange={(e) => handleEditInputChange('username', e.target.value)}
+                  onBlur={(e) => {
+                    const error = validateCompanyField('username', e.target.value);
+                    if (error) setCompanyErrors(prev => ({ ...prev, username: error }));
+                  }}
+                  className={`form-input ${companyErrors.username ? 'error' : ''}`}
+                  placeholder="username_congty"
+                />
+                {companyErrors.username && (
+                  <div className="error-message">{companyErrors.username}</div>
+                )}
+                <small style={{ display: 'block', marginTop: '6px', color: '#9ca3af', fontSize: '13px' }}>
+                  Để trống nếu không muốn thay đổi username
+                </small>
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-company-password" className="form-label">
+                  Password mới
+                </label>
+                <input
+                  type="password"
+                  id="edit-company-password"
+                  value={editingCompany.password || ''}
+                  onChange={(e) => handleEditInputChange('password', e.target.value)}
+                  onBlur={(e) => {
+                    if (e.target.value) {
+                      const error = validateCompanyField('password', e.target.value);
+                      if (error) setCompanyErrors(prev => ({ ...prev, password: error }));
+                    }
+                  }}
+                  className={`form-input ${companyErrors.password ? 'error' : ''}`}
+                  placeholder="Nhập password mới..."
+                />
+                {companyErrors.password && (
+                  <div className="error-message">{companyErrors.password}</div>
+                )}
+                <small style={{ display: 'block', marginTop: '6px', color: '#9ca3af', fontSize: '13px' }}>
+                  Để trống nếu không muốn thay đổi password
+                </small>
               </div>
             </div>
 
