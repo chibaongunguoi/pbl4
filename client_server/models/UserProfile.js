@@ -6,7 +6,7 @@ const UserProfileSchema = new Schema({
   gender: {
     type: String,
     enum: {
-      values: ["male", "female"],
+      values: ["nam", "nữ"],
       message: '{VALUE} is not a valid gender'
     }
   },

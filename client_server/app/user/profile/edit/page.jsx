@@ -15,7 +15,7 @@ export default function EditUserProfile() {
 
   const [form, setForm] = useState({
     name: '',
-    gender: 'male',
+    gender: 'nam',
     birthdate: '',
     cv: '',
     description: ''
@@ -31,7 +31,7 @@ export default function EditUserProfile() {
             const p = data.data;
             setForm({
               name: p.name || '',
-              gender: p.gender || 'male',
+              gender: p.gender || 'nam',
               birthdate: p.birthdate ? new Date(p.birthdate).toISOString().slice(0,10) : '',
               cv: p.cv || '',
               description: p.description || ''
@@ -164,8 +164,8 @@ export default function EditUserProfile() {
                   <input 
                     type="radio" 
                     name="gender" 
-                    value="male" 
-                    checked={form.gender === 'male'}
+                    value="nam" 
+                    checked={form.gender === 'nam'}
                     onChange={handleChange}
                     className="radio-input"
                   />
@@ -175,8 +175,8 @@ export default function EditUserProfile() {
                   <input 
                     type="radio" 
                     name="gender" 
-                    value="female" 
-                    checked={form.gender === 'female'}
+                    value="nữ" 
+                    checked={form.gender === 'nữ'}
                     onChange={handleChange}
                     className="radio-input"
                   />
