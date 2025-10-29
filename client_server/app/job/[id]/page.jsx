@@ -12,6 +12,9 @@ export default function CardDetail() {
   const [loading, setLoading] = useState(true);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
   const [followCount, setFollowCount] = useState(0);
+  const [companyExists, setCompanyExists] = useState(false);
+  const [companyId, setCompanyId] = useState(null);
+  const [isApplyLoading, setIsApplyLoading] = useState(false);
   const router = useRouter();
   const params = useParams();
   const jobId = params.id;
@@ -84,6 +87,63 @@ export default function CardDetail() {
       console.error('Error fetching follow count:', error);
     }
   };
+
+  // Check if company exists in Company model
+  const checkCompanyExists = async (companyName) => {
+    try {
+      const response = await fetch(`/api/admin/companies?name=${encodeURIComponent(companyName)}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.companies && data.companies.length > 0) {
+          const company = data.companies.find(c => c.name === companyName);
+          if (company) {
+            setCompanyExists(true);
+            setCompanyId(company._id);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error checking company:', error);
+    }
+  };
+
+  // Handle apply to company
+  const handleApply = async () => {
+    if (isApplyLoading || !companyId) return;
+    
+    try {
+      setIsApplyLoading(true);
+      const response = await fetch("/api/user/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ companyID: companyId }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert('Ứng tuyển thành công!');
+      } else {
+        const errorData = await response.json();
+        if (response.status === 401) {
+          router.push('/login');
+        } else if (response.status === 409) {
+          alert('Bạn đã ứng tuyển vào công ty này rồi!');
+        } else {
+          alert(errorData.error || 'Có lỗi xảy ra khi ứng tuyển');
+        }
+      }
+    } catch (error) {
+      console.error('Apply error:', error);
+      alert('Có lỗi xảy ra khi ứng tuyển');
+    } finally {
+      setIsApplyLoading(false);
+    }
+  };
+
   function convertInlineAsterisks(text) {
   return text
     .split(/\s*\*\s+/)     // Tách bằng dấu *
@@ -99,6 +159,13 @@ export default function CardDetail() {
       fetchFollowCount(jobId);
     }
   }, [jobId]);
+
+  // Check company when job is loaded
+  useEffect(() => {
+    if (job?.company_name) {
+      checkCompanyExists(job.company_name);
+    }
+  }, [job]);
 
   const fetchJobDetail = async (id) => {
     try {
@@ -220,6 +287,29 @@ export default function CardDetail() {
               </>
             )}
           </button>
+
+          {/* Apply Button - only show if company exists in Company model */}
+          {companyExists && (
+            <button 
+              className="apply-button"
+              onClick={handleApply}
+              disabled={isApplyLoading}
+            >
+              {isApplyLoading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                  Đang xử lý...
+                </div>
+              ) : (
+                <>
+                  <svg className="apply-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Ứng tuyển
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
 

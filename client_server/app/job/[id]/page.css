@@ -110,7 +110,10 @@
 }
 
 .apply-button {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -121,10 +124,20 @@
   transition: all 0.3s ease;
 }
 
-.apply-button:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+.apply-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.apply-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.apply-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .save-button {
