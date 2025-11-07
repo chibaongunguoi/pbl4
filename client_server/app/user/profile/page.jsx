@@ -14,6 +14,12 @@ export default function UserInfoPage() {
   const [favoritesLoading, setFavoritesLoading] = useState(false);
   const [applications, setApplications] = useState([]);
   const [applicationsLoading, setApplicationsLoading] = useState(false);
+  const [companyJobs, setCompanyJobs] = useState([]);
+  const [jobsLoading, setJobsLoading] = useState(false);
+  const [editingJob, setEditingJob] = useState(null);
+  const [showEditJobForm, setShowEditJobForm] = useState(false);
+  const [savingJob, setSavingJob] = useState(false);
+  const [jobMessage, setJobMessage] = useState({ type: '', text: '' });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -143,6 +149,36 @@ export default function UserInfoPage() {
     }
   };
 
+  // Fetch jobs for company role
+  const fetchCompanyJobs = async () => {
+    if (jobsLoading || !companyInfo?.name) return;
+    
+    try {
+      setJobsLoading(true);
+      const response = await fetch('/api/jobDetail', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Filter jobs by company name
+        const filtered = (data.data || []).filter(job => 
+          job.company_name === companyInfo.name
+        );
+        setCompanyJobs(filtered);
+      } else {
+        console.error('Error fetching jobs');
+      }
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+    } finally {
+      setJobsLoading(false);
+    }
+  };
+
   // Load favorites when switching to favorites tab
   useEffect(() => {
     if (activeTab === 'favorites') {
@@ -156,6 +192,13 @@ export default function UserInfoPage() {
       fetchApplications();
     }
   }, [activeTab]);
+
+  // Load jobs when switching to jobs tab
+  useEffect(() => {
+    if (activeTab === 'jobs' && user?.role === 'company' && companyInfo) {
+      fetchCompanyJobs();
+    }
+  }, [activeTab, companyInfo]);
 
   // Handle password form
   const handlePasswordChange = (e) => {
@@ -246,6 +289,79 @@ export default function UserInfoPage() {
       setPasswordLoading(false);
     }
   };
+
+  // Handle job edit
+  const handleEditJob = (job) => {
+    setEditingJob({...job});
+    setShowEditJobForm(true);
+    setJobMessage({ type: '', text: '' });
+  };
+
+  const handleCancelEditJob = () => {
+    setShowEditJobForm(false);
+    setEditingJob(null);
+    setJobMessage({ type: '', text: '' });
+  };
+
+  const handleJobInputChange = (field, value) => {
+    setEditingJob(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleJobDescriptionChange = (key, value) => {
+    setEditingJob(prev => ({
+      ...prev,
+      descriptions: {
+        ...prev.descriptions,
+        [key]: value
+      }
+    }));
+  };
+
+  const handleJobInfoChange = (key, value) => {
+    setEditingJob(prev => ({
+      ...prev,
+      job_info: {
+        ...prev.job_info,
+        [key]: value
+      }
+    }));
+  };
+
+  const handleJobSkillsChange = (value) => {
+    const skillsArray = value.split(',').map(skill => skill.trim()).filter(skill => skill);
+    setEditingJob(prev => ({ ...prev, skills: skillsArray }));
+  };
+
+  const handleSaveJob = async (e) => {
+    e.preventDefault();
+    setSavingJob(true);
+    setJobMessage({ type: '', text: '' });
+
+    try {
+      const response = await fetch(`/api/jobDetail/${editingJob._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingJob),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setJobMessage({ type: 'success', text: 'Cập nhật công việc thành công!' });
+        fetchCompanyJobs();
+        setTimeout(() => {
+          handleCancelEditJob();
+        }, 2000);
+      } else {
+        setJobMessage({ type: 'error', text: data.error || 'Có lỗi xảy ra khi cập nhật công việc' });
+      }
+    } catch (error) {
+      console.error('Error updating job:', error);
+      setJobMessage({ type: 'error', text: 'Có lỗi xảy ra khi cập nhật công việc' });
+    } finally {
+      setSavingJob(false);
+    }
+  };
   
   async function logOut() {
     await fetch("/api/auth/logout", {
@@ -292,6 +408,19 @@ export default function UserInfoPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   Danh sách ứng tuyển
+                </button>
+              </li>
+            )}
+            {user?.role === 'company' && (
+              <li>
+                <button
+                  className={`nav-link ${activeTab === 'jobs' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('jobs')}
+                >
+                  <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Công việc cần tuyển
                 </button>
               </li>
             )}
@@ -695,7 +824,231 @@ export default function UserInfoPage() {
             </form>
           </div>
         )}
+
+        {activeTab === 'jobs' && user?.role === 'company' && (
+          <div className="content-section">
+            <div className="section-header">
+              <h2>Công việc cần tuyển</h2>
+              <p className="section-subtitle">
+                {companyJobs.length} công việc đang tuyển
+              </p>
+            </div>
+            
+            {jobsLoading ? (
+              <div className="loading-container">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-600"></div>
+                <span>Đang tải...</span>
+              </div>
+            ) : companyJobs.length === 0 ? (
+              <div className="empty-state">
+                <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <p>Chưa có công việc nào</p>
+              </div>
+            ) : (
+              <div className="jobs-table-wrapper">
+                <table className="jobs-table-profile">
+                  <thead>
+                    <tr>
+                      <th>Logo</th>
+                      <th>Tên công việc</th>
+                      <th>Địa điểm</th>
+                      <th>Mức lương</th>
+                      <th>Kỹ năng</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {companyJobs.map((job) => (
+                      <tr key={job._id}>
+                        <td>
+                          <div className="job-logo-cell">
+                            {job.thumbnail && (
+                              <img 
+                                src={job.thumbnail} 
+                                alt={job.company_name}
+                                className="job-thumbnail"
+                              />
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="job-title-info">
+                            <span className="job-title-text">{job.job_title}</span>
+                          </div>
+                        </td>
+                        <td>{job.province}</td>
+                        <td>{job.salary || 'Thỏa thuận'}</td>
+                        <td>
+                          <div className="skills-cell">
+                            {job.skills?.slice(0, 2).map((skill, index) => (
+                              <span key={index} className="skill-tag-table">
+                                {skill}
+                              </span>
+                            ))}
+                            {job.skills?.length > 2 && (
+                              <span className="more-skills-table">+{job.skills.length - 2}</span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              onClick={() => handleEditJob(job)}
+                              className="edit-job-btn"
+                              title="Chỉnh sửa"
+                            >
+                              <svg className="edit-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                              </svg>
+                              Sửa
+                            </button>
+                            <button
+                              onClick={() => router.push(`/job/${job._id}`)}
+                              className="view-detail-btn"
+                              title="Xem chi tiết"
+                            >
+                              <svg className="view-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                              Xem
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Edit Job Modal */}
+      {showEditJobForm && editingJob && (
+        <div className="modal-overlay" onClick={handleCancelEditJob}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Chỉnh sửa công việc</h2>
+              <button className="modal-close-btn" onClick={handleCancelEditJob}>
+                <svg fill="currentColor" viewBox="0 0 20 20" width="24" height="24">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                </svg>
+              </button>
+            </div>
+
+            {jobMessage.text && (
+              <div className={`message ${jobMessage.type}`}>
+                {jobMessage.text}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveJob} className="edit-job-form">
+              <div className="form-group">
+                <label>Tên công việc *</label>
+                <input
+                  type="text"
+                  value={editingJob.job_title || ''}
+                  onChange={(e) => handleJobInputChange('job_title', e.target.value)}
+                  className="form-input"
+                  required
+                />
+              </div>
+
+              <div className="form-row-2">
+                <div className="form-group">
+                  <label>Địa điểm</label>
+                  <input
+                    type="text"
+                    value={editingJob.province || ''}
+                    onChange={(e) => handleJobInputChange('province', e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Mức lương</label>
+                  <input
+                    type="text"
+                    value={editingJob.salary || ''}
+                    onChange={(e) => handleJobInputChange('salary', e.target.value)}
+                    className="form-input"
+                    placeholder="VD: 60-80 triệu"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>URL thumbnail</label>
+                <input
+                  type="url"
+                  value={editingJob.thumbnail || ''}
+                  onChange={(e) => handleJobInputChange('thumbnail', e.target.value)}
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Kỹ năng (phân cách bằng dấu phẩy)</label>
+                <input
+                  type="text"
+                  value={editingJob.skills?.join(', ') || ''}
+                  onChange={(e) => handleJobSkillsChange(e.target.value)}
+                  className="form-input"
+                  placeholder="VD: Java, Python, React"
+                />
+              </div>
+
+              <h3 className="section-title-modal">Mô tả công việc</h3>
+              {Object.keys(editingJob.descriptions || {}).map((key, index) => (
+                <div key={index} className="form-group">
+                  <label>{key}</label>
+                  <textarea
+                    value={editingJob.descriptions[key] || ''}
+                    onChange={(e) => handleJobDescriptionChange(key, e.target.value)}
+                    className="form-input"
+                    rows="4"
+                  />
+                </div>
+              ))}
+
+              <h3 className="section-title-modal">Thông tin tuyển dụng</h3>
+              {Object.keys(editingJob.job_info || {}).map((key, index) => (
+                <div key={index} className="form-row-2">
+                  <div className="form-group">
+                    <label>{key}</label>
+                    <input
+                      type="text"
+                      value={editingJob.job_info[key] || ''}
+                      onChange={(e) => handleJobInfoChange(key, e.target.value)}
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+              ))}
+
+              <div className="modal-actions">
+                <button 
+                  type="button" 
+                  className="cancel-btn-modal"
+                  onClick={handleCancelEditJob}
+                >
+                  Hủy
+                </button>
+                <button 
+                  type="submit" 
+                  className="save-btn-modal"
+                  disabled={savingJob}
+                >
+                  {savingJob ? 'Đang lưu...' : 'Lưu thay đổi'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
