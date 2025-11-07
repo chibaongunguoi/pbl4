@@ -17,28 +17,28 @@ export async function POST(req) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { companyID } = await req.json();
+    const { JobDetailID } = await req.json();
 
-    if (!companyID) {
-      return NextResponse.json({ error: "Company ID is required" }, { status: 400 });
+    if (!JobDetailID) {
+      return NextResponse.json({ error: "Job Detail ID is required" }, { status: 400 });
     }
 
-    // Check if user already applied to this company
+    // Check if user already applied to this job
     const existingApplication = await User_company.findOne({
       userID: decoded.userId,
-      companyID: companyID
+      JobDetailID: JobDetailID
     });
 
     if (existingApplication) {
       return NextResponse.json({ 
-        error: "You have already applied to this company" 
+        error: "You have already applied to this job" 
       }, { status: 409 });
     }
 
     // Create new application
     const application = await User_company.create({
       userID: decoded.userId,
-      companyID: companyID,
+      JobDetailID: JobDetailID,
       time: new Date()
     });
 
@@ -70,13 +70,13 @@ export async function GET(req) {
     }
 
     const { searchParams } = new URL(req.url);
-    const companyID = searchParams.get('companyID');
+    const JobDetailID = searchParams.get('JobDetailID');
 
-    if (companyID) {
-      // Check if user has applied to specific company
+    if (JobDetailID) {
+      // Check if user has applied to specific job
       const application = await User_company.findOne({
         userID: decoded.userId,
-        companyID: companyID
+        JobDetailID: JobDetailID
       });
 
       return NextResponse.json({ 
@@ -88,7 +88,7 @@ export async function GET(req) {
       // Get all user's applications
       const applications = await User_company.find({ 
         userID: decoded.userId 
-      }).populate('companyID').sort({ time: -1 });
+      }).populate('JobDetailID').sort({ time: -1 });
 
       return NextResponse.json({ 
         success: true,

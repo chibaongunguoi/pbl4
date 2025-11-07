@@ -7,9 +7,9 @@ const UserCompanySchema = new Schema({
     ref: 'User', 
     required: true 
   },
-  companyID: { 
+  JobDetailID: { 
     type: Schema.Types.ObjectId, 
-    ref: 'Company', 
+    ref: 'JobDetail', 
     required: true 
   },
   time: { 
@@ -22,7 +22,7 @@ const UserCompanySchema = new Schema({
 });
 
 // Index for faster queries
-UserCompanySchema.index({ userID: 1, companyID: 1 });
+UserCompanySchema.index({ userID: 1, JobDetailID: 1 });
 UserCompanySchema.index({ time: -1 });
 
 // Remove cached model if it exists to avoid overwrite issues in dev

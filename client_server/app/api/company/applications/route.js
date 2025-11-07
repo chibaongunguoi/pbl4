@@ -4,6 +4,7 @@ import User_company from '@/models/User_company';
 import Company from '@/models/Company';
 import User from '@/models/User';
 import UserProfile from '@/models/UserProfile';
+import JobDetail from '@/models/JobDetail';
 import { verifyToken } from '@/app/lib/auth';
 
 // GET: Fetch all applications for the company
@@ -55,9 +56,16 @@ export async function GET(request) {
 
     console.log('Found company:', company._id, company.name);
 
-    // Find all applications for this company
-    const applications = await User_company.find({ companyID: company._id })
+    // Find all jobs posted by this company
+    const companyJobs = await JobDetail.find({ company_name: company.name });
+    const jobIds = companyJobs.map(job => job._id);
+
+    console.log('Found company jobs:', jobIds.length);
+
+    // Find all applications for these jobs
+    const applications = await User_company.find({ JobDetailID: { $in: jobIds } })
       .populate('userID', 'username')
+      .populate('JobDetailID')
       .sort({ time: -1 }); // Sort by most recent first
 
     console.log('Found applications:', applications.length);
@@ -69,7 +77,7 @@ export async function GET(request) {
         return {
           _id: app._id,
           userID: app.userID,
-          companyID: app.companyID,
+          JobDetailID: app.JobDetailID,
           time: app.time,
           userProfile: userProfile || null,
         };

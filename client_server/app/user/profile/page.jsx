@@ -148,6 +148,35 @@ export default function UserInfoPage() {
     }
   };
 
+  // Delete application
+  const handleDeleteApplication = async (applicationId) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa đơn ứng tuyển này?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/user/apply/${applicationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Thêm dòng này để gửi cookies
+      });
+
+      if (response.ok) {
+        alert('Xóa đơn ứng tuyển thành công!');
+        // Refresh applications list
+        fetchApplications();
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Lỗi khi xóa đơn ứng tuyển');
+      }
+    } catch (error) {
+      console.error('Error deleting application:', error);
+      alert('Lỗi khi xóa đơn ứng tuyển');
+    }
+  };
+
   // Fetch jobs for company role
   const fetchCompanyJobs = async () => {
     if (jobsLoading || !companyInfo?.name) return;
@@ -659,12 +688,14 @@ export default function UserInfoPage() {
                     <tr>
                       <th>Username</th>
                       <th>Họ tên</th>
+                      <th>Công việc ứng tuyển</th>
                       <th>Số điện thoại</th>
                       <th>Giới tính</th>
                       <th>Ngày sinh</th>
                       <th>Mô tả</th>
                       <th>CV</th>
                       <th>Thời gian ứng tuyển</th>
+                      <th>Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -679,6 +710,11 @@ export default function UserInfoPage() {
                           </div>
                         </td>
                         <td>{application.userProfile?.name || 'Chưa cập nhật'}</td>
+                        <td>
+                          <div className="job-title-cell">
+                            {application.JobDetailID?.job_title || 'Chưa rõ'}
+                          </div>
+                        </td>
                         <td>{application.userProfile?.phone || 'Chưa có'}</td>
                         <td>
                           {application.userProfile?.gender === 'male' ? 'Nam' : 
@@ -713,6 +749,17 @@ export default function UserInfoPage() {
                           )}
                         </td>
                         <td>{new Date(application.time).toLocaleString('vi-VN')}</td>
+                        <td>
+                          <button
+                            onClick={() => handleDeleteApplication(application._id)}
+                            className="delete-btn"
+                            title="Xóa đơn ứng tuyển"
+                          >
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

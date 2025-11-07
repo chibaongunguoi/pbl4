@@ -147,7 +147,7 @@ export default function CardDetail() {
       const response = await fetch("/api/user/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyID: companyId }),
+        body: JSON.stringify({ JobDetailID: jobId }),
       });
 
       if (response.ok) {
@@ -158,7 +158,7 @@ export default function CardDetail() {
         if (response.status === 401) {
           router.push('/login');
         } else if (response.status === 409) {
-          alert('Bạn đã ứng tuyển vào công ty này rồi!');
+          alert('Bạn đã ứng tuyển vào công việc này rồi!');
         } else {
           alert(errorData.error || 'Có lỗi xảy ra khi ứng tuyển');
         }

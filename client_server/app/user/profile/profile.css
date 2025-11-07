@@ -930,6 +930,32 @@
   font-style: italic;
 }
 
+.applications-table .delete-btn {
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.applications-table .delete-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.applications-table .delete-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 .application-card {
   background: white;
   border: 1px solid #e2e8f0;
