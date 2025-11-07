@@ -4,7 +4,13 @@ import { useState } from "react";
 import "./EditJobForm.css";
 
 export default function EditJobForm({ job, onSave, onCancel }) {
-  const [editingJob, setEditingJob] = useState({...job});
+  // Convert skills array to string for editing
+  const initialJob = {
+    ...job,
+    skillsString: Array.isArray(job.skills) ? job.skills.join(', ') : ''
+  };
+  
+  const [editingJob, setEditingJob] = useState(initialJob);
   const [saving, setSaving] = useState(false);
   const [submitMessage, setSubmitMessage] = useState({ type: '', text: '' });
 
@@ -33,8 +39,7 @@ export default function EditJobForm({ job, onSave, onCancel }) {
   };
 
   const handleSkillsChange = (value) => {
-    const skillsArray = value.split(',').map(skill => skill.trim()).filter(skill => skill);
-    setEditingJob(prev => ({ ...prev, skills: skillsArray }));
+    setEditingJob(prev => ({ ...prev, skillsString: value }));
   };
 
   const addDescriptionField = () => {
@@ -135,10 +140,20 @@ export default function EditJobForm({ job, onSave, onCancel }) {
       const url = isNewJob ? '/api/jobDetail' : `/api/jobDetail/${editingJob._id}`;
       const method = isNewJob ? 'POST' : 'PUT';
 
+      // Convert skillsString to skills array before submitting
+      const jobData = {
+        ...editingJob,
+        skills: editingJob.skillsString 
+          ? editingJob.skillsString.split(',').map(skill => skill.trim()).filter(skill => skill)
+          : []
+      };
+      // Remove skillsString as it's not needed in database
+      delete jobData.skillsString;
+
       const response = await fetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingJob),
+        body: JSON.stringify(jobData),
       });
 
       const data = await response.json();
@@ -275,7 +290,7 @@ export default function EditJobForm({ job, onSave, onCancel }) {
             <label className="form-label">Kỹ năng (phân cách bằng dấu phẩy)</label>
             <input
               type="text"
-              value={editingJob.skills?.join(', ') || ''}
+              value={editingJob.skillsString || ''}
               onChange={(e) => handleSkillsChange(e.target.value)}
               className="form-input"
               placeholder="VD: Bridge Engineer, Java, Python"
