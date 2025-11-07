@@ -19,6 +19,8 @@ export default function UserInfoPage() {
   const [jobsLoading, setJobsLoading] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [showEditJobForm, setShowEditJobForm] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [showApplicationDetail, setShowApplicationDetail] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -175,6 +177,18 @@ export default function UserInfoPage() {
       console.error('Error deleting application:', error);
       alert('Lỗi khi xóa đơn ứng tuyển');
     }
+  };
+
+  // View application detail
+  const handleViewApplicationDetail = (application) => {
+    setSelectedApplication(application);
+    setShowApplicationDetail(true);
+  };
+
+  // Close application detail modal
+  const handleCloseApplicationDetail = () => {
+    setShowApplicationDetail(false);
+    setSelectedApplication(null);
   };
 
   // Fetch jobs for company role
@@ -686,13 +700,11 @@ export default function UserInfoPage() {
                 <table className="applications-table">
                   <thead>
                     <tr>
-                      <th>Username</th>
                       <th>Họ tên</th>
                       <th>Công việc ứng tuyển</th>
                       <th>Số điện thoại</th>
                       <th>Giới tính</th>
                       <th>Ngày sinh</th>
-                      <th>Mô tả</th>
                       <th>CV</th>
                       <th>Thời gian ứng tuyển</th>
                       <th>Thao tác</th>
@@ -701,14 +713,7 @@ export default function UserInfoPage() {
                   <tbody>
                     {applications.map((application) => (
                       <tr key={application._id}>
-                        <td>
-                          <div className="username-cell">
-                            <div className="user-avatar-table">
-                              {application.userID?.username?.charAt(0).toUpperCase() || 'U'}
-                            </div>
-                            <span>{application.userID?.username || 'Unknown'}</span>
-                          </div>
-                        </td>
+                    
                         <td>{application.userProfile?.name || 'Chưa cập nhật'}</td>
                         <td>
                           <div className="job-title-cell">
@@ -725,11 +730,6 @@ export default function UserInfoPage() {
                           {application.userProfile?.birthdate ? 
                             new Date(application.userProfile.birthdate).toLocaleDateString('vi-VN') : 
                             'Chưa cập nhật'}
-                        </td>
-                        <td>
-                          <div className="description-cell">
-                            {application.userProfile?.description || 'Chưa có'}
-                          </div>
                         </td>
                         <td>
                           {application.userProfile?.cv ? (
@@ -750,15 +750,27 @@ export default function UserInfoPage() {
                         </td>
                         <td>{new Date(application.time).toLocaleString('vi-VN')}</td>
                         <td>
-                          <button
-                            onClick={() => handleDeleteApplication(application._id)}
-                            className="delete-btn"
-                            title="Xóa đơn ứng tuyển"
-                          >
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
+                          <div className="action-buttons">
+                            <button
+                              onClick={() => handleViewApplicationDetail(application)}
+                              className="view-detail-btn"
+                              title="Xem chi tiết"
+                            >
+                              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteApplication(application._id)}
+                              className="delete-btn"
+                              title="Xóa đơn ứng tuyển"
+                            >
+                              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -988,6 +1000,117 @@ export default function UserInfoPage() {
               onSave={handleSaveJob}
               onCancel={handleCancelEditJob}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Application Detail Modal */}
+      {showApplicationDetail && selectedApplication && (
+        <div className="modal-overlay" onClick={handleCloseApplicationDetail}>
+          <div className="modal-content application-detail-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Chi tiết ứng viên</h2>
+              <button className="modal-close-btn" onClick={handleCloseApplicationDetail}>
+                <svg fill="currentColor" viewBox="0 0 20 20" width="24" height="24">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                </svg>
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="detail-section">
+                <div className="detail-header">
+                  <div className="applicant-avatar">
+                    {selectedApplication.userID?.username?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  <div className="applicant-info">
+                    <h3>{selectedApplication.userProfile?.name || 'Chưa cập nhật'}</h3>
+                    <p className="username">@{selectedApplication.userID?.username || 'Unknown'}</p>
+                  </div>
+                </div>
+
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <label>Công việc ứng tuyển:</label>
+                    <p>{selectedApplication.JobDetailID?.job_title || 'Chưa rõ'}</p>
+                  </div>
+
+                  <div className="detail-item">
+                    <label>Số điện thoại:</label>
+                    <p>{selectedApplication.userProfile?.phone || 'Chưa có'}</p>
+                  </div>
+
+                  <div className="detail-item">
+                    <label>Email:</label>
+                    <p>{selectedApplication.userID?.email || 'Chưa có'}</p>
+                  </div>
+
+                  <div className="detail-item">
+                    <label>Giới tính:</label>
+                    <p>
+                      {selectedApplication.userProfile?.gender === 'male' ? 'Nam' : 
+                       selectedApplication.userProfile?.gender === 'female' ? 'Nữ' : 
+                       'Chưa cập nhật'}
+                    </p>
+                  </div>
+
+                  <div className="detail-item">
+                    <label>Ngày sinh:</label>
+                    <p>
+                      {selectedApplication.userProfile?.birthdate ? 
+                        new Date(selectedApplication.userProfile.birthdate).toLocaleDateString('vi-VN') : 
+                        'Chưa cập nhật'}
+                    </p>
+                  </div>
+
+                  <div className="detail-item">
+                    <label>Thời gian ứng tuyển:</label>
+                    <p>{new Date(selectedApplication.time).toLocaleString('vi-VN')}</p>
+                  </div>
+
+                  <div className="detail-item full-width">
+                    <label>Mô tả bản thân:</label>
+                    <p className="description-text">
+                      {selectedApplication.userProfile?.description || 'Chưa có'}
+                    </p>
+                  </div>
+
+                  <div className="detail-item full-width">
+                    <label>CV:</label>
+                    {selectedApplication.userProfile?.cv ? (
+                      <a 
+                        href={selectedApplication.userProfile.cv} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="cv-download-link"
+                      >
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Xem CV
+                      </a>
+                    ) : (
+                      <p className="no-data">Chưa có CV</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button onClick={handleCloseApplicationDetail} className="btn-secondary">
+                  Đóng
+                </button>
+                <button 
+                  onClick={() => {
+                    handleCloseApplicationDetail();
+                    handleDeleteApplication(selectedApplication._id);
+                  }} 
+                  className="btn-danger"
+                >
+                  Xóa đơn ứng tuyển
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
