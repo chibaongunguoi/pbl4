@@ -76,7 +76,7 @@ export default function Header() {
               aria-current="page"
               className="router-link-exact-active router-link-active"
             >
-              <div className="logo">KrowlworK</div>
+              <div className="logo">ITWORKER</div>
             </a>
           </h1>
         </div>
