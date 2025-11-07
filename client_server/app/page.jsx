@@ -6,6 +6,7 @@ import "@/app/styles/home.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import JobCard from "./ui/components/JobCard";
+import Carousel from "./ui/components/Carousel";
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,12 +87,12 @@ export default function Home() {
 
   return (
     <div className="home-container">
+      {/* Carousel Section */}
+      <Carousel />
+
       {/* Header Section */}
       <div className="header-section">
         <h1>Cơ hội việc làm</h1>
-        <Link href="/jobs">
-          Xem thêm <span className="arrow-icon">→</span>
-        </Link>
       </div>
 
       {/* Job Cards Grid */}

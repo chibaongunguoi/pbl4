@@ -22,7 +22,7 @@ export default function JobCard({ job, followCount = null, showFollowBadge = fal
         <div className="company-logo">
           <Image
             src={job.thumbnail}
-            alt={job.company_name}
+            // alt={job.company_name}
             width={64}
             height={64}
           />
