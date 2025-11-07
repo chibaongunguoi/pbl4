@@ -5,6 +5,7 @@ import getUser from "@/app/conn/conn";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import EditJobForm from "../../components/EditJobForm";
 import "./profile.css";
 
 export default function UserInfoPage() {
@@ -18,8 +19,6 @@ export default function UserInfoPage() {
   const [jobsLoading, setJobsLoading] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [showEditJobForm, setShowEditJobForm] = useState(false);
-  const [savingJob, setSavingJob] = useState(false);
-  const [jobMessage, setJobMessage] = useState({ type: '', text: '' });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -294,73 +293,17 @@ export default function UserInfoPage() {
   const handleEditJob = (job) => {
     setEditingJob({...job});
     setShowEditJobForm(true);
-    setJobMessage({ type: '', text: '' });
   };
 
   const handleCancelEditJob = () => {
     setShowEditJobForm(false);
     setEditingJob(null);
-    setJobMessage({ type: '', text: '' });
   };
 
-  const handleJobInputChange = (field, value) => {
-    setEditingJob(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleJobDescriptionChange = (key, value) => {
-    setEditingJob(prev => ({
-      ...prev,
-      descriptions: {
-        ...prev.descriptions,
-        [key]: value
-      }
-    }));
-  };
-
-  const handleJobInfoChange = (key, value) => {
-    setEditingJob(prev => ({
-      ...prev,
-      job_info: {
-        ...prev.job_info,
-        [key]: value
-      }
-    }));
-  };
-
-  const handleJobSkillsChange = (value) => {
-    const skillsArray = value.split(',').map(skill => skill.trim()).filter(skill => skill);
-    setEditingJob(prev => ({ ...prev, skills: skillsArray }));
-  };
-
-  const handleSaveJob = async (e) => {
-    e.preventDefault();
-    setSavingJob(true);
-    setJobMessage({ type: '', text: '' });
-
-    try {
-      const response = await fetch(`/api/jobDetail/${editingJob._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingJob),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setJobMessage({ type: 'success', text: 'Cập nhật công việc thành công!' });
-        fetchCompanyJobs();
-        setTimeout(() => {
-          handleCancelEditJob();
-        }, 2000);
-      } else {
-        setJobMessage({ type: 'error', text: data.error || 'Có lỗi xảy ra khi cập nhật công việc' });
-      }
-    } catch (error) {
-      console.error('Error updating job:', error);
-      setJobMessage({ type: 'error', text: 'Có lỗi xảy ra khi cập nhật công việc' });
-    } finally {
-      setSavingJob(false);
-    }
+  const handleSaveJob = () => {
+    fetchCompanyJobs();
+    setShowEditJobForm(false);
+    setEditingJob(null);
   };
   
   async function logOut() {
@@ -930,122 +873,17 @@ export default function UserInfoPage() {
       {/* Edit Job Modal */}
       {showEditJobForm && editingJob && (
         <div className="modal-overlay" onClick={handleCancelEditJob}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Chỉnh sửa công việc</h2>
-              <button className="modal-close-btn" onClick={handleCancelEditJob}>
-                <svg fill="currentColor" viewBox="0 0 20 20" width="24" height="24">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
-                </svg>
-              </button>
-            </div>
-
-            {jobMessage.text && (
-              <div className={`message ${jobMessage.type}`}>
-                {jobMessage.text}
-              </div>
-            )}
-
-            <form onSubmit={handleSaveJob} className="edit-job-form">
-              <div className="form-group">
-                <label>Tên công việc *</label>
-                <input
-                  type="text"
-                  value={editingJob.job_title || ''}
-                  onChange={(e) => handleJobInputChange('job_title', e.target.value)}
-                  className="form-input"
-                  required
-                />
-              </div>
-
-              <div className="form-row-2">
-                <div className="form-group">
-                  <label>Địa điểm</label>
-                  <input
-                    type="text"
-                    value={editingJob.province || ''}
-                    onChange={(e) => handleJobInputChange('province', e.target.value)}
-                    className="form-input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Mức lương</label>
-                  <input
-                    type="text"
-                    value={editingJob.salary || ''}
-                    onChange={(e) => handleJobInputChange('salary', e.target.value)}
-                    className="form-input"
-                    placeholder="VD: 60-80 triệu"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>URL thumbnail</label>
-                <input
-                  type="url"
-                  value={editingJob.thumbnail || ''}
-                  onChange={(e) => handleJobInputChange('thumbnail', e.target.value)}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Kỹ năng (phân cách bằng dấu phẩy)</label>
-                <input
-                  type="text"
-                  value={editingJob.skills?.join(', ') || ''}
-                  onChange={(e) => handleJobSkillsChange(e.target.value)}
-                  className="form-input"
-                  placeholder="VD: Java, Python, React"
-                />
-              </div>
-
-              <h3 className="section-title-modal">Mô tả công việc</h3>
-              {Object.keys(editingJob.descriptions || {}).map((key, index) => (
-                <div key={index} className="form-group">
-                  <label>{key}</label>
-                  <textarea
-                    value={editingJob.descriptions[key] || ''}
-                    onChange={(e) => handleJobDescriptionChange(key, e.target.value)}
-                    className="form-input"
-                    rows="4"
-                  />
-                </div>
-              ))}
-
-              <h3 className="section-title-modal">Thông tin tuyển dụng</h3>
-              {Object.keys(editingJob.job_info || {}).map((key, index) => (
-                <div key={index} className="form-row-2">
-                  <div className="form-group">
-                    <label>{key}</label>
-                    <input
-                      type="text"
-                      value={editingJob.job_info[key] || ''}
-                      onChange={(e) => handleJobInfoChange(key, e.target.value)}
-                      className="form-input"
-                    />
-                  </div>
-                </div>
-              ))}
-
-              <div className="modal-actions">
-                <button 
-                  type="button" 
-                  className="cancel-btn-modal"
-                  onClick={handleCancelEditJob}
-                >
-                  Hủy
-                </button>
-                <button 
-                  type="submit" 
-                  className="save-btn-modal"
-                  disabled={savingJob}
-                >
-                  {savingJob ? 'Đang lưu...' : 'Lưu thay đổi'}
-                </button>
-              </div>
-            </form>
+          <div className="modal-content-wrapper" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn-top" onClick={handleCancelEditJob}>
+              <svg fill="currentColor" viewBox="0 0 20 20" width="24" height="24">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+              </svg>
+            </button>
+            <EditJobForm 
+              job={editingJob}
+              onSave={handleSaveJob}
+              onCancel={handleCancelEditJob}
+            />
           </div>
         </div>
       )}
