@@ -7,7 +7,7 @@ export async function GET() {
   try {
     await connectDb();
     const companies = await Company.find()
-      .select('name email phone logo website address username createdAt')
+      .select('name email phone logo website address description username createdAt')
       .sort({ createdAt: -1 });
     
     return NextResponse.json({ 
