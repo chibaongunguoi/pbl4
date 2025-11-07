@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import initDb from "./init_db";
 
-const MONGODB_URI = "mongodb://db:27017/pbl4_db";
+// const MONGODB_URI = "mongodb://db:27017/pbl4_db";
+const MONGODB_URI = "mongodb://localhost:27017/pbl4_db";
 
 let cache = global.mongoose;
 
