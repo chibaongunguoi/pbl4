@@ -205,7 +205,6 @@ export default function JobManagerPage() {
                     
                     return paginatedJobs.map((job, index) => (
                       <tr key={job.id || index} className="job-row">
-                        {console.log(job)}
                         <td>
                           <div className="job-logo">
                             {job.thumbnail ? (

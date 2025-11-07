@@ -771,10 +771,33 @@ export default function UserInfoPage() {
         {activeTab === 'jobs' && user?.role === 'company' && (
           <div className="content-section">
             <div className="section-header">
-              <h2>Công việc cần tuyển</h2>
-              <p className="section-subtitle">
-                {companyJobs.length} công việc đang tuyển
-              </p>
+              <div>
+                <h2>Công việc cần tuyển</h2>
+                <p className="section-subtitle">
+                  {companyJobs.length} công việc đang tuyển
+                </p>
+              </div>
+              <button 
+                className="add-job-btn"
+                onClick={() => {
+                  setEditingJob({
+                    job_title: '',
+                    company_name: companyInfo?.name || '',
+                    province: '',
+                    salary: '',
+                    thumbnail: companyInfo?.logo || '',
+                    skills: [],
+                    descriptions: {},
+                    job_info: {}
+                  });
+                  setShowEditJobForm(true);
+                }}
+              >
+                <svg className="add-icon" fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
+                </svg>
+                Thêm công việc
+              </button>
             </div>
             
             {jobsLoading ? (

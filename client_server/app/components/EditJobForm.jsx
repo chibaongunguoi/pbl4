@@ -131,8 +131,12 @@ export default function EditJobForm({ job, onSave, onCancel }) {
     setSubmitMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch(`/api/jobDetail/${editingJob._id}`, {
-        method: 'PUT',
+      const isNewJob = !editingJob._id;
+      const url = isNewJob ? '/api/jobDetail' : `/api/jobDetail/${editingJob._id}`;
+      const method = isNewJob ? 'POST' : 'PUT';
+
+      const response = await fetch(url, {
+        method: method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingJob),
       });
@@ -140,16 +144,19 @@ export default function EditJobForm({ job, onSave, onCancel }) {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setSubmitMessage({ type: 'success', text: 'Cập nhật công việc thành công!' });
+        const message = isNewJob ? 'Thêm công việc thành công!' : 'Cập nhật công việc thành công!';
+        setSubmitMessage({ type: 'success', text: message });
         setTimeout(() => {
           onSave();
         }, 1500);
       } else {
-        setSubmitMessage({ type: 'error', text: data.error || 'Có lỗi xảy ra khi cập nhật công việc' });
+        const errorMessage = isNewJob ? 'Có lỗi xảy ra khi thêm công việc' : 'Có lỗi xảy ra khi cập nhật công việc';
+        setSubmitMessage({ type: 'error', text: data.error || errorMessage });
       }
     } catch (error) {
-      console.error('Error updating job:', error);
-      setSubmitMessage({ type: 'error', text: 'Có lỗi xảy ra khi cập nhật công việc' });
+      console.error('Error saving job:', error);
+      const errorMessage = editingJob._id ? 'Có lỗi xảy ra khi cập nhật công việc' : 'Có lỗi xảy ra khi thêm công việc';
+      setSubmitMessage({ type: 'error', text: errorMessage });
     } finally {
       setSaving(false);
     }
@@ -158,8 +165,8 @@ export default function EditJobForm({ job, onSave, onCancel }) {
   return (
     <div className="edit-job-form-container">
       <div className="edit-job-form-header">
-        <h1>Chỉnh sửa công việc</h1>
-        <p className="subtitle">Cập nhật thông tin công việc</p>
+        <h1>{editingJob._id ? 'Chỉnh sửa công việc' : 'Thêm công việc mới'}</h1>
+        <p className="subtitle">{editingJob._id ? 'Cập nhật thông tin công việc' : 'Tạo công việc tuyển dụng mới'}</p>
       </div>
 
       {submitMessage.text && (
@@ -189,15 +196,17 @@ export default function EditJobForm({ job, onSave, onCancel }) {
               required
             />
           </div>
-          <div className="form-group">
-            <label className="form-label">URL công việc</label>
-            <input
-              type="url"
-              value={editingJob.url || ''}
-              onChange={(e) => handleInputChange('url', e.target.value)}
-              className="form-input"
-            />
-          </div>
+          {editingJob._id && (
+            <div className="form-group">
+              <label className="form-label">URL công việc</label>
+              <input
+                type="url"
+                value={editingJob.url || ''}
+                onChange={(e) => handleInputChange('url', e.target.value)}
+                className="form-input"
+              />
+            </div>
+          )}
         </div>
 
         <div className="form-row">
@@ -210,25 +219,29 @@ export default function EditJobForm({ job, onSave, onCancel }) {
               className="form-input"
             />
           </div>
-          <div className="form-group">
-            <label className="form-label">URL công ty</label>
-            <input
-              type="url"
-              value={editingJob.company_url || ''}
-              onChange={(e) => handleInputChange('company_url', e.target.value)}
-              className="form-input"
-            />
-          </div>
+          {editingJob._id && (
+            <div className="form-group">
+              <label className="form-label">URL công ty</label>
+              <input
+                type="url"
+                value={editingJob.company_url || ''}
+                onChange={(e) => handleInputChange('company_url', e.target.value)}
+                className="form-input"
+              />
+            </div>
+          )}
         </div>
 
         <div className="form-row">
           <div className="form-group">
-            <label className="form-label">Địa điểm</label>
+            <label className="form-label">Địa điểm {!editingJob._id && '*'}</label>
             <input
               type="text"
               value={editingJob.province || ''}
               onChange={(e) => handleInputChange('province', e.target.value)}
               className="form-input"
+              required={!editingJob._id}
+              placeholder="VD: Hà Nội, Hồ Chí Minh..."
             />
           </div>
           <div className="form-group">
@@ -243,17 +256,19 @@ export default function EditJobForm({ job, onSave, onCancel }) {
           </div>
         </div>
 
-        <div className="form-row">
-          <div className="form-group full-width">
-            <label className="form-label">URL thumbnail</label>
-            <input
-              type="url"
-              value={editingJob.thumbnail || ''}
-              onChange={(e) => handleInputChange('thumbnail', e.target.value)}
-              className="form-input"
-            />
+        {editingJob._id && (
+          <div className="form-row">
+            <div className="form-group full-width">
+              <label className="form-label">URL thumbnail</label>
+              <input
+                type="url"
+                value={editingJob.thumbnail || ''}
+                onChange={(e) => handleInputChange('thumbnail', e.target.value)}
+                className="form-input"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="form-row">
           <div className="form-group full-width">

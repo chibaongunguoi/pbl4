@@ -29,7 +29,6 @@ export default function Home() {
       
       if (jobsResponse.ok) {
         const jobsData = await jobsResponse.json();
-        console.log(jobsData.data);
         
         if (jobsData.data) {
           setJobs(jobsData.data);

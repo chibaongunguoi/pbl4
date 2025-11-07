@@ -112,6 +112,10 @@
   margin-bottom: 20px;
 }
 
+.form-row:has(.form-group:only-child) {
+  grid-template-columns: 1fr;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;

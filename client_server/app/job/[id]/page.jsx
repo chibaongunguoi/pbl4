@@ -207,7 +207,6 @@ export default function CardDetail() {
       if (response.ok) {
         const data = await response.json();
         const foundJob = data.data?.find(job => job._id === id);
-        console.log(foundJob);
         setJob(foundJob || null);
       }
     } catch (error) {

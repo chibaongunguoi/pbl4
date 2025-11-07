@@ -35,7 +35,6 @@ export default function LoginPage() {
     const status_code = response.status;
 
     if (response.ok) {
-      console.log("Logined successfully.");
       const data = await response.json();
       
       // Dispatch custom event to notify Header component
