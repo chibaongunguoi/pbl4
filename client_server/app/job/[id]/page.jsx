@@ -352,18 +352,20 @@ export default function CardDetail() {
       ))}
 
           {/* Skills */}
-          <section className="content-section">
-            <h3>Kỹ năng yêu cầu</h3>
-            <div className="skills-container">
-              {job.skills.map((skill, index) => (
-                <span key={index} className="skill-badge">
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </section>
+          {job.skills && job.skills.length > 0 && (
+            <section className="content-section">
+              <h3>Kỹ năng yêu cầu</h3>
+              <div className="skills-container">
+                {job.skills.map((skill, index) => (
+                  <span key={index} className="skill-badge">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
-
+              {console.log(job)}
         {/* Sidebar */}
         <div className="sidebar">
           <div className="info-card">

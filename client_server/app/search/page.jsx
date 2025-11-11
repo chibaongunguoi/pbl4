@@ -9,6 +9,8 @@ export default function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get('q') || '';
+  const skill = searchParams.get('skill') || '';
+  const city = searchParams.get('city') || '';
   const [results, setResults] = useState([]);
   const [followCounts, setFollowCounts] = useState({});
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ export default function SearchPage() {
 
   useEffect(() => {
     const fetchSearchResults = async () => {
-      if (!query.trim()) {
+      if (!query.trim() && !skill && !city) {
         setResults([]);
         setLoading(false);
         return;
@@ -26,7 +28,12 @@ export default function SearchPage() {
       setError(null);
 
       try {
-        const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const params = new URLSearchParams();
+        if (query.trim()) params.append('q', query.trim());
+        if (skill) params.append('skill', skill);
+        if (city) params.append('city', city);
+        
+        const response = await fetch(`/api/search?${params.toString()}`);
         if (!response.ok) {
           throw new Error('Failed to fetch search results');
         }
@@ -58,7 +65,7 @@ export default function SearchPage() {
     };
 
     fetchSearchResults();
-  }, [query]);
+  }, [query, skill, city]);
 
   const handleCardClick = (jobId) => {
     router.push(`/job/${jobId}`);
@@ -69,9 +76,11 @@ export default function SearchPage() {
       <div className="search-container">
         <div className="search-header">
           <h1>Kết quả tìm kiếm</h1>
-          {query && (
+          {(query || skill || city) && (
             <p className="search-query">
-              Tìm kiếm cho: <span className="query-text">"{query}"</span>
+              {query && <span>Từ khóa: <span className="query-text">"{query}"</span></span>}
+              {skill && <span className="filter-text"> • Kỹ năng: <span className="query-text">{skill}</span></span>}
+              {city && <span className="filter-text"> • Thành phố: <span className="query-text">{city}</span></span>}
             </p>
           )}
         </div>
@@ -90,8 +99,8 @@ export default function SearchPage() {
           <div className="empty-state">
             <div className="empty-icon">🔍</div>
             <h2>Không tìm thấy kết quả</h2>
-            <p>Không có công việc nào phù hợp với từ khóa "{query}"</p>
-            <p className="suggestion">Thử tìm kiếm với từ khóa khác hoặc kiểm tra lại chính tả</p>
+            <p>Không có công việc nào phù hợp với bộ lọc của bạn</p>
+            <p className="suggestion">Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc</p>
           </div>
         ) : (
           <div className="search-results">

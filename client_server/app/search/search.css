@@ -25,11 +25,19 @@
   font-size: 16px;
   color: #666;
   margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
 .query-text {
   font-weight: 600;
   color: #2563eb;
+}
+
+.filter-text {
+  color: #666;
 }
 
 /* Loading State */

@@ -13,8 +13,23 @@ export default function Header() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSkill, setSelectedSkill] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
   const router = useRouter();
   const pathname = usePathname();
+
+  // Danh sách kỹ năng phổ biến
+  const skills = [
+    'JavaScript', 'Python', 'Java', 'C#', 'PHP', 'Ruby', 'Go',
+    'React', 'Angular', 'Vue.js', 'Node.js', 'Django', 'Spring',
+    'HTML/CSS', 'TypeScript', 'SQL', 'MongoDB', 'Docker', 'Kubernetes'
+  ];
+
+  // Danh sách thành phố
+  const cities = [
+    'Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ',
+    'Biên Hòa', 'Nha Trang', 'Huế', 'Vũng Tàu', 'Buôn Ma Thuột'
+  ];
 
   const fetchUser = async () => {
     setIsLoading(true);
@@ -131,8 +146,20 @@ export default function Header() {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    const params = new URLSearchParams();
+    
     if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      params.append('q', searchQuery.trim());
+    }
+    if (selectedSkill) {
+      params.append('skill', selectedSkill);
+    }
+    if (selectedCity) {
+      params.append('city', selectedCity);
+    }
+    
+    if (params.toString()) {
+      router.push(`/search?${params.toString()}`);
     }
   };
 
@@ -159,24 +186,48 @@ export default function Header() {
         </div>
           <ul className="search">
             <li>
-              <div className="form-group form-icon-left">
-                <i className="icon-search form-icon"></i>{" "}
-                <input
-                  type="text"
-                  name="text"
-                  placeholder="Tìm kiếm việc làm "
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={handleSearchKeyPress}
-                  className="form-control"
-                />{" "}
-                <button 
-                  aria-label="Tìm kiếm" 
-                  className="btn"
-                  onClick={handleSearch}
-                >
-                  <i className="icon-arrow-right"></i>
-                </button>
+              <div className="search-form-wrapper">
+                <div className="form-group form-icon-left">
+                  <i className="icon-search form-icon"></i>{" "}
+                  <input
+                    type="text"
+                    name="text"
+                    placeholder="Tìm kiếm việc làm "
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={handleSearchKeyPress}
+                    className="form-control"
+                  />{" "}
+                  <button 
+                    aria-label="Tìm kiếm" 
+                    className="btn"
+                    onClick={handleSearch}
+                  >
+                    <i className="icon-arrow-right"></i>
+                  </button>
+                </div>
+                <div className="search-filters">
+                  <select 
+                    className="filter-select"
+                    value={selectedSkill}
+                    onChange={(e) => setSelectedSkill(e.target.value)}
+                  >
+                    <option value="">Tất cả kỹ năng</option>
+                    {skills.map((skill, index) => (
+                      <option key={index} value={skill}>{skill}</option>
+                    ))}
+                  </select>
+                  <select 
+                    className="filter-select"
+                    value={selectedCity}
+                    onChange={(e) => setSelectedCity(e.target.value)}
+                  >
+                    <option value="">Tất cả thành phố</option>
+                    {cities.map((city, index) => (
+                      <option key={index} value={city}>{city}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </li>
           </ul>{" "}
