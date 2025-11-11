@@ -15,6 +15,7 @@ export default function SearchPage() {
   const [followCounts, setFollowCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -26,6 +27,7 @@ export default function SearchPage() {
 
       setLoading(true);
       setError(null);
+      setCurrentPage(1); // Reset to first page when search changes
 
       try {
         const params = new URLSearchParams();
@@ -71,6 +73,32 @@ export default function SearchPage() {
     router.push(`/job/${jobId}`);
   };
 
+  // Pagination logic
+  const jobsPerPage = 24;
+  const totalPages = Math.ceil(results.length / jobsPerPage);
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = results.slice(indexOfFirstJob, indexOfLastJob);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="search-page">
       <div className="search-container">
@@ -81,7 +109,7 @@ export default function SearchPage() {
               {skill && <span className="filter-text"> • Kỹ năng: <span className="query-text">{skill}</span></span>}
               {city && <span className="filter-text"> • Thành phố: <span className="query-text">{city}</span></span>}
               {!loading && !error && results.length > 0 && (
-                <span className="filter-text"> • Tìm thấy: <strong className="query-text">{results.length}</strong> công việc</span>
+                <span className="filter-text"> • Tìm thấy: <strong className="query-text">{results.length}</strong> công việc. Hiển thị (<strong className="query-text">{currentJobs.length}/{results.length}</strong>) công việc</span>
               )}
             </p>
           )}
@@ -107,7 +135,7 @@ export default function SearchPage() {
         ) : (
           <div className="search-results">
             <div className="jobs-grid">
-              {results.map((job) => (
+              {currentJobs.map((job) => (
                 <JobCard
                   key={job._id}
                   job={job}
@@ -117,6 +145,45 @@ export default function SearchPage() {
                 />
               ))}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="pagination-container">
+                <button
+                  className="pagination-button"
+                  onClick={handlePrevious}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </button>
+
+                <div className="pagination-info">
+                  Page {currentPage} of {totalPages}
+                </div>
+
+                {/* Page Numbers */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (pageNumber) => (
+                    <button
+                      key={pageNumber}
+                      className={`pagination-button ${currentPage === pageNumber ? "active" : ""
+                        }`}
+                      onClick={() => handlePageChange(pageNumber)}
+                    >
+                      {pageNumber}
+                    </button>
+                  )
+                )}
+
+                <button
+                  className="pagination-button"
+                  onClick={handleNext}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
