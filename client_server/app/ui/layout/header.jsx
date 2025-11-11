@@ -227,9 +227,11 @@ export default function Header() {
                       <option key={index} value={city}>{city}</option>
                     ))}
                   </select>
+                  <div style={{visibility: "hidden"}}>l</div>
                 </div>
               </div>
             </li>
+            
           </ul>{" "}
           <ul className="float-right">
             
