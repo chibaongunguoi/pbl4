@@ -12,6 +12,7 @@ export default function Header() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const pathname = usePathname();
 
@@ -128,6 +129,19 @@ export default function Header() {
     router.push("/login");
   }
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch(e);
+    }
+  };
+
   return (
     <header className="sticky-header">
       <div className="header-container">
@@ -148,45 +162,26 @@ export default function Header() {
               <div className="form-group form-icon-left">
                 <i className="icon-search form-icon"></i>{" "}
                 <input
-                  type="email"
+                  type="text"
                   name="text"
                   placeholder="Tìm kiếm việc làm "
-                  defaultValue=""
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={handleSearchKeyPress}
                   className="form-control"
                 />{" "}
-                <button aria-label="Tìm kiếm" className="btn">
+                <button 
+                  aria-label="Tìm kiếm" 
+                  className="btn"
+                  onClick={handleSearch}
+                >
                   <i className="icon-arrow-right"></i>
                 </button>
               </div>
             </li>
           </ul>{" "}
           <ul className="float-right">
-            <li>
-              <a href="#" className="">
-                Việc làm
-              </a>{" "}
-              <ul className="sub-menu">
-                <li>
-                  <a href="/viec-lam?country=vietnam" className="">
-                    IT Việt Nam
-                  </a>
-                </li>{" "}
-                <li>
-                  <a href="/viec-lam?country=japan" className="">
-                    IT Nhật Bản
-                  </a>
-                </li>{" "}
-                <li>
-                  <a
-                    href="https://devwork.kr/it-jobs-korea"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    IT Hàn Quốc
-                  </a>
-                </li>
-              </ul>
-            </li>{" "}
+            
 
             {isLoading ? (
               <li>
