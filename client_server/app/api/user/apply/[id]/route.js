@@ -119,13 +119,28 @@ export async function PUT(request, { params }) {
       );
     }
 
-    // Create a notification for the applicant, prefer provided content if present
+    // Create a notification for the applicant with job title and custom note
     try {
       const job = await JobDetail.findById(updated.JobDetailID).select('job_title');
-      const fallback = `Đơn ứng tuyển cho "${job?.job_title || 'công việc'}" đã ${status}`;
-      const content = (typeof providedContent === 'string' && providedContent.trim().length > 0)
-        ? providedContent.trim()
-        : fallback;
+      const jobTitle = job?.job_title || 'công việc';
+      
+      // Determine status text
+      let statusText = '';
+      if (status === 'đã duyệt') {
+        statusText = 'được duyệt';
+      } else if (status === 'đã từ chối') {
+        statusText = 'bị từ chối';
+      } else {
+        statusText = status;
+      }
+      
+      // Build notification content
+      let content = `CV của bạn đã ${statusText} từ công việc "${jobTitle}"`;
+      
+      // Add custom note if provided
+      if (typeof providedContent === 'string' && providedContent.trim().length > 0) {
+        content += `, có ghi chú thêm là: ${providedContent.trim()}`;
+      }
 
       await Notification.create({
         userID: updated.userID,
