@@ -365,7 +365,7 @@ export default function CardDetail() {
             </section>
           )}
         </div>
-              {console.log(job)}
+
         {/* Sidebar */}
         <div className="sidebar">
           <div className="info-card">

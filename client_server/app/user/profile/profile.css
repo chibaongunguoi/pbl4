@@ -294,7 +294,7 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  /* border: 1px solid #e2e8f0; */
   color: #718096;
 }
 
@@ -581,7 +581,7 @@
   max-width: 500px;
 }
 
-.form-group {
+.end-form-group {
   margin-bottom: 24px;
 }
 

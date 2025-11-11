@@ -103,12 +103,8 @@ export default function Header() {
         method: 'GET',
         credentials: 'include',
       });
-      console.log('Notification response status:', response.status);
       if (response.ok) {
         const data = await response.json();
-        console.log('Notification data received:', data);
-        console.log('Notifications array:', data.data);
-        console.log('Notifications length:', data.data?.length);
         setNotifications(data.data || []);
         const unread = (data.data || []).filter(n => n.status === 'chưa đọc').length;
         setUnreadCount(unread);
@@ -277,7 +273,6 @@ export default function Header() {
                       <option key={index} value={city}>{city}</option>
                     ))}
                   </select>
-                  <div style={{visibility: "hidden"}}>l</div>
                 </div>
               </div>
             </li>

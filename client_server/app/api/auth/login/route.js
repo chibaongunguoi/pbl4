@@ -33,8 +33,8 @@ export async function POST(req) {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
-      path: "/", maxAge: 60 * 60,
-    });
+      path: "/", maxAge: 600 * 600,
+    }); 
     return res;
   }
   catch (e) {

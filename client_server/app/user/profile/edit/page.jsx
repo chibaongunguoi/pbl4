@@ -154,12 +154,12 @@ export default function EditUserProfile() {
               <div className={`message ${message.type}`}>{message.text}</div>
             )}
 
-            <div className="form-group">
+            <div className="end-form-group">
               <label>Họ & tên</label>
               <input name="name" value={form.name} onChange={handleChange} className="form-input" />
             </div>
 
-            <div className="form-group">
+            <div className="end-form-group">
               <label>Số điện thoại</label>
               <input 
                 name="phone" 
@@ -171,7 +171,7 @@ export default function EditUserProfile() {
               />
             </div>
 
-            <div className="form-group">
+            <div className="end-form-group">
               <label>Giới tính</label>
               <div className="radio-group">
                 <label className="radio-label">
@@ -199,12 +199,12 @@ export default function EditUserProfile() {
               </div>
             </div>
 
-            <div className="form-group">
+            <div className="end-form-group">
               <label>Ngày sinh</label>
               <input name="birthdate" type="date" value={form.birthdate} onChange={handleChange} className="form-input" />
             </div>
 
-            <div className="form-group">
+            <div className="end-form-group">
               <label>CV (File PDF)</label>
               <input 
                 type="file" 
@@ -232,7 +232,7 @@ export default function EditUserProfile() {
               <small className="muted">Chỉ chấp nhận file PDF, tối đa 5MB</small>
             </div>
 
-            <div className="form-group">
+            <div className="end-form-group">
               <label>Mô tả</label>
               <textarea name="description" value={form.description} onChange={handleChange} className="form-input" rows={6} />
             </div>

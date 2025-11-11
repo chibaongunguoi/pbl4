@@ -153,7 +153,6 @@ async function initDb() {
   console.log("Initializing the database...");
   try {
     const users = await User.findOne();
-    console.log(`Found users: ${users}`);
     if (users) {
       console.log("Database has been initialized before.");
       return;

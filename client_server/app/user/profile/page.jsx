@@ -555,7 +555,7 @@ export default function UserInfoPage() {
             <div className="profile-card">
               {profileLoading ? (
                 <div className="loading-container">
-                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 "></div>
                   <span>Đang tải thông tin...</span>
                 </div>
               ) : user?.role === 'company' ? (
@@ -621,7 +621,7 @@ export default function UserInfoPage() {
                     </div>
                     <div className="detail-row">
                       <label>Giới tính:</label>
-                      <span>{userProfile.gender || 'N/A'}</span>
+                      <span>{userProfile.gender ? userProfile.gender.charAt(0).toUpperCase() + userProfile.gender.slice(1) : 'N/A'}</span>
                     </div>
                     <div className="detail-row">
                       <label>Ngày sinh:</label>
@@ -657,7 +657,7 @@ export default function UserInfoPage() {
             <div className="section-header">
               <h2>Job yêu thích</h2>
               <p className="section-subtitle">
-                {favoriteJobs.length} job đã lưu
+                {favoriteJobs.length} job đã yêu thích
               </p>
             </div>
             
@@ -856,7 +856,7 @@ export default function UserInfoPage() {
                 </div>
               )}
               
-              <div className="form-group">
+              <div className="end-form-group">
                 <label htmlFor="current-password">Mật khẩu hiện tại:</label>
                 <input 
                   type="password" 
@@ -870,7 +870,7 @@ export default function UserInfoPage() {
                 />
               </div>
               
-              <div className="form-group">
+              <div className="end-form-group">
                 <label htmlFor="new-password">Mật khẩu mới:</label>
                 <input 
                   type="password" 
@@ -884,7 +884,7 @@ export default function UserInfoPage() {
                 />
               </div>
               
-              <div className="form-group">
+              <div className="end-form-group">
                 <label htmlFor="confirm-password">Xác nhận mật khẩu mới:</label>
                 <input 
                   type="password" 
