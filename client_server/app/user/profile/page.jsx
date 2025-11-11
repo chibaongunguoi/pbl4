@@ -187,7 +187,11 @@ export default function UserInfoPage() {
   const openStatusModal = (applicationId, newStatus) => {
     setStatusModalApplicationId(applicationId);
     setStatusModalStatus(newStatus);
-    setStatusModalReason('');
+    // Set default reason based on status
+    const defaultReason = newStatus === 'đã duyệt' 
+      ? 'Chúng tôi đã duyệt qua CV của bạn và sẽ liên lạc với bạn sớm nhất có thể'
+      : 'Xin lỗi. Bạn không phải là ứng viên mà chúng tôi đang tìm kiếm';
+    setStatusModalReason(defaultReason);
     setShowStatusModal(true);
   };
 
@@ -1068,33 +1072,55 @@ export default function UserInfoPage() {
       {/* Status Reason Modal (approve/reject) */}
       {showStatusModal && (
         <div className="modal-overlay" onClick={closeStatusModal}>
-          <div className="modal-content-wrapper" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3>Nhập lý do cho trạng thái "{statusModalStatus}"</h3>
-              <button className="modal-close-btn-top" onClick={closeStatusModal}>
-                <svg fill="currentColor" viewBox="0 0 20 20" width="24" height="24">
+          <div className="status-modal-wrapper" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="status-modal-header">
+              <h3 className="status-modal-title">
+                {statusModalStatus === 'đã duyệt' ? 'Duyệt đơn ứng tuyển' : 'Từ chối đơn ứng tuyển'}
+              </h3>
+              <button className="status-modal-close" onClick={closeStatusModal}>
+                <svg fill="currentColor" viewBox="0 0 20 20" width="20" height="20">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
                 </svg>
               </button>
             </div>
 
-            <div style={{ marginTop: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '6px' }}>Lý do / Ghi chú (nội dung thông báo sẽ gửi cho ứng viên)</label>
-              <textarea
-                value={statusModalReason}
-                onChange={(e) => setStatusModalReason(e.target.value)}
-                rows={6}
-                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}
-                placeholder='Nhập lý do (ví dụ: Hồ sơ phù hợp, hẹn phỏng vấn vào ngày... hoặc Từ chối vì... )'
-              />
+            {/* Modal Body */}
+            <div className="status-modal-body">
+              
+
+              {/* Form */}
+              <div>
+                <label className="status-form-label">
+                  Lý do / Ghi chú
+                  <span style={{ color: '#94a3b8', fontWeight: '400', fontSize: '13px', marginLeft: '8px' }}>
+                    (Nội dung thông báo sẽ gửi cho ứng viên)
+                  </span>
+                </label>
+                <textarea
+                  value={statusModalReason}
+                  onChange={(e) => setStatusModalReason(e.target.value)}
+                  rows={6}
+                  className="status-textarea"
+                />
+              </div>
             </div>
 
-            <div className="modal-footer" style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button onClick={closeStatusModal} className="btn-secondary">Hủy</button>
+            {/* Modal Footer */}
+            <div className="status-modal-footer">
+              <button onClick={closeStatusModal} className="status-btn-cancel">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Hủy
+              </button>
               <button
                 onClick={() => handleUpdateApplicationStatus(statusModalApplicationId, statusModalStatus, statusModalReason)}
-                className="update-btn"
+                className="status-btn-confirm"
               >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
                 Xác nhận
               </button>
             </div>
