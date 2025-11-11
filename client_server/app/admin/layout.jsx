@@ -115,6 +115,17 @@ export default function AdminLayout({ children }) {
             </li>
             <li>
               <button
+                className={`admin-nav-link ${isActive('/admin/NotificationManager') ? 'active' : ''}`}
+                onClick={() => router.push('/admin/NotificationManager')}
+              >
+                <svg className="admin-nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM8 16a2 2 0 104 0H8z"/>
+                </svg>
+                Quản lý thông báo
+              </button>
+            </li>
+            <li>
+              <button
                 className={`admin-nav-link ${isActive('/admin/ApplicationManager') ? 'active' : ''}`}
                 onClick={() => router.push('/admin/ApplicationManager')}
               >

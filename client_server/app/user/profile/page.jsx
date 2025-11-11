@@ -21,6 +21,10 @@ export default function UserInfoPage() {
   const [showEditJobForm, setShowEditJobForm] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [showApplicationDetail, setShowApplicationDetail] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [statusModalApplicationId, setStatusModalApplicationId] = useState(null);
+  const [statusModalStatus, setStatusModalStatus] = useState('');
+  const [statusModalReason, setStatusModalReason] = useState('');
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -179,10 +183,23 @@ export default function UserInfoPage() {
     }
   };
 
-  // Update application status (approve/reject)
-  const handleUpdateApplicationStatus = async (applicationId, newStatus) => {
-    if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái thành "${newStatus}"?`)) return;
+  // Open status modal to input reason before updating status
+  const openStatusModal = (applicationId, newStatus) => {
+    setStatusModalApplicationId(applicationId);
+    setStatusModalStatus(newStatus);
+    setStatusModalReason('');
+    setShowStatusModal(true);
+  };
 
+  const closeStatusModal = () => {
+    setShowStatusModal(false);
+    setStatusModalApplicationId(null);
+    setStatusModalStatus('');
+    setStatusModalReason('');
+  };
+
+  // Update application status (approve/reject) with optional reason content
+  const handleUpdateApplicationStatus = async (applicationId, newStatus, content = '') => {
     try {
       const response = await fetch(`/api/user/apply/${applicationId}`, {
         method: 'PUT',
@@ -190,7 +207,7 @@ export default function UserInfoPage() {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ status: newStatus, content }),
       });
 
       const data = await response.json();
@@ -201,6 +218,7 @@ export default function UserInfoPage() {
         if (selectedApplication && selectedApplication._id === applicationId) {
           setSelectedApplication(prev => ({ ...prev, status: newStatus }));
         }
+        closeStatusModal();
         alert('Cập nhật trạng thái thành công');
       } else {
         alert(data.error || 'Lỗi khi cập nhật trạng thái');
@@ -735,7 +753,6 @@ export default function UserInfoPage() {
                       <th>Họ tên</th>
                       <th>Công việc ứng tuyển</th>
                       <th>Số điện thoại</th>
-                      <th>Giới tính</th>
                       <th>Ngày sinh</th>
                       <th>CV</th>
                       <th>Trạng thái</th>
@@ -754,11 +771,7 @@ export default function UserInfoPage() {
                           </div>
                         </td>
                         <td>{application.userProfile?.phone || 'Chưa có'}</td>
-                        <td>
-                          {application.userProfile?.gender === 'male' ? 'Nam' : 
-                           application.userProfile?.gender === 'female' ? 'Nữ' : 
-                           'Chưa cập nhật'}
-                        </td>
+                
                         <td>
                           {application.userProfile?.birthdate ? 
                             new Date(application.userProfile.birthdate).toLocaleDateString('vi-VN') : 
@@ -796,14 +809,14 @@ export default function UserInfoPage() {
                               </svg>
                             </button>
                             <button
-                              onClick={() => handleUpdateApplicationStatus(application._id, 'đã duyệt')}
+                              onClick={() => openStatusModal(application._id, 'đã duyệt')}
                               className="approve-btn"
                               title="Duyệt"
                             >
                               Duyệt
                             </button>
                             <button
-                              onClick={() => handleUpdateApplicationStatus(application._id, 'đã từ chối')}
+                              onClick={() => openStatusModal(application._id, 'đã từ chối')}
                               className="reject-btn"
                               title="Từ chối"
                             >
@@ -1048,6 +1061,43 @@ export default function UserInfoPage() {
               onSave={handleSaveJob}
               onCancel={handleCancelEditJob}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Status Reason Modal (approve/reject) */}
+      {showStatusModal && (
+        <div className="modal-overlay" onClick={closeStatusModal}>
+          <div className="modal-content-wrapper" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3>Nhập lý do cho trạng thái "{statusModalStatus}"</h3>
+              <button className="modal-close-btn-top" onClick={closeStatusModal}>
+                <svg fill="currentColor" viewBox="0 0 20 20" width="24" height="24">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                </svg>
+              </button>
+            </div>
+
+            <div style={{ marginTop: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '6px' }}>Lý do / Ghi chú (nội dung thông báo sẽ gửi cho ứng viên)</label>
+              <textarea
+                value={statusModalReason}
+                onChange={(e) => setStatusModalReason(e.target.value)}
+                rows={6}
+                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}
+                placeholder='Nhập lý do (ví dụ: Hồ sơ phù hợp, hẹn phỏng vấn vào ngày... hoặc Từ chối vì... )'
+              />
+            </div>
+
+            <div className="modal-footer" style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button onClick={closeStatusModal} className="btn-secondary">Hủy</button>
+              <button
+                onClick={() => handleUpdateApplicationStatus(statusModalApplicationId, statusModalStatus, statusModalReason)}
+                className="update-btn"
+              >
+                Xác nhận
+              </button>
+            </div>
           </div>
         </div>
       )}

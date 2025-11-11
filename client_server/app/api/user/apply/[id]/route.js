@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/app/lib/db';
 import User_company from '@/models/User_company';
+import JobDetail from '@/models/JobDetail';
+import Notification from '@/models/Notification';
 import { verifyToken } from '@/app/lib/auth';
 
 // DELETE - Xóa đơn ứng tuyển
@@ -93,8 +95,8 @@ export async function PUT(request, { params }) {
     }
 
     const { id } = params;
-    const body = await request.json();
-    const { status } = body || {};
+  const body = await request.json();
+  const { status, content: providedContent } = body || {};
 
     const allowed = ['chưa duyệt', 'đã duyệt', 'đã từ chối'];
     if (!status || !allowed.includes(status)) {
@@ -115,6 +117,25 @@ export async function PUT(request, { params }) {
         { error: 'Application not found' },
         { status: 404 }
       );
+    }
+
+    // Create a notification for the applicant, prefer provided content if present
+    try {
+      const job = await JobDetail.findById(updated.JobDetailID).select('job_title');
+      const fallback = `Đơn ứng tuyển cho "${job?.job_title || 'công việc'}" đã ${status}`;
+      const content = (typeof providedContent === 'string' && providedContent.trim().length > 0)
+        ? providedContent.trim()
+        : fallback;
+
+      await Notification.create({
+        userID: updated.userID,
+        JobDetailID: updated.JobDetailID,
+        content,
+        status: 'chưa đọc'
+      });
+    } catch (notifErr) {
+      console.error('Failed to create notification:', notifErr);
+      // Continue even if notification creation failed
     }
 
     return NextResponse.json(
