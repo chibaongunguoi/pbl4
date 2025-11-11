@@ -12,6 +12,12 @@ const UserCompanySchema = new Schema({
     ref: 'JobDetail', 
     required: true 
   },
+  status: {
+    type: String,
+    enum: ['chưa duyệt', 'đã duyệt', 'đã từ chối'],
+    default: 'chưa duyệt',
+    required: true
+  },
   time: { 
     type: Date, 
     default: Date.now,
@@ -24,6 +30,7 @@ const UserCompanySchema = new Schema({
 // Index for faster queries
 UserCompanySchema.index({ userID: 1, JobDetailID: 1 });
 UserCompanySchema.index({ time: -1 });
+UserCompanySchema.index({ status: 1 });
 
 // Remove cached model if it exists to avoid overwrite issues in dev
 if (models.User_company) {

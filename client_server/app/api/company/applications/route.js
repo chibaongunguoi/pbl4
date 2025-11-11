@@ -79,6 +79,7 @@ export async function GET(request) {
           userID: app.userID,
           JobDetailID: app.JobDetailID,
           time: app.time,
+          status: app.status || 'chưa duyệt',
           userProfile: userProfile || null,
         };
       })

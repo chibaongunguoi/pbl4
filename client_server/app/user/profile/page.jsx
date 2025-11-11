@@ -179,6 +179,38 @@ export default function UserInfoPage() {
     }
   };
 
+  // Update application status (approve/reject)
+  const handleUpdateApplicationStatus = async (applicationId, newStatus) => {
+    if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái thành "${newStatus}"?`)) return;
+
+    try {
+      const response = await fetch(`/api/user/apply/${applicationId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Refresh list and update modal if open
+        fetchApplications();
+        if (selectedApplication && selectedApplication._id === applicationId) {
+          setSelectedApplication(prev => ({ ...prev, status: newStatus }));
+        }
+        alert('Cập nhật trạng thái thành công');
+      } else {
+        alert(data.error || 'Lỗi khi cập nhật trạng thái');
+      }
+    } catch (error) {
+      console.error('Error updating application status:', error);
+      alert('Lỗi khi cập nhật trạng thái');
+    }
+  };
+
   // View application detail
   const handleViewApplicationDetail = (application) => {
     setSelectedApplication(application);
@@ -706,6 +738,7 @@ export default function UserInfoPage() {
                       <th>Giới tính</th>
                       <th>Ngày sinh</th>
                       <th>CV</th>
+                      <th>Trạng thái</th>
                       <th>Thời gian ứng tuyển</th>
                       <th>Thao tác</th>
                     </tr>
@@ -748,6 +781,7 @@ export default function UserInfoPage() {
                             <span className="no-cv">Chưa có</span>
                           )}
                         </td>
+                        <td className="status-cell">{application.status || 'chưa duyệt'}</td>
                         <td>{new Date(application.time).toLocaleString('vi-VN')}</td>
                         <td>
                           <div className="action-buttons">
@@ -760,6 +794,20 @@ export default function UserInfoPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                               </svg>
+                            </button>
+                            <button
+                              onClick={() => handleUpdateApplicationStatus(application._id, 'đã duyệt')}
+                              className="approve-btn"
+                              title="Duyệt"
+                            >
+                              Duyệt
+                            </button>
+                            <button
+                              onClick={() => handleUpdateApplicationStatus(application._id, 'đã từ chối')}
+                              className="reject-btn"
+                              title="Từ chối"
+                            >
+                              Từ chối
                             </button>
                             <button
                               onClick={() => handleDeleteApplication(application._id)}
@@ -1026,6 +1074,7 @@ export default function UserInfoPage() {
                   <div className="applicant-info">
                     <h3>{selectedApplication.userProfile?.name || 'Chưa cập nhật'}</h3>
                     <p className="username">@{selectedApplication.userID?.username || 'Unknown'}</p>
+                    <p className="application-status">Trạng thái: {selectedApplication.status || 'chưa duyệt'}</p>
                   </div>
                 </div>
 

@@ -989,6 +989,44 @@
   height: 16px;
 }
 
+.applications-table .status-cell {
+  text-transform: capitalize;
+  font-weight: 600;
+  color: #374151;
+}
+
+.applications-table .approve-btn {
+  padding: 8px 10px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 13px;
+  font-weight: 600;
+}
+.applications-table .approve-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.applications-table .reject-btn {
+  padding: 8px 10px;
+  background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 13px;
+  font-weight: 600;
+}
+.applications-table .reject-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
 .application-card {
   background: white;
   border: 1px solid #e2e8f0;
@@ -1665,6 +1703,13 @@
   font-size: 16px;
   color: #718096;
   font-weight: 500;
+}
+
+.application-status {
+  margin: 6px 0 0 0;
+  font-size: 14px;
+  color: #374151;
+  font-weight: 600;
 }
 
 .detail-grid {
