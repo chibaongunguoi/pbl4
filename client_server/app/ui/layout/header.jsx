@@ -15,21 +15,10 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSkill, setSelectedSkill] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
+  const [skills, setSkills] = useState([]);
+  const [cities, setCities] = useState([]);
   const router = useRouter();
   const pathname = usePathname();
-
-  // Danh sách kỹ năng phổ biến
-  const skills = [
-    'JavaScript', 'Python', 'Java', 'C#', 'PHP', 'Ruby', 'Go',
-    'React', 'Angular', 'Vue.js', 'Node.js', 'Django', 'Spring',
-    'HTML/CSS', 'TypeScript', 'SQL', 'MongoDB', 'Docker', 'Kubernetes'
-  ];
-
-  // Danh sách thành phố
-  const cities = [
-    'Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ',
-    'Biên Hòa', 'Nha Trang', 'Huế', 'Vũng Tàu', 'Buôn Ma Thuột'
-  ];
 
   const fetchUser = async () => {
     setIsLoading(true);
@@ -46,6 +35,66 @@ export default function Header() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchSkillsAndCities = async () => {
+    try {
+      const response = await fetch('/api/jobDetail', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const jobs = data.data || [];
+        
+        // Extract unique skills
+        const allSkills = new Set();
+        jobs.forEach(job => {
+          if (job.skills && Array.isArray(job.skills)) {
+            job.skills.forEach(skill => {
+              if (skill && skill.trim()) {
+                allSkills.add(skill.trim());
+              }
+            });
+          }
+        });
+        
+        // Extract unique cities with normalization
+        const cityMap = new Map(); // Use Map to store normalized city names
+        jobs.forEach(job => {
+          if (job.province && job.province.trim()) {
+            const normalizedCity = normalizeCity(job.province.trim());
+            if (!cityMap.has(normalizedCity.toLowerCase())) {
+              cityMap.set(normalizedCity.toLowerCase(), normalizedCity);
+            }
+          }
+          if (job.location && job.location.trim()) {
+            const normalizedCity = normalizeCity(job.location.trim());
+            if (!cityMap.has(normalizedCity.toLowerCase())) {
+              cityMap.set(normalizedCity.toLowerCase(), normalizedCity);
+            }
+          }
+        });
+        
+        // Convert sets to sorted arrays
+        setSkills(Array.from(allSkills).sort());
+        setCities(Array.from(cityMap.values()).sort());
+      }
+    } catch (error) {
+      console.error('Error fetching skills and cities:', error);
+    }
+  };
+
+  // Normalize city name to Title Case
+  const normalizeCity = (cityName) => {
+    return cityName
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   const fetchNotifications = async () => {
@@ -91,6 +140,7 @@ export default function Header() {
 
   useEffect(() => {
     fetchUser();
+    fetchSkillsAndCities();
   }, [pathname]); // Re-fetch user when route changes
 
   // Listen for custom login/logout events

@@ -17,6 +17,21 @@ export async function GET(request) {
     // Text search in multiple fields
     if (query && query.trim().length > 0) {
       const searchRegex = new RegExp(query.trim(), 'i');
+      
+      // Get all jobs first to search in descriptions object
+      const allJobs = await JobDetail.find().lean();
+      const jobIdsMatchingDescriptions = allJobs
+        .filter(job => {
+          if (job.descriptions && typeof job.descriptions === 'object') {
+            // Search in all values of descriptions object
+            return Object.values(job.descriptions).some(desc => 
+              typeof desc === 'string' && searchRegex.test(desc)
+            );
+          }
+          return false;
+        })
+        .map(job => job._id);
+
       searchConditions.push({
         $or: [
           { job_title: searchRegex },
@@ -25,6 +40,7 @@ export async function GET(request) {
           { location: searchRegex },
           { job_type: searchRegex },
           { skills: { $in: [searchRegex] } },
+          { _id: { $in: jobIdsMatchingDescriptions } }, // Add jobs matching in descriptions
         ],
       });
     }
