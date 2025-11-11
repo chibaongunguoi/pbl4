@@ -32,6 +32,17 @@ export default function UserInfoPage() {
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
+  const [showEditCompanyModal, setShowEditCompanyModal] = useState(false);
+  const [editCompanyForm, setEditCompanyForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    website: '',
+    address: '',
+    logo: '',
+    description: ''
+  });
+  const [companyEditLoading, setCompanyEditLoading] = useState(false);
   
   useEffect(() => {
     getUser().then(data => setUser(data))
@@ -426,6 +437,107 @@ export default function UserInfoPage() {
       alert('Có lỗi xảy ra khi xóa công việc');
     }
   };
+
+  // Handle company edit modal
+  const openEditCompanyModal = () => {
+    if (companyInfo) {
+      setEditCompanyForm({
+        name: companyInfo.name || '',
+        email: companyInfo.email || '',
+        phone: companyInfo.phone || '',
+        website: companyInfo.website || '',
+        address: companyInfo.address || '',
+        logo: companyInfo.logo || '',
+        description: companyInfo.description || ''
+      });
+      setShowEditCompanyModal(true);
+    }
+  };
+
+  const closeEditCompanyModal = () => {
+    setShowEditCompanyModal(false);
+  };
+
+  const handleCompanyFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditCompanyForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleLogoFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Vui lòng chọn file ảnh');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Kích thước file không được vượt quá 5MB');
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.logoUrl) {
+        setEditCompanyForm(prev => ({
+          ...prev,
+          logo: data.logoUrl
+        }));
+      } else {
+        alert(data.error || 'Lỗi khi upload ảnh');
+      }
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      alert('Có lỗi xảy ra khi upload ảnh');
+    }
+  };
+
+  const handleSaveCompanyInfo = async (e) => {
+    e.preventDefault();
+    
+    if (companyEditLoading) return;
+
+    try {
+      setCompanyEditLoading(true);
+      const response = await fetch(`/api/admin/companies/${companyInfo._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editCompanyForm),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert('Cập nhật thông tin công ty thành công!');
+        setCompanyInfo(data.data);
+        closeEditCompanyModal();
+      } else {
+        alert(data.error || 'Có lỗi xảy ra khi cập nhật thông tin');
+      }
+    } catch (error) {
+      console.error('Error updating company:', error);
+      alert('Có lỗi xảy ra khi cập nhật thông tin');
+    } finally {
+      setCompanyEditLoading(false);
+    }
+  };
   
   async function logOut() {
     await fetch("/api/auth/logout", {
@@ -531,13 +643,15 @@ export default function UserInfoPage() {
               <h2>Thông tin cá nhân</h2>
               {user?.role === 'company' ? (
                 companyInfo && (
-                  <Link href={`/admin/CompanyManager/${companyInfo._id}`} className="edit-profile-btn">
+                  <button 
+                    onClick={openEditCompanyModal}
+                    className="edit-profile-btn"
+                  >
                     <svg className="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
-                    Xem chi tiết
-                  </Link>
+                    Chỉnh sửa
+                  </button>
                 )
               ) : (
                 userProfile && (
@@ -1235,6 +1349,181 @@ export default function UserInfoPage() {
                   Xóa đơn ứng tuyển
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Edit Company Info Modal */}
+      {showEditCompanyModal && (
+        <div className="modal-overlay" onClick={closeEditCompanyModal}>
+          <div className="modal-content-wrapper edit-company-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Chỉnh sửa thông tin công ty</h2>
+              <button className="modal-close-btn" onClick={closeEditCompanyModal}>
+                <svg fill="currentColor" viewBox="0 0 20 20" width="24" height="24">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                </svg>
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <form onSubmit={handleSaveCompanyInfo} className="company-edit-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="company-name">Tên công ty <span className="required">*</span></label>
+                    <input
+                      type="text"
+                      id="company-name"
+                      name="name"
+                      className="form-input"
+                      value={editCompanyForm.name}
+                      onChange={handleCompanyFormChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="company-email">Email <span className="required">*</span></label>
+                    <input
+                      type="email"
+                      id="company-email"
+                      name="email"
+                      className="form-input"
+                      value={editCompanyForm.email}
+                      onChange={handleCompanyFormChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="company-phone">Số điện thoại</label>
+                    <input
+                      type="tel"
+                      id="company-phone"
+                      name="phone"
+                      className="form-input"
+                      value={editCompanyForm.phone}
+                      onChange={handleCompanyFormChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="company-website">Website</label>
+                    <input
+                      type="url"
+                      id="company-website"
+                      name="website"
+                      className="form-input"
+                      placeholder="https://example.com"
+                      value={editCompanyForm.website}
+                      onChange={handleCompanyFormChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="company-address">Địa chỉ</label>
+                    <input
+                      type="text"
+                      id="company-address"
+                      name="address"
+                      className="form-input"
+                      value={editCompanyForm.address}
+                      onChange={handleCompanyFormChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="company-logo">Logo công ty</label>
+                    <div className="file-upload-wrapper">
+                      <input
+                        type="file"
+                        id="company-logo"
+                        name="logo"
+                        className="file-input"
+                        accept="image/*"
+                        onChange={handleLogoFileChange}
+                      />
+                      <label htmlFor="company-logo" className="file-upload-label">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Chọn file ảnh
+                      </label>
+                      <span className="file-upload-hint">PNG, JPG, GIF (tối đa 5MB)</span>
+                    </div>
+                    {editCompanyForm.logo && (
+                      <div className="logo-preview">
+                        <img 
+                          src={editCompanyForm.logo} 
+                          alt="Logo preview" 
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="remove-logo-btn"
+                          onClick={() => setEditCompanyForm(prev => ({ ...prev, logo: '' }))}
+                          title="Xóa logo"
+                        >
+                          <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="company-description">Mô tả công ty</label>
+                    <textarea
+                      id="company-description"
+                      name="description"
+                      className="form-input"
+                      rows="5"
+                      value={editCompanyForm.description}
+                      onChange={handleCompanyFormChange}
+                      placeholder="Nhập mô tả về công ty..."
+                    />
+                  </div>
+                </div>
+
+                <div className="modal-footer">
+                  <button 
+                    type="button" 
+                    onClick={closeEditCompanyModal} 
+                    className="btn-secondary"
+                    disabled={companyEditLoading}
+                  >
+                    Hủy
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="update-btn"
+                    disabled={companyEditLoading}
+                  >
+                    {companyEditLoading ? (
+                      <div className="button-loading">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        Đang lưu...
+                      </div>
+                    ) : (
+                      'Lưu thay đổi'
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

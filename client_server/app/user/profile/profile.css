@@ -2031,3 +2031,267 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
+
+/* Edit Company Modal Styles */
+.edit-company-modal {
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.edit-company-modal .modal-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+  border-radius: 16px 16px 0 0;
+}
+
+.edit-company-modal .modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.edit-company-modal .modal-body {
+  padding: 24px;
+}
+
+.company-edit-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.form-row:has(.form-group:nth-child(2)) {
+  grid-template-columns: 1fr 1fr;
+}
+
+.company-edit-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.company-edit-form label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.company-edit-form .required {
+  color: #ef4444;
+  margin-left: 4px;
+}
+
+.company-edit-form .form-input,
+.company-edit-form textarea {
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.company-edit-form .form-input:focus,
+.company-edit-form textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.company-edit-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.edit-company-modal .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 12px;
+}
+
+.edit-company-modal .btn-secondary {
+  padding: 10px 20px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-company-modal .btn-secondary:hover:not(:disabled) {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.edit-company-modal .btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edit-company-modal .update-btn {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-company-modal .update-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.edit-company-modal .update-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .edit-company-modal {
+    max-width: 95%;
+    margin: 20px;
+  }
+
+  .form-row:has(.form-group:nth-child(2)) {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-company-modal .modal-header {
+    padding: 20px;
+  }
+
+  .edit-company-modal .modal-body {
+    padding: 20px;
+  }
+}
+
+/* File Upload Styles */
+.file-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-upload-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.file-upload-label:hover {
+  border-color: #10b981;
+  background: #f0fdf4;
+  color: #10b981;
+}
+
+.file-upload-label svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.file-upload-hint {
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.logo-preview {
+  position: relative;
+  display: inline-block;
+  max-width: 200px;
+}
+
+.logo-preview img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.remove-logo-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.remove-logo-btn:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.remove-logo-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .logo-preview {
+    max-width: 150px;
+  }
+  
+  .logo-preview img {
+    max-width: 150px;
+  }
+}
