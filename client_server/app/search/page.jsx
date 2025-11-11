@@ -75,12 +75,14 @@ export default function SearchPage() {
     <div className="search-page">
       <div className="search-container">
         <div className="search-header">
-          <h1>Kết quả tìm kiếm</h1>
           {(query || skill || city) && (
             <p className="search-query">
               {query && <span>Từ khóa: <span className="query-text">"{query}"</span></span>}
               {skill && <span className="filter-text"> • Kỹ năng: <span className="query-text">{skill}</span></span>}
               {city && <span className="filter-text"> • Thành phố: <span className="query-text">{city}</span></span>}
+              {!loading && !error && results.length > 0 && (
+                <span className="filter-text"> • Tìm thấy: <strong className="query-text">{results.length}</strong> công việc</span>
+              )}
             </p>
           )}
         </div>
@@ -104,9 +106,6 @@ export default function SearchPage() {
           </div>
         ) : (
           <div className="search-results">
-            <div className="results-count">
-              Tìm thấy <strong>{results.length}</strong> công việc
-            </div>
             <div className="jobs-grid">
               {results.map((job) => (
                 <JobCard
