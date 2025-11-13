@@ -46,6 +46,7 @@ python main.py
 ```bash
 # Đứng tại thư mục gốc của dự án
 cd client_server
+npm run build
 node cluster.js
 ```
 
