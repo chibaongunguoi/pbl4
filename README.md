@@ -1,1 +1,38 @@
-db.JobDetail.deleteMany({url: {$regex: /topcv/}})
+# Cách triển khai dự án
+
+## Giới thiệu
+
+Dự án gồm có các thành phần như sau:
+
+- Fullstack Client-Server (port 3000)
+- MongoDB Database (port 27017)
+- Web Scraper (port 37222)
+- LM Studio Chatbot Hosting (port 1234)
+- Chatbot System (port 37111)
+
+## Hướng dẫn deploy
+
+- Thiết lập biến môi trường bằng git bash
+
+```bash
+# Đứng tại thư mục gốc của dự án
+source env.sh
+```
+
+- Chạy ngầm MongoDB Database.
+- Chạy Web Scraper như sau:
+
+```bash
+# Đứng tại thư mục gốc của dự án
+cd scraper
+python main.py
+```
+
+- Chạy LM Studio Chatbot
+- Chạy Chatbot System
+
+```bash
+# Đứng tại thư mục gốc của dự án
+cd chatbot_system
+python main.py
+```
