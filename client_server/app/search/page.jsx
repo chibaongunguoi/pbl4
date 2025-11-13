@@ -34,14 +34,14 @@ export default function SearchPage() {
         if (query.trim()) params.append('q', query.trim());
         if (skill) params.append('skill', skill);
         if (city) params.append('city', city);
-        
+
         const response = await fetch(`/api/search?${params.toString()}`);
         if (!response.ok) {
           throw new Error('Failed to fetch search results');
         }
         const data = await response.json();
         setResults(data.data || []);
-        
+
         // Fetch follow counts for search results
         if (data.data && data.data.length > 0) {
           const jobIds = data.data.map(job => job._id);
@@ -52,7 +52,7 @@ export default function SearchPage() {
             },
             body: JSON.stringify({ jobIds }),
           });
-          
+
           if (followResponse.ok) {
             const followData = await followResponse.json();
             setFollowCounts(followData);

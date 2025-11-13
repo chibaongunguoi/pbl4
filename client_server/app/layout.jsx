@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConditionalLayout from "./ConditionalLayout";
+import { Suspense } from "react";
 
 
 const geistSans = Geist({
@@ -53,9 +54,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen`}
       >
-        <ConditionalLayout>
-          {children}
-        </ConditionalLayout>
+        <Suspense>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+        </Suspense>
       </body>
     </html>
   );

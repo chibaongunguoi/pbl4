@@ -1,7 +1,6 @@
 export DB_CONNECTION_STRING="mongodb://localhost:27017/pbl4_db"
 
 # Client-Server
-export CLIENT_SERVER_HOST="localhost"
 export CLIENT_SERVER_PORT=3000
 
 # Scraper
