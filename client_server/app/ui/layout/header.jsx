@@ -94,7 +94,7 @@ export default function Header() {
     window.addEventListener('userLoginSuccess', handleLoginSuccess);
     window.addEventListener('userLogoutSuccess', handleLogoutSuccess);
     window.addEventListener('storage', handleStorageChange);
-    
+
     return () => {
       window.removeEventListener('userLoginSuccess', handleLoginSuccess);
       window.removeEventListener('userLogoutSuccess', handleLogoutSuccess);
@@ -116,7 +116,7 @@ export default function Header() {
     };
   }, [showNotifications]);
 
-   async function logOut() {
+  async function logOut() {
     await fetch("/api/auth/logout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -131,24 +131,24 @@ export default function Header() {
       <div className="header-container">
         <nav id="navigation" className="menu d-xs-none">
           <div id="brand" className="logo">
-          <h1>
-            <a
-              href="/"
-              aria-current="page"
-              className="router-link-exact-active router-link-active"
-            >
-              <div className="logo">ITWORKER</div>
-            </a>
-          </h1>
-        </div>
+            <h1>
+              <a
+                href="/"
+                aria-current="page"
+                className="router-link-exact-active router-link-active"
+              >
+                <div className="logo">ITWORKS</div>
+              </a>
+            </h1>
+          </div>
           <ul className="search">
             <li>
               <JobSearch />
             </li>
-            
+
           </ul>{" "}
           <ul className="float-right">
-            
+
 
             {isLoading ? (
               <li>
@@ -161,8 +161,8 @@ export default function Header() {
               <>
                 {user.role === 'user' && (
                   <li className="notification-dropdown">
-                    <a 
-                      href="#" 
+                    <a
+                      href="#"
                       className="notification-bell"
                       onClick={(e) => {
                         e.preventDefault();

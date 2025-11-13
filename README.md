@@ -25,6 +25,7 @@ source env.sh
 ```bash
 # Đứng tại thư mục gốc của dự án
 cd scraper
+pip install -r requirements.txt # Cài các package cần thiết
 python main.py
 ```
 
@@ -34,5 +35,22 @@ python main.py
 ```bash
 # Đứng tại thư mục gốc của dự án
 cd chatbot_system
+pip install -r requirements.txt # Cài các package cần thiết
 python main.py
+```
+
+## Hướng dẫn test
+
+- Trước hết, tải `k6.exe` (trong file zip) rồi thêm vào PATH.
+
+```bash
+# Đứng tại thư mục gốc của dự án
+cd client_server
+node cluster.js
+```
+
+Tại một terminal khác:
+
+```bash
+./test.sh
 ```
