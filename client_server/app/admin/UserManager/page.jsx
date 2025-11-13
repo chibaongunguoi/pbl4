@@ -53,7 +53,7 @@ export default function UserManagerPage() {
   };
 
   const handleEdit = (user) => {
-    setEditingUserId(user._id);
+    setEditingUserId(user.username);
     setShowEditModal(true);
   };
 

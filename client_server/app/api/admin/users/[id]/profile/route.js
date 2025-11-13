@@ -6,28 +6,12 @@ import { verifyToken } from "@/app/lib/auth";
 // GET - Fetch user profile by user ID (admin only)
 export async function GET(request, { params }) {
   try {
-    const token = request.cookies.get("auth")?.value;
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized - No token" }, { status: 401 });
-    }
-
-    let user;
-    try {
-      user = await verifyToken(token);
-    } catch (err) {
-      console.error("Token verification error:", err);
-      return NextResponse.json({ error: "Unauthorized - Invalid token" }, { status: 401 });
-    }
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { id } = await params;
 
     await connectDB();
-
-    const { id } = params;
-    const profile = await UserProfile.findOne({ userID: id });
-
+   console.log(id,"21");  
+    const profile = await UserProfile.findOne({ username: id });
+    console.log(profile,"22");
     if (!profile) {
       return NextResponse.json({ 
         success: true, 
@@ -52,31 +36,16 @@ export async function GET(request, { params }) {
 // PUT - Update user profile by user ID (admin only)
 export async function PUT(request, { params }) {
   try {
-    const token = request.cookies.get("token")?.value;
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized - No token" }, { status: 401 });
-    }
-
-    let user;
-    try {
-      user = await verifyToken(token);
-    } catch (err) {
-      console.error("Token verification error:", err);
-      return NextResponse.json({ error: "Unauthorized - Invalid token" }, { status: 401 });
-    }
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
+    const { id } = await params;
+    
     await connectDB();
-
-    const { id } = params;
+ 
+   
     const body = await request.json();
     const { name, phone, gender, birthdate, cv, description } = body;
 
     // Check if profile exists
-    let profile = await UserProfile.findOne({ userID: id });
+    let profile = await UserProfile.findOne({ username: id });
 
     if (profile) {
       // Update existing profile
@@ -91,7 +60,7 @@ export async function PUT(request, { params }) {
     } else {
       // Create new profile
       profile = new UserProfile({
-        userID: id,
+        username: id,
         name,
         phone,
         gender,
