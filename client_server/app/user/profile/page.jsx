@@ -571,7 +571,7 @@ export default function UserInfoPage() {
                 </div>
               </div>
               <h3 className="username">{companyInfo.name || 'Loading...'}</h3>
-              <p className="user-role">Công ty</p>
+              <p className="user-role">Company</p>
             </>
           ) : (
             <>
@@ -893,8 +893,8 @@ export default function UserInfoPage() {
                 <table className="applications-table">
                   <thead>
                     <tr>
-                      <th>Họ tên</th>
                       <th>Công việc ứng tuyển</th>
+                      <th>Họ tên</th>
                       <th>Số điện thoại</th>
                       <th>Ngày sinh</th>
                       <th>CV</th>
@@ -907,12 +907,12 @@ export default function UserInfoPage() {
                     {applications.map((application) => (
                       <tr key={application._id}>
                     
-                        <td>{application.userProfile?.name || 'Chưa cập nhật'}</td>
                         <td>
                           <div className="job-title-cell">
                             {application.JobDetailID?.job_title || 'Chưa rõ'}
                           </div>
                         </td>
+                        <td>{application.userProfile?.name || 'Chưa cập nhật'}</td>
                         <td>{application.userProfile?.phone || 'Chưa có'}</td>
                 
                         <td>
