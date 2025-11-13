@@ -354,13 +354,21 @@
   border: 1px solid #e2e8f0;
 }
 
+.job-search-container {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
 .apply-search-wrapper {
   width: 100%;
 }
 
 .apply-search-row {
   display: flex;
-  gap: 12px;
   align-items: flex-start;
   flex-wrap: wrap;
 }
@@ -372,6 +380,7 @@
 }
 
 .apply-search-row .job-filter-select {
+  max-width: 297px;
   min-width: 200px;
   height: 42px;
 }

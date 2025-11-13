@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import EditJobForm from "../../components/EditJobForm";
 import ApplySearch from "../../components/ApplySearch";
+import JobSearch from "../../components/JobSearch";
 import "./profile.css";
 
 export default function UserInfoPage() {
@@ -806,6 +807,10 @@ export default function UserInfoPage() {
               </p>
             </div>
             
+            <div className="job-search-container">
+              <JobSearch />
+            </div>
+            
             {favoritesLoading ? (
               <div className="loading-container">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-600"></div>
@@ -1109,6 +1114,10 @@ export default function UserInfoPage() {
                 </svg>
                 Thêm công việc
               </button>
+            </div>
+            
+            <div className="job-search-container">
+              <JobSearch />
             </div>
             
             {jobsLoading ? (
