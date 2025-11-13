@@ -109,67 +109,6 @@ export default function NotificationSearch({ notifications, onFilteredResults })
             </svg>
           </div>
         </div>
-
-        {/* Status Filter */}
-        <div style={{ minWidth: '180px' }}>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '14px',
-              outline: 'none',
-              backgroundColor: 'white',
-              cursor: 'pointer',
-              transition: 'border-color 0.2s',
-              boxSizing: 'border-box'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-            onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-          >
-            <option value="all">📋 Tất cả ({notifications.length})</option>
-            <option value="chưa đọc">🔔 Chưa đọc ({unreadCount})</option>
-            <option value="đã đọc">✅ Đã đọc ({readCount})</option>
-          </select>
-        </div>
-
-        {/* Clear Button */}
-        {(searchQuery || statusFilter !== 'all') && (
-          <button
-            onClick={handleClear}
-            style={{
-              padding: '10px 16px',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '500',
-              backgroundColor: 'white',
-              color: '#374151',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              height: '42px'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#f9fafb';
-              e.target.style.borderColor = '#9ca3af';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'white';
-              e.target.style.borderColor = '#d1d5db';
-            }}
-          >
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
-            </svg>
-            Xóa bộ lọc
-          </button>
-        )}
       </div>
     </>
   );
