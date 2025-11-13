@@ -266,6 +266,85 @@
   margin: 0;
 }
 
+.section-header-with-filter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 20px;
+}
+
+.section-header-with-filter h2 {
+  margin: 0;
+}
+
+.filter-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+  white-space: nowrap;
+}
+
+.job-filter-select {
+  min-width: 200px;
+  padding: 8px 32px 8px 12px;
+  font-size: 14px;
+  color: #333;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.job-filter-select:hover {
+  border-color: #4299e1;
+  background-color: #f7fafc;
+}
+
+.job-filter-select:focus {
+  border-color: #4299e1;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.job-filter-select::-webkit-scrollbar {
+  width: 6px;
+}
+
+.job-filter-select::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.job-filter-select::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.job-filter-select::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.job-filter-select {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
 .edit-profile-btn {
   display: inline-flex;
   align-items: center;

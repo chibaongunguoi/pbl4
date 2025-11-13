@@ -43,6 +43,7 @@ export default function UserInfoPage() {
     description: ''
   });
   const [companyEditLoading, setCompanyEditLoading] = useState(false);
+  const [selectedJobFilter, setSelectedJobFilter] = useState('');
   
   useEffect(() => {
     getUser().then(data => setUser(data))
@@ -297,8 +298,11 @@ export default function UserInfoPage() {
   useEffect(() => {
     if (activeTab === 'applications' && user?.role === 'company') {
       fetchApplications();
+      if (companyInfo) {
+        fetchCompanyJobs();
+      }
     }
-  }, [activeTab]);
+  }, [activeTab, companyInfo]);
 
   // Load jobs when switching to jobs tab
   useEffect(() => {
@@ -875,7 +879,23 @@ export default function UserInfoPage() {
 
         {activeTab === 'applications' && user?.role === 'company' && (
           <div className="content-section">
-            <h2>Danh sách ứng tuyển</h2>
+            <div className="section-header-with-filter">
+              <h2>Danh sách ứng tuyển</h2>
+              <div className="filter-wrapper">
+                <label htmlFor="job-filter" className="filter-label">Lọc theo công việc:</label>
+                <select 
+                  id="job-filter"
+                  className="job-filter-select"
+                  value={selectedJobFilter}
+                  onChange={(e) => setSelectedJobFilter(e.target.value)}
+                >
+                  <option value="">Tất cả công việc</option>
+                  {companyJobs.map((job) => (
+                    <option key={job._id} value={job.job_title}>{job.job_title}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
             {applicationsLoading ? (
               <div className="loading-container">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-600"></div>
@@ -904,7 +924,9 @@ export default function UserInfoPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {applications.map((application) => (
+                    {applications
+                      .filter(application => !selectedJobFilter || application.JobDetailID?.job_title === selectedJobFilter)
+                      .map((application) => (
                       <tr key={application._id}>
                     
                         <td>
