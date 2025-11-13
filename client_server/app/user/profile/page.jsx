@@ -552,13 +552,38 @@ export default function UserInfoPage() {
       {/* Sidebar */}
       <div className="sidebar">
         <div className="user-info">
-          <div className="user-avatar">
-            <div className="avatar-placeholder">
-              {user?.username?.charAt(0).toUpperCase() || 'U'}
-            </div>
-          </div>
-          <h3 className="username">{user?.username || 'Loading...'}</h3>
-          <p className="user-role">{user?.role || 'User'}</p>
+          {user?.role === 'company' && companyInfo ? (
+            <>
+              <div className="user-avatar">
+                {companyInfo.logo ? (
+                  <img 
+                    src={companyInfo.logo} 
+                    alt={companyInfo.name}
+                    className="company-logo-avatar"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className="avatar-placeholder" style={{ display: companyInfo.logo ? 'none' : 'flex' }}>
+                  {companyInfo.name?.charAt(0).toUpperCase() || 'C'}
+                </div>
+              </div>
+              <h3 className="username">{companyInfo.name || 'Loading...'}</h3>
+              <p className="user-role">Công ty</p>
+            </>
+          ) : (
+            <>
+              <div className="user-avatar">
+                <div className="avatar-placeholder">
+                  {user?.username?.charAt(0).toUpperCase() || 'U'}
+                </div>
+              </div>
+              <h3 className="username">{user?.username || 'Loading...'}</h3>
+              <p className="user-role">{user?.role || 'User'}</p>
+            </>
+          )}
         </div>
         
         <nav className="sidebar-nav">
