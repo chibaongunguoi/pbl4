@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/app/lib/db';
 import Notification from '@/models/Notification';
+import UserProfile from '@/models/UserProfile';
 import { verifyToken } from '@/app/lib/auth';
 
 // GET - Lấy tất cả thông báo (admin only)
@@ -40,11 +41,35 @@ export async function GET(request) {
       .sort({ createdAt: -1 })
       .lean();
 
+    // Fetch UserProfile names for each notification
+    const notificationsWithNames = await Promise.all(
+      notifications.map(async (notification) => {
+        if (notification.userID?.username) {
+          const userProfile = await UserProfile.findOne({ 
+            username: notification.userID.username 
+          }).select('name').lean();
+          
+          return {
+            ...notification,
+            userProfile: {
+              name: userProfile?.name || notification.userID.username
+            }
+          };
+        }
+        return {
+          ...notification,
+          userProfile: {
+            name: 'N/A'
+          }
+        };
+      })
+    );
+
     return NextResponse.json(
       { 
         success: true,
-        data: notifications,
-        count: notifications.length
+        data: notificationsWithNames,
+        count: notificationsWithNames.length
       },
       { status: 200 }
     );

@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import "../admin.css";
 import "./notification-manager.css";
+import NotificationSearch from "../components/NotificationSearch";
 
 export default function NotificationManager() {
   const [notifications, setNotifications] = useState([]);
+  const [filteredNotifications, setFilteredNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState('all'); // all, chưa đọc, đã đọc
 
   useEffect(() => {
     fetchNotifications();
@@ -25,7 +26,9 @@ export default function NotificationManager() {
 
       if (response.ok) {
         const data = await response.json();
-        setNotifications(data.data || []);
+        const notificationData = data.data || [];
+        setNotifications(notificationData);
+        setFilteredNotifications(notificationData);
       } else {
         console.error('Error fetching notifications');
       }
@@ -59,14 +62,6 @@ export default function NotificationManager() {
     }
   };
 
-  const filteredNotifications = notifications.filter(notif => {
-    if (filter === 'all') return true;
-    return notif.status === filter;
-  });
-
-  const unreadCount = notifications.filter(n => n.status === 'chưa đọc').length;
-  const readCount = notifications.filter(n => n.status === 'đã đọc').length;
-
   return (
     <div className="admin-content notification-manager-container">
       {/* Header */}
@@ -75,45 +70,38 @@ export default function NotificationManager() {
         <p className="admin-content-subtitle">Danh sách tất cả thông báo trong hệ thống</p>
       </div>
 
-
-      {/* Filter and Actions */}
-      <div className="notification-actions-bar">
-        <div className="filter-controls">
-          <span className="filter-label">Lọc theo trạng thái:</span>
-          <select 
-            value={filter} 
-            onChange={(e) => setFilter(e.target.value)}
-            className="notification-filter-select"
-          >
-            <option value="all">📋 Tất cả ({notifications.length})</option>
-            <option value="chưa đọc">🔔 Chưa đọc ({unreadCount})</option>
-            <option value="đã đọc">✅ Đã đọc ({readCount})</option>
-          </select>
-        </div>
-        <button onClick={fetchNotifications} className="refresh-btn">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          Làm mới
-        </button>
-      </div>
-
-      {/* Content */}
       {loading ? (
         <div className="notification-loading">
           <div className="spinner"></div>
           <p>Đang tải thông báo...</p>
         </div>
-      ) : filteredNotifications.length === 0 ? (
-        <div className="notification-empty">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="64" height="64">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-          <h3>{filter === 'all' ? 'Chưa có thông báo nào' : `Không có thông báo "${filter}"`}</h3>
-          <p>Các thông báo sẽ xuất hiện tại đây khi có người dùng ứng tuyển</p>
-        </div>
       ) : (
-        <div className="notification-table-wrapper">
+        <div className="notifications-section">
+          <div className="notifications-header">
+            <h2>Danh sách thông báo ({filteredNotifications.length})</h2>
+            <button className="refresh-btn" onClick={fetchNotifications}>
+              <svg className="refresh-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
+              </svg>
+              Làm mới
+            </button>
+          </div>
+
+          <NotificationSearch 
+            notifications={notifications} 
+            onFilteredResults={setFilteredNotifications}
+          />
+
+          {filteredNotifications.length === 0 ? (
+            <div className="notification-empty">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="64" height="64">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              <h3>{notifications.length === 0 ? 'Chưa có thông báo nào' : 'Không tìm thấy thông báo phù hợp'}</h3>
+              <p>Các thông báo sẽ xuất hiện tại đây khi có người dùng ứng tuyển</p>
+            </div>
+          ) : (
+            <div className="notification-table-wrapper">
           <table className="notification-table">
             <thead>
               <tr>
@@ -131,7 +119,7 @@ export default function NotificationManager() {
                   <td>
                     <div className="user-cell">
                       <span className="user-name">
-                        {notification.userID?.username || 'N/A'}
+                        {notification.userProfile?.name || notification.userID?.username || 'N/A'}
                       </span>
                       <span className="user-id">
                         {notification.userID?._id ? `#${notification.userID._id.slice(-8)}` : 'N/A'}
@@ -180,10 +168,12 @@ export default function NotificationManager() {
                       Xóa
                     </button>
                   </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          )}
         </div>
       )}
     </div>

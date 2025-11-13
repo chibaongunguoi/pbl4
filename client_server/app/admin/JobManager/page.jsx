@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import "../admin.css";
 import Pagination from "../components/Pagination";
 import EditJobForm from "../../components/EditJobForm";
-import JobSearch from "../../components/JobSearch";
+import AdminJobSearch from "../components/AdminJobSearch";
 
 export default function JobManagerPage() {
   const [jobs, setJobs] = useState([]);
@@ -12,6 +12,7 @@ export default function JobManagerPage() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [followCounts, setFollowCounts] = useState({});
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -61,6 +62,7 @@ export default function JobManagerPage() {
       const data = JSON.parse(text);
       const jobsData = data.data || [];
       setJobs(jobsData);
+      setFilteredJobs(jobsData);
       
       // Fetch follow counts for all jobs
       if (jobsData.length > 0) {
@@ -169,7 +171,7 @@ export default function JobManagerPage() {
       ) : (
         <div className="jobs-section">
           <div className="jobs-header">
-            <h2>Danh sách công việc ({jobs.length})</h2>
+            <h2>Danh sách công việc ({filteredJobs.length})</h2>
             <button className="refresh-btn" onClick={fetchJobs}>
               <svg className="refresh-icon" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
@@ -178,9 +180,10 @@ export default function JobManagerPage() {
             </button>
           </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <JobSearch />
-          </div>
+          <AdminJobSearch 
+            jobs={jobs} 
+            onFilteredResults={setFilteredJobs}
+          />
           
           <div className="jobs-table-container">
             <table className="jobs-table">
@@ -196,17 +199,17 @@ export default function JobManagerPage() {
                 </tr>
               </thead>
               <tbody>
-                {jobs.length === 0 ? (
+                {filteredJobs.length === 0 ? (
                   <tr>
                     <td colSpan="8" className="no-jobs">
-                      Không có công việc nào trong hệ thống
+                      {jobs.length === 0 ? 'Không có công việc nào trong hệ thống' : 'Không tìm thấy công việc nào phù hợp'}
                     </td>
                   </tr>
                 ) : (
                   (() => {
                     const startIndex = (currentPage - 1) * itemsPerPage;
                     const endIndex = startIndex + itemsPerPage;
-                    const paginatedJobs = jobs.slice(startIndex, endIndex);
+                    const paginatedJobs = filteredJobs.slice(startIndex, endIndex);
                     
                     return paginatedJobs.map((job, index) => (
                       <tr key={job.id || index} className="job-row">
@@ -279,7 +282,7 @@ export default function JobManagerPage() {
 
           <Pagination
             currentPage={currentPage}
-            totalItems={jobs.length}
+            totalItems={filteredJobs.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
           />

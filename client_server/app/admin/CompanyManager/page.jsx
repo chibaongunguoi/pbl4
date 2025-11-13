@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "../admin.css";
 import Pagination from "../components/Pagination";
+import CompanySearch from "../components/CompanySearch";
 
 export default function CompanyManagerPage() {
   const [companies, setCompanies] = useState([]);
+  const [filteredCompanies, setFilteredCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -75,7 +77,9 @@ export default function CompanyManagerPage() {
       }
 
       const data = JSON.parse(text);
-      setCompanies(data.companies || []);
+      const companiesData = data.companies || [];
+      setCompanies(companiesData);
+      setFilteredCompanies(companiesData);
     } catch (error) {
       console.error('Error fetching companies:', error);
       setCompanies([]);
@@ -981,7 +985,7 @@ export default function CompanyManagerPage() {
       ) : (
         <div className="companies-section">
           <div className="companies-header">
-            <h2>Danh sách công ty ({companies.length})</h2>
+            <h2>Danh sách công ty ({filteredCompanies.length})</h2>
             <div className="companies-header-actions">
               <button className="add-company-btn" onClick={() => {
                 setShowAddForm(true);
@@ -1002,6 +1006,11 @@ export default function CompanyManagerPage() {
             </div>
           </div>
           
+          <CompanySearch 
+            companies={companies} 
+            onFilteredResults={setFilteredCompanies}
+          />
+          
           <div className="companies-table-container">
             <table className="companies-table">
               <thead>
@@ -1015,17 +1024,17 @@ export default function CompanyManagerPage() {
                 </tr>
               </thead>
               <tbody>
-                {companies.length === 0 ? (
+                {filteredCompanies.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="no-companies">
-                      Không có công ty nào trong hệ thống
+                      {companies.length === 0 ? 'Không có công ty nào trong hệ thống' : 'Không tìm thấy công ty nào phù hợp'}
                     </td>
                   </tr>
                 ) : (
                   (() => {
                     const startIndex = (currentPage - 1) * itemsPerPage;
                     const endIndex = startIndex + itemsPerPage;
-                    const paginatedCompanies = companies.slice(startIndex, endIndex);
+                    const paginatedCompanies = filteredCompanies.slice(startIndex, endIndex);
                     
                     return paginatedCompanies.map((company) => (
                       <tr 
@@ -1100,7 +1109,7 @@ export default function CompanyManagerPage() {
 
           <Pagination
             currentPage={currentPage}
-            totalItems={companies.length}
+            totalItems={filteredCompanies.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
           />
