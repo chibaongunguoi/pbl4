@@ -8,6 +8,7 @@ import Image from "next/image";
 import EditJobForm from "../../components/EditJobForm";
 import ApplySearch from "../../components/ApplySearch";
 import JobSearch from "../../components/JobSearch";
+import UserApplicationSearch from "../../components/UserApplicationSearch";
 import "./profile.css";
 
 export default function UserInfoPage() {
@@ -46,6 +47,9 @@ export default function UserInfoPage() {
   });
   const [companyEditLoading, setCompanyEditLoading] = useState(false);
   const [filteredApplications, setFilteredApplications] = useState([]);
+  const [userApplications, setUserApplications] = useState([]);
+  const [userApplicationsLoading, setUserApplicationsLoading] = useState(false);
+  const [filteredUserApplications, setFilteredUserApplications] = useState([]);
   
   useEffect(() => {
     getUser().then(data => setUser(data))
@@ -139,6 +143,34 @@ export default function UserInfoPage() {
     }
   };
 
+  // Fetch applications for regular user role
+  const fetchUserApplications = async () => {
+    if (userApplicationsLoading) return;
+    
+    try {
+      setUserApplicationsLoading(true);
+      const response = await fetch('/api/user/apply', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setUserApplications(data.data || []);
+        setFilteredUserApplications(data.data || []);
+      } else {
+        console.error('Error fetching user applications:', data.error || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('Error fetching user applications:', error);
+    } finally {
+      setUserApplicationsLoading(false);
+    }
+  };
+
   // Fetch applications for company role
   const fetchApplications = async () => {
     if (applicationsLoading) return;
@@ -186,8 +218,12 @@ export default function UserInfoPage() {
 
       if (response.ok) {
         alert('Xóa đơn ứng tuyển thành công!');
-        // Refresh applications list
-        fetchApplications();
+        // Refresh applications list based on role
+        if (user?.role === 'company') {
+          fetchApplications();
+        } else if (user?.role === 'user') {
+          fetchUserApplications();
+        }
       } else {
         const data = await response.json();
         alert(data.error || 'Lỗi khi xóa đơn ứng tuyển');
@@ -299,13 +335,17 @@ export default function UserInfoPage() {
 
   // Load applications when switching to applications tab
   useEffect(() => {
-    if (activeTab === 'applications' && user?.role === 'company') {
-      fetchApplications();
-      if (companyInfo) {
-        fetchCompanyJobs();
+    if (activeTab === 'applications') {
+      if (user?.role === 'company') {
+        fetchApplications();
+        if (companyInfo) {
+          fetchCompanyJobs();
+        }
+      } else if (user?.role === 'user') {
+        fetchUserApplications();
       }
     }
-  }, [activeTab, companyInfo]);
+  }, [activeTab, companyInfo, user?.role]);
 
   // Load jobs when switching to jobs tab
   useEffect(() => {
@@ -606,7 +646,7 @@ export default function UserInfoPage() {
                 Thông tin cá nhân
               </button>
             </li>
-            {user?.role === 'company' && (
+            {(user?.role === 'company' || user?.role === 'user') && (
               <li>
                 <button
                   className={`nav-link ${activeTab === 'applications' ? 'active' : ''}`}
@@ -884,39 +924,125 @@ export default function UserInfoPage() {
           </div>
         )}
 
-        {activeTab === 'applications' && user?.role === 'company' && (
+        {activeTab === 'applications' && (
           <div className="content-section">
             <h2>Danh sách ứng tuyển</h2>
-            {applicationsLoading ? (
-              <div className="loading-container">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-600"></div>
-                <span>Đang tải...</span>
-              </div>
-            ) : applications.length === 0 ? (
-              <div className="empty-state">
-                <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <p>Chưa có ứng viên nào ứng tuyển</p>
-              </div>
-            ) : (
-              <>
-                <div className="apply-search-container">
-                  <ApplySearch 
-                    applications={applications}
-                    companyJobs={companyJobs}
-                    onFilteredResults={setFilteredApplications}
-                  />
+            {user?.role === 'user' ? (
+              // User view: simplified table
+              userApplicationsLoading ? (
+                <div className="loading-container">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-600"></div>
+                  <span>Đang tải...</span>
                 </div>
-                {filteredApplications.length === 0 ? (
-                  <div className="empty-state">
-                    <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <p>Không tìm thấy kết quả phù hợp</p>
+              ) : userApplications.length === 0 ? (
+                <div className="empty-state">
+                  <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <p>Bạn chưa ứng tuyển công việc nào</p>
+                </div>
+              ) : (
+                <>
+                  <div className="apply-search-container">
+                    <UserApplicationSearch 
+                      applications={userApplications}
+                      onFilteredResults={setFilteredUserApplications}
+                    />
                   </div>
-                ) : (
-              <div className="applications-table-container">
+                  {filteredUserApplications.length === 0 ? (
+                    <div className="empty-state">
+                      <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <p>Không tìm thấy kết quả phù hợp</p>
+                    </div>
+                  ) : (
+                  <div className="applications-table-container">
+                  <table className="applications-table">
+                    <thead>
+                      <tr>
+                        <th>Tên công việc</th>
+                        <th>Tên công ty</th>
+                        <th>Trạng thái</th>
+                        <th>Thời gian ứng tuyển</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredUserApplications.map((application) => (
+                        <tr key={application._id}>
+                          <td>
+                            <div className="job-title-cell">
+                              {application.JobDetailID?.job_title || 'Chưa rõ'}
+                            </div>
+                          </td>
+                          <td>{application.JobDetailID?.company_name || 'Chưa rõ'}</td>
+                          <td className="status-cell">{application.status || 'chưa duyệt'}</td>
+                          <td>{new Date(application.time).toLocaleString('vi-VN')}</td>
+                          <td>
+                            <div className="action-buttons">
+                              <button
+                                onClick={() => router.push(`/job/${application.JobDetailID?._id}`)}
+                                className="view-detail-btn"
+                                title="Xem chi tiết"
+                                disabled={!application.JobDetailID?._id}
+                              >
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => handleDeleteApplication(application._id)}
+                                className="delete-btn"
+                                title="Xóa đơn ứng tuyển"
+                              >
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                  )}
+                </>
+              )
+            ) : user?.role === 'company' ? (
+              // Company view: detailed table
+              applicationsLoading ? (
+                <div className="loading-container">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-600"></div>
+                  <span>Đang tải...</span>
+                </div>
+              ) : applications.length === 0 ? (
+                <div className="empty-state">
+                  <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <p>Chưa có ứng viên nào ứng tuyển</p>
+                </div>
+              ) : (
+                <>
+                  <div className="apply-search-container">
+                    <ApplySearch 
+                      applications={applications}
+                      companyJobs={companyJobs}
+                      onFilteredResults={setFilteredApplications}
+                    />
+                  </div>
+                  {filteredApplications.length === 0 ? (
+                    <div className="empty-state">
+                      <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <p>Không tìm thấy kết quả phù hợp</p>
+                    </div>
+                  ) : (
+                    <div className="applications-table-container">
                 <table className="applications-table">
                   <thead>
                     <tr>
@@ -1005,12 +1131,13 @@ export default function UserInfoPage() {
                         </td>
                       </tr>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-                )}
-              </>
-            )}
+                    </tbody>
+                  </table>
+                </div>
+                  )}
+                </>
+              )
+            ) : null}
           </div>
         )}
 
