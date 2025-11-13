@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import "../admin.css";
 import Pagination from "../components/Pagination";
 import EditUserProfileForm from "@/app/components/EditUserProfileForm";
+import UserSearch from "../components/UserSearch";
 
 export default function UserManagerPage() {
   const [users, setUsers] = useState([]);
@@ -12,6 +13,7 @@ export default function UserManagerPage() {
   const itemsPerPage = 20;
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingUserId, setEditingUserId] = useState(null);
+  const [filteredUsers, setFilteredUsers] = useState([]);
 
   useEffect(() => {
     fetchUsers();
@@ -107,7 +109,7 @@ export default function UserManagerPage() {
       ) : (
         <div className="users-section">
           <div className="users-header">
-            <h2>Danh sách người dùng ({users.length})</h2>
+            <h2>Danh sách người dùng ({filteredUsers.length})</h2>
             <button className="refresh-btn" onClick={fetchUsers}>
               <svg className="refresh-icon" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
@@ -115,6 +117,11 @@ export default function UserManagerPage() {
               Làm mới
             </button>
           </div>
+
+          <UserSearch 
+            users={users}
+            onFilteredResults={setFilteredUsers}
+          />
           
           <div className="users-table-container">
             <table className="users-table">
@@ -127,17 +134,17 @@ export default function UserManagerPage() {
                 </tr>
               </thead>
               <tbody>
-                {users.length === 0 ? (
+                {filteredUsers.length === 0 ? (
                   <tr>
                     <td colSpan="4" className="no-users">
-                      Không có người dùng nào trong hệ thống
+                      Không tìm thấy người dùng nào
                     </td>
                   </tr>
                 ) : (
                   (() => {
                     const startIndex = (currentPage - 1) * itemsPerPage;
                     const endIndex = startIndex + itemsPerPage;
-                    const paginatedUsers = users.slice(startIndex, endIndex);
+                    const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
                     
                     return paginatedUsers.map((user) => (
                       <tr key={user._id} className="user-row">
@@ -171,16 +178,18 @@ export default function UserManagerPage() {
                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
                               </svg>
                             </button>
-                            <button
-                              onClick={() => handleDelete(user._id)}
-                              className="delete-company-btn"
-                              style={{ padding: '6px 12px', fontSize: '12px' }}
-                              title="Xóa"
-                            >
-                              <svg className="delete-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
-                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
-                              </svg>
-                            </button>
+                            {user.role !== 'admin' && (
+                              <button
+                                onClick={() => handleDelete(user._id)}
+                                className="delete-company-btn"
+                                style={{ padding: '6px 12px', fontSize: '12px' }}
+                                title="Xóa"
+                              >
+                                <svg className="delete-icon" fill="currentColor" viewBox="0 0 20 20" width="14" height="14">
+                                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                                </svg>
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -193,7 +202,7 @@ export default function UserManagerPage() {
 
           <Pagination
             currentPage={currentPage}
-            totalItems={users.length}
+            totalItems={filteredUsers.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
           />

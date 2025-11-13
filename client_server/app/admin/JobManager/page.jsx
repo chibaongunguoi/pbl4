@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import "../admin.css";
 import Pagination from "../components/Pagination";
 import EditJobForm from "../../components/EditJobForm";
+import JobSearch from "../../components/JobSearch";
 
 export default function JobManagerPage() {
   const [jobs, setJobs] = useState([]);
@@ -175,6 +176,10 @@ export default function JobManagerPage() {
               </svg>
               Làm mới
             </button>
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <JobSearch />
           </div>
           
           <div className="jobs-table-container">

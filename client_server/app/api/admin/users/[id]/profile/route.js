@@ -9,9 +9,7 @@ export async function GET(request, { params }) {
     const { id } = await params;
 
     await connectDB();
-   console.log(id,"21");  
     const profile = await UserProfile.findOne({ username: id });
-    console.log(profile,"22");
     if (!profile) {
       return NextResponse.json({ 
         success: true, 
