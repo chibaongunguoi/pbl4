@@ -264,19 +264,19 @@ export default function AdminPage() {
   const renderUserManagement = () => (
     <div>
       <div className="admin-content-header">
-        <h1 className="admin-content-title">Quản lý người dùng</h1>
-        <p className="admin-content-subtitle">Danh sách tất cả người dùng trong hệ thống</p>
+        <h1 className="admin-content-title">quản lý tài khoản</h1>
+        <p className="admin-content-subtitle">Danh sách tất cả tài khoản trong hệ thống</p>
       </div>
 
       {loadingUsers ? (
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          Đang tải danh sách người dùng...
+          Đang tải danh sách tài khoản...
         </div>
       ) : (
         <div className="users-section">
           <div className="users-header">
-            <h2>Danh sách người dùng ({users.length})</h2>
+            <h2>danh sách tài khoản ({users.length})</h2>
             <button className="refresh-btn" onClick={fetchUsers}>
               <svg className="refresh-icon" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
@@ -1340,7 +1340,7 @@ export default function AdminPage() {
                 <svg className="admin-nav-icon" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
                 </svg>
-                Quản lý người dùng
+                quản lý tài khoản
               </button>
             </li>
             <li>

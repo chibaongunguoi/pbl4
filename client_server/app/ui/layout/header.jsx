@@ -22,8 +22,8 @@ export default function Header() {
     try {
       const data = await getUser();
       setUser(data);
-      // Fetch notifications if user is logged in
-      if (data) {
+      // Fetch notifications only if user is logged in and has role 'user'
+      if (data && data.role === 'user') {
         fetchNotifications();
       }
     } catch (error) {
@@ -159,65 +159,67 @@ export default function Header() {
               </li>
             ) : user ? (
               <>
-                <li className="notification-dropdown">
-                  <a 
-                    href="#" 
-                    className="notification-bell"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShowNotifications(!showNotifications);
-                    }}
-                  >
-                    <i className="icon-bell"></i>
-                    {unreadCount > 0 && (
-                      <span className="notification-badge">{unreadCount}</span>
-                    )}
-                  </a>
-                  {showNotifications && (
-                    <div className="notification-dropdown-menu">
-                      <div className="notification-header">
-                        <h4>Thông báo</h4>
-                        {unreadCount > 0 && (
-                          <span className="unread-count">{unreadCount} chưa đọc</span>
-                        )}
-                      </div>
-                      <div className="notification-list">
-                        {notifications.length === 0 ? (
-                          <div className="no-notifications">
-                            Không có thông báo nào
-                          </div>
-                        ) : (
-                          notifications.slice(0, 10).map((notification) => (
-                            <div
-                              key={notification._id}
-                              className={`notification-item ${notification.status === 'chưa đọc' ? 'unread' : ''}`}
-                              onClick={() => {
-                                if (notification.status === 'chưa đọc') {
-                                  markAsRead(notification._id);
-                                }
-                              }}
-                            >
-                              <div className="notification-content">
-                                <p>{notification.content}</p>
-                                <span className="notification-time">
-                                  {new Date(notification.createdAt).toLocaleString('vi-VN')}
-                                </span>
-                              </div>
-                              {notification.status === 'chưa đọc' && (
-                                <span className="notification-dot"></span>
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                      {notifications.length > 10 && (
-                        <div className="notification-footer">
-                          <a href="/user/notifications">Xem tất cả</a>
-                        </div>
+                {user.role === 'user' && (
+                  <li className="notification-dropdown">
+                    <a 
+                      href="#" 
+                      className="notification-bell"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowNotifications(!showNotifications);
+                      }}
+                    >
+                      <i className="icon-bell"></i>
+                      {unreadCount > 0 && (
+                        <span className="notification-badge">{unreadCount}</span>
                       )}
-                    </div>
-                  )}
-                </li>
+                    </a>
+                    {showNotifications && (
+                      <div className="notification-dropdown-menu">
+                        <div className="notification-header">
+                          <h4>Thông báo</h4>
+                          {unreadCount > 0 && (
+                            <span className="unread-count">{unreadCount} chưa đọc</span>
+                          )}
+                        </div>
+                        <div className="notification-list">
+                          {notifications.length === 0 ? (
+                            <div className="no-notifications">
+                              Không có thông báo nào
+                            </div>
+                          ) : (
+                            notifications.slice(0, 10).map((notification) => (
+                              <div
+                                key={notification._id}
+                                className={`notification-item ${notification.status === 'chưa đọc' ? 'unread' : ''}`}
+                                onClick={() => {
+                                  if (notification.status === 'chưa đọc') {
+                                    markAsRead(notification._id);
+                                  }
+                                }}
+                              >
+                                <div className="notification-content">
+                                  <p>{notification.content}</p>
+                                  <span className="notification-time">
+                                    {new Date(notification.createdAt).toLocaleString('vi-VN')}
+                                  </span>
+                                </div>
+                                {notification.status === 'chưa đọc' && (
+                                  <span className="notification-dot"></span>
+                                )}
+                              </div>
+                            ))
+                          )}
+                        </div>
+                        {notifications.length > 10 && (
+                          <div className="notification-footer">
+                            <a href="/user/notifications">Xem tất cả</a>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </li>
+                )}
                 <li className="user-dropdown">
                   <a href="#" className="">
                     {user.username}
