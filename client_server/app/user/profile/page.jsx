@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import EditJobForm from "../../components/EditJobForm";
+import ApplySearch from "../../components/ApplySearch";
 import "./profile.css";
 
 export default function UserInfoPage() {
@@ -43,7 +44,7 @@ export default function UserInfoPage() {
     description: ''
   });
   const [companyEditLoading, setCompanyEditLoading] = useState(false);
-  const [selectedJobFilter, setSelectedJobFilter] = useState('');
+  const [filteredApplications, setFilteredApplications] = useState([]);
   
   useEffect(() => {
     getUser().then(data => setUser(data))
@@ -154,6 +155,7 @@ export default function UserInfoPage() {
       
       if (response.ok && data.success) {
         setApplications(data.data || []);
+        setFilteredApplications(data.data || []);
       } else {
         console.error('Error fetching applications:', data.message || 'Unknown error');
         console.error('Response status:', response.status);
@@ -879,23 +881,7 @@ export default function UserInfoPage() {
 
         {activeTab === 'applications' && user?.role === 'company' && (
           <div className="content-section">
-            <div className="section-header-with-filter">
-              <h2>Danh sách ứng tuyển</h2>
-              <div className="filter-wrapper">
-                <label htmlFor="job-filter" className="filter-label">Lọc theo công việc:</label>
-                <select 
-                  id="job-filter"
-                  className="job-filter-select"
-                  value={selectedJobFilter}
-                  onChange={(e) => setSelectedJobFilter(e.target.value)}
-                >
-                  <option value="">Tất cả công việc</option>
-                  {companyJobs.map((job) => (
-                    <option key={job._id} value={job.job_title}>{job.job_title}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            <h2>Danh sách ứng tuyển</h2>
             {applicationsLoading ? (
               <div className="loading-container">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-600"></div>
@@ -909,6 +895,22 @@ export default function UserInfoPage() {
                 <p>Chưa có ứng viên nào ứng tuyển</p>
               </div>
             ) : (
+              <>
+                <div className="apply-search-container">
+                  <ApplySearch 
+                    applications={applications}
+                    companyJobs={companyJobs}
+                    onFilteredResults={setFilteredApplications}
+                  />
+                </div>
+                {filteredApplications.length === 0 ? (
+                  <div className="empty-state">
+                    <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <p>Không tìm thấy kết quả phù hợp</p>
+                  </div>
+                ) : (
               <div className="applications-table-container">
                 <table className="applications-table">
                   <thead>
@@ -924,9 +926,7 @@ export default function UserInfoPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {applications
-                      .filter(application => !selectedJobFilter || application.JobDetailID?.job_title === selectedJobFilter)
-                      .map((application) => (
+                    {filteredApplications.map((application) => (
                       <tr key={application._id}>
                     
                         <td>
@@ -1003,6 +1003,8 @@ export default function UserInfoPage() {
                   </tbody>
                 </table>
               </div>
+                )}
+              </>
             )}
           </div>
         )}

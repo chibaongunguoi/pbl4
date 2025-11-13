@@ -6,17 +6,14 @@ import "./userLayout.css";
 import { useEffect, useState } from "react";
 import getUser from "@/app/conn/conn";
 import { useRouter, usePathname } from "next/navigation";
+import JobSearch from "@/app/components/JobSearch";
+
 export default function Header() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSkill, setSelectedSkill] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [skills, setSkills] = useState([]);
-  const [cities, setCities] = useState([]);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -35,66 +32,6 @@ export default function Header() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const fetchSkillsAndCities = async () => {
-    try {
-      const response = await fetch('/api/jobDetail', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        const jobs = data.data || [];
-        
-        // Extract unique skills
-        const allSkills = new Set();
-        jobs.forEach(job => {
-          if (job.skills && Array.isArray(job.skills)) {
-            job.skills.forEach(skill => {
-              if (skill && skill.trim()) {
-                allSkills.add(skill.trim());
-              }
-            });
-          }
-        });
-        
-        // Extract unique cities with normalization
-        const cityMap = new Map(); // Use Map to store normalized city names
-        jobs.forEach(job => {
-          if (job.province && job.province.trim()) {
-            const normalizedCity = normalizeCity(job.province.trim());
-            if (!cityMap.has(normalizedCity.toLowerCase())) {
-              cityMap.set(normalizedCity.toLowerCase(), normalizedCity);
-            }
-          }
-          if (job.location && job.location.trim()) {
-            const normalizedCity = normalizeCity(job.location.trim());
-            if (!cityMap.has(normalizedCity.toLowerCase())) {
-              cityMap.set(normalizedCity.toLowerCase(), normalizedCity);
-            }
-          }
-        });
-        
-        // Convert sets to sorted arrays
-        setSkills(Array.from(allSkills).sort());
-        setCities(Array.from(cityMap.values()).sort());
-      }
-    } catch (error) {
-      console.error('Error fetching skills and cities:', error);
-    }
-  };
-
-  // Normalize city name to Title Case
-  const normalizeCity = (cityName) => {
-    return cityName
-      .toLowerCase()
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
   };
 
   const fetchNotifications = async () => {
@@ -136,7 +73,6 @@ export default function Header() {
 
   useEffect(() => {
     fetchUser();
-    fetchSkillsAndCities();
   }, [pathname]); // Re-fetch user when route changes
 
   // Listen for custom login/logout events
@@ -190,31 +126,6 @@ export default function Header() {
     router.push("/login");
   }
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    
-    if (searchQuery.trim()) {
-      params.append('q', searchQuery.trim());
-    }
-    if (selectedSkill) {
-      params.append('skill', selectedSkill);
-    }
-    if (selectedCity) {
-      params.append('city', selectedCity);
-    }
-    
-    if (params.toString()) {
-      router.push(`/search?${params.toString()}`);
-    }
-  };
-
-  const handleSearchKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch(e);
-    }
-  };
-
   return (
     <header className="sticky-header">
       <div className="header-container">
@@ -232,49 +143,7 @@ export default function Header() {
         </div>
           <ul className="search">
             <li>
-              <div className="search-form-wrapper">
-                <div className="form-group form-icon-left">
-                  <i className="icon-search form-icon"></i>{" "}
-                  <input
-                    type="text"
-                    name="text"
-                    placeholder="Tìm kiếm việc làm "
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={handleSearchKeyPress}
-                    className="form-control"
-                  />{" "}
-                  <button 
-                    aria-label="Tìm kiếm" 
-                    className="btn"
-                    onClick={handleSearch}
-                  >
-                    <i className="icon-arrow-right"></i>
-                  </button>
-                </div>
-                <div className="search-filters">
-                  <select 
-                    className="filter-select"
-                    value={selectedSkill}
-                    onChange={(e) => setSelectedSkill(e.target.value)}
-                  >
-                    <option value="">Tất cả kỹ năng</option>
-                    {skills.map((skill, index) => (
-                      <option key={index} value={skill}>{skill}</option>
-                    ))}
-                  </select>
-                  <select 
-                    className="filter-select"
-                    value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
-                  >
-                    <option value="">Tất cả thành phố</option>
-                    {cities.map((city, index) => (
-                      <option key={index} value={city}>{city}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              <JobSearch />
             </li>
             
           </ul>{" "}

@@ -345,6 +345,49 @@
   scrollbar-color: #888 #f1f1f1;
 }
 
+.apply-search-container {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.apply-search-wrapper {
+  width: 100%;
+}
+
+.apply-search-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.apply-search-row .form-group {
+  flex: 1;
+  min-width: 300px;
+  margin: 0;
+}
+
+.apply-search-row .job-filter-select {
+  min-width: 200px;
+  height: 42px;
+}
+
+@media (max-width: 768px) {
+  .apply-search-row {
+    flex-direction: column;
+  }
+  
+  .apply-search-row .form-group,
+  .apply-search-row .job-filter-select {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
 .edit-profile-btn {
   display: inline-flex;
   align-items: center;
