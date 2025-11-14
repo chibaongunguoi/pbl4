@@ -14,7 +14,7 @@ services:
     build: ./scraper
     container_name: python_worker
     ports:
-      - "37222:37222"
+      - "37002:37002"
     environment:
       - DATABASE_URL=mongodb://db:27017/pbl4_db
     depends_on:
