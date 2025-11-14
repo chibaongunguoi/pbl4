@@ -2,6 +2,10 @@ import gradio as gr
 import mdtex2html
 import requests
 import json
+import os
+
+CHATBOT_SYSTEM_HOST = os.getenv("CHATBOT_SYSTEM_HOST", "localhost")
+CHATBOT_SYSTEM_PORT = os.getenv("CHATBOT_SYSTEM_PORT", "37002")
 
 
 def postprocess(_, messages):
@@ -57,7 +61,9 @@ def handleSubmitBtn(chatbot, query, chat_history):
 
     payload = {"chat_history": chat_history}
     with requests.post(
-        "http://localhost:37211/api/upload", json=payload, stream=True
+        f"http://{CHATBOT_SYSTEM_HOST}:{CHATBOT_SYSTEM_PORT}/api/upload",
+        json=payload,
+        stream=True,
     ) as response:
         llm_buffer = ""
         for msg in response.iter_content(chunk_size=None, decode_unicode=True):
@@ -106,7 +112,9 @@ with gr.Blocks() as demo:
     chatbot = gr.Chatbot(label="ChachiPT", type="messages")
     query = gr.Textbox(lines=2, label="Input")
 
-    response = requests.post("http://localhost:37211/api/new_chat_history")
+    response = requests.post(
+        f"http://{CHATBOT_SYSTEM_HOST}:{CHATBOT_SYSTEM_PORT}/api/new_chat_history"
+    )
     data = response.json()
 
     received_chat_history = data["chat_history"]
