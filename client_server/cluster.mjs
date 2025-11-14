@@ -3,7 +3,7 @@ import { cpus } from 'os';
 import http from 'http';
 import next from 'next';
 
-const numCPUs = Math.min(cpus().length, 20);
+const numCPUs = cpus().length;
 const port = process.env.PORT || 3000;
 const app = next({ dev: false });
 const handle = app.getRequestHandler();
