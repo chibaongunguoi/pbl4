@@ -1,10 +1,9 @@
 import cluster from 'cluster';
-// import { cpus } from 'os';
+import { cpus } from 'os';
 import http from 'http';
 import next from 'next';
 
-// const numCPUs = Math.floor(cpus().length / 2);
-const numCPUs = 8;
+const numCPUs = Math.min(cpus().length, 20);
 const port = process.env.PORT || 3000;
 const app = next({ dev: false });
 const handle = app.getRequestHandler();
