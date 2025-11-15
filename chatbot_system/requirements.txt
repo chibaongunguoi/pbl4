@@ -2,3 +2,4 @@ fastapi
 uvicorn
 gradio
 requests
+mdtex2html
