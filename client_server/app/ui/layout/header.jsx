@@ -148,7 +148,13 @@ export default function Header() {
 
           </ul>{" "}
           <ul className="float-right">
-
+            {user && user.role === 'admin' && (
+              <li>
+                <a href="/admin" className="">
+                  Quản lý hệ thống
+                </a>
+              </li>
+            )}
 
             {isLoading ? (
               <li>
@@ -225,11 +231,13 @@ export default function Header() {
                     {user.username}
                   </a>
                   <ul className="sub-menu user-menu">
-                    <li>
-                      <a href="/user/profile" className="">
-                        Thông tin tài khoản
-                      </a>
-                    </li>
+                    {user.role !== 'admin' && (
+                      <li>
+                        <a href="/user/profile" className="">
+                          Thông tin tài khoản
+                        </a>
+                      </li>
+                    )}
                     <li>
                       <a href="#" onClick={logOut} className="">
                         Đăng xuất
