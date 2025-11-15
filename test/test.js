@@ -11,7 +11,10 @@ export const options = {
   ]
 }
 
+const HOST = process.env.HOST;
+const PORT = process.env.PORT;
+
 export default () => {
-  http.get("http://localhost:3000")
+  http.get(`http://${HOST}:${PORT}`)
   sleep(1);
 };
