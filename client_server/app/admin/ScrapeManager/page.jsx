@@ -181,6 +181,29 @@ export default function ScrapeManagerPage() {
     }
   };
 
+  const handleDeleteJob = async (jobId) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa lịch sử cào dữ liệu này?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/scrape/jobs/${jobId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        showToast('success', 'Xóa lịch sử thành công');
+        // Remove from list
+        setRecentJobs(prev => prev.filter(job => job.id !== jobId));
+      } else {
+        showToast('error', 'Lỗi khi xóa lịch sử');
+      }
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      showToast('error', 'Có lỗi xảy ra');
+    }
+  };
+
   return (
     <div>
       {/* Toast Notification */}
@@ -282,7 +305,6 @@ export default function ScrapeManagerPage() {
                 <tr>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>URL</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Trạng thái</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Số công việc</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Thời gian tạo</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Hoàn thành</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Thao tác</th>
@@ -299,9 +321,6 @@ export default function ScrapeManagerPage() {
                     <td style={{ padding: '12px 16px' }}>
                       {getStatusBadge(job.status)}
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#374151' }}>
-                      {job.status === 'completed' ? job.jobCount : '-'}
-                    </td>
                     <td style={{ padding: '12px 16px', fontSize: '14px', color: '#6b7280' }}>
                       {formatDate(job.createdAt)}
                     </td>
@@ -309,15 +328,42 @@ export default function ScrapeManagerPage() {
                       {formatDate(job.completedAt)}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      {job.status === 'completed' && job.jobCount === 1 ? (
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {job.status === 'completed' && job.jobCount === 1 ? (
+                          <button
+                            onClick={() => handleViewDetail(job.url)}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '6px 12px',
+                              backgroundColor: '#3b82f6',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              cursor: 'pointer',
+                              transition: 'background-color 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+                          >
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Xem
+                          </button>
+                        ) : null}
                         <button
-                          onClick={() => handleViewDetail(job.url)}
+                          onClick={() => handleDeleteJob(job.id)}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '4px',
                             padding: '6px 12px',
-                            backgroundColor: '#3b82f6',
+                            backgroundColor: '#ef4444',
                             color: 'white',
                             border: 'none',
                             borderRadius: '6px',
@@ -326,18 +372,15 @@ export default function ScrapeManagerPage() {
                             cursor: 'pointer',
                             transition: 'background-color 0.2s'
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
                         >
                           <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
-                          Xem chi tiết
+                          Xóa
                         </button>
-                      ) : (
-                        <span style={{ fontSize: '14px', color: '#9ca3af' }}>-</span>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))}
