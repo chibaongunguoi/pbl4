@@ -25,6 +25,7 @@ def parseText(text):
     lines = [line for line in lines if line != ""]
     count = 0
     for i, line in enumerate(lines):
+        line: str
         if "```" in line:
             count += 1
             items = line.split("`")
@@ -33,21 +34,25 @@ def parseText(text):
             else:
                 lines[i] = "<br></code></pre>"
         else:
-            if i > 0:
-                if count % 2 == 1:
-                    line = line.replace("`", r"\`")
-                    line = line.replace("<", "&lt;")
-                    line = line.replace(">", "&gt;")
-                    line = line.replace(" ", "&nbsp;")
-                    line = line.replace("*", "&ast;")
-                    line = line.replace("_", "&lowbar;")
-                    line = line.replace("-", "&#45;")
-                    line = line.replace(".", "&#46;")
-                    line = line.replace("!", "&#33;")
-                    line = line.replace("(", "&#40;")
-                    line = line.replace(")", "&#41;")
-                    # line = line.replace("$", "&#36;")
-                lines[i] = "<br>" + line
+            if count % 2 == 1:
+                line = line.replace("`", r"\`")
+                line = line.replace("<", "&lt;")
+                line = line.replace(">", "&gt;")
+                line = line.replace(" ", "&nbsp;")
+                line = line.replace("*", "&ast;")
+                line = line.replace("_", "&lowbar;")
+                line = line.replace("-", "&#45;")
+                line = line.replace(".", "&#46;")
+                line = line.replace("!", "&#33;")
+                line = line.replace("(", "&#40;")
+                line = line.replace(")", "&#41;")
+            else:
+                line = line.replace("<p>", "")
+                line = line.replace("</p>", "")
+                line = line.replace("<div>", "")
+                line = line.replace("</div>", "")
+                line = line.replace("$", "&#36;")
+            lines[i] = "<br>" + line if i > 0 else line
     text = "".join(lines)
     return text
 
@@ -79,7 +84,7 @@ def handleSubmitBtn(chatbot, query, chat_history):
                     )
                     chat_history.append({"role": "assistant", "content": llm_buffer})
 
-                # print(token, end="", flush=True)
+                print(token, end="", flush=True)
                 llm_buffer += token
                 chatbot[-1]["content"] = parseText(llm_buffer)
                 chat_history[-1]["content"] = llm_buffer
