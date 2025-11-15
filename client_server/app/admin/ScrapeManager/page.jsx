@@ -160,6 +160,27 @@ export default function ScrapeManagerPage() {
     return new Date(dateString).toLocaleString('vi-VN');
   };
 
+  const handleViewDetail = async (jobUrl) => {
+    try {
+      // Fetch JobDetail by URL
+      const response = await fetch(`/api/jobDetail?url=${encodeURIComponent(jobUrl)}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data && data.data._id) {
+          // Open in new tab
+          window.open(`/job/${data.data._id}`, '_blank');
+        } else {
+          showToast('error', 'Không tìm thấy công việc');
+        }
+      } else {
+        showToast('error', 'Lỗi khi tải thông tin công việc');
+      }
+    } catch (error) {
+      console.error('Error fetching job detail:', error);
+      showToast('error', 'Có lỗi xảy ra');
+    }
+  };
+
   return (
     <div>
       {/* Toast Notification */}
@@ -264,6 +285,7 @@ export default function ScrapeManagerPage() {
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Số công việc</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Thời gian tạo</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Hoàn thành</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -285,6 +307,37 @@ export default function ScrapeManagerPage() {
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '14px', color: '#6b7280' }}>
                       {formatDate(job.completedAt)}
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      {job.status === 'completed' && job.jobCount === 1 ? (
+                        <button
+                          onClick={() => handleViewDetail(job.url)}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '6px 12px',
+                            backgroundColor: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+                        >
+                          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          Xem chi tiết
+                        </button>
+                      ) : (
+                        <span style={{ fontSize: '14px', color: '#9ca3af' }}>-</span>
+                      )}
                     </td>
                   </tr>
                 ))}

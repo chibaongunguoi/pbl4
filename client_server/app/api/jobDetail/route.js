@@ -2,9 +2,32 @@ import { NextResponse } from "next/server";
 import JobDetail from "@/models/JobDetail";
 import connectDb from "@/app/lib/db";
 
-export async function GET() {
+export async function GET(request) {
   try {
     await connectDb();
+    
+    // Check if URL parameter is provided
+    const { searchParams } = new URL(request.url);
+    const url = searchParams.get('url');
+    
+    if (url) {
+      // Find specific job by URL
+      const job = await JobDetail.findOne({ url }).lean();
+      
+      if (!job) {
+        return NextResponse.json({ 
+          success: false, 
+          error: "Job not found" 
+        }, { status: 404 });
+      }
+      
+      return NextResponse.json({ 
+        success: true, 
+        data: job
+      }, { status: 200 });
+    }
+    
+    // Otherwise return all jobs
     const jobs = await JobDetail.find().sort({ createdAt: -1 });
     return NextResponse.json({ 
       success: true, 
