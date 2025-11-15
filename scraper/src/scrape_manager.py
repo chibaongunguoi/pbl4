@@ -7,7 +7,7 @@ from colorama import Fore, init
 from datetime import datetime, timezone
 import time
 import traceback
-from .scrape_strategies import ScrapeStrategy
+from .strategies.strategy import ScrapeStrategy
 
 rate_lock = threading.BoundedSemaphore(value=1)
 last_request = [0.0]

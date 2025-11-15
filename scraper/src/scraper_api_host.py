@@ -6,7 +6,7 @@ import uvicorn
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from src.scrape_manager import AggregationMode, ScrapeManager
-from .scrape_strategies import ScrapeStrategy
+from .strategies.strategy import ScrapeStrategy
 
 
 class ValidateCrawlInput(BaseModel):
