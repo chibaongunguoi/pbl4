@@ -15,9 +15,9 @@ export default function Footer() {
         <div className="footer-content">
           {/* About Section */}
           <div className="footer-section footer-about">
-            <h3>Về ITWORKER</h3>
+            <h3>Về ITWORKS</h3>
             <p>
-              ITWORKER - Trang web được xây dựng nhằm tổng hợp và chia sẻ thông
+              ITWORKS - Trang web được xây dựng nhằm tổng hợp và chia sẻ thông
               tin tuyển dụng từ nhiều nguồn uy tín. Hệ thống giúp người tìm việc
               dễ dàng tiếp cận cơ hội nghề nghiệp, đồng thời hỗ trợ doanh nghiệp
               và nhà nghiên cứu trong việc theo dõi xu hướng lao động hoặc các
@@ -69,7 +69,7 @@ export default function Footer() {
               </p>
               <p>
                 <i className="fas fa-envelope"></i>
-                ITWORKER@company.vn
+                ITWORKS@company.vn
               </p>
             </div>
           </div>

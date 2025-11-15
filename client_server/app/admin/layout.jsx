@@ -61,9 +61,17 @@ export default function AdminLayout({ children }) {
   return (
     <div className="admin-container">
       {/* Sidebar */}
-      <div className="admin-sidebar">
+      <aside className="admin-sidebar">
         <div className="admin-header">
-          <h1 className="admin-title">Admin Panel</h1>
+          <h1>
+              <a
+                href="/"
+                aria-current="page"
+                className="router-link-exact-active router-link-active"
+              >
+                <div className="logo">ITWORKS</div>
+              </a>
+            </h1>
           <p className="admin-subtitle">Quản trị hệ thống</p>
         </div>
 
@@ -146,7 +154,7 @@ export default function AdminLayout({ children }) {
             Đăng xuất ({user?.role})
           </button>
         </div>
-      </div>
+      </aside>
 
       {/* Main Content */}
       <main className="admin-main">
