@@ -11,8 +11,8 @@ export const options = {
   ]
 }
 
-const HOST = process.env.CLIENT_SERVER_HOST;
-const PORT = process.env.CLIENT_SERVER_PORT;
+const HOST = __ENV.CLIENT_SERVER_HOST;
+const PORT = __ENV.CLIENT_SERVER_PORT;
 
 export default () => {
   http.get(`http://${HOST}:${PORT}`)
