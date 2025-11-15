@@ -31,8 +31,8 @@ export async function POST(req) {
     }, { status: 200 });
     res.cookies.set("auth", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "strict",
+      secure: false,
+      sameSite: "Lax",
       path: "/", maxAge: 600 * 600,
     }); 
     return res;

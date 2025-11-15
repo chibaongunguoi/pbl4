@@ -4,8 +4,8 @@ export async function POST() {
   const res = NextResponse.json({ success: true });
   res.cookies.set("auth", "", {
     httpOnly: true,
-    secure: true,
-    sameSite: "strict",
+    secure: false,
+    sameSite: "Lax",
     path: "/",
     maxAge: 0,
   });
