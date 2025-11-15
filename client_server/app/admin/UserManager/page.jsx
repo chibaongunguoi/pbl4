@@ -97,7 +97,7 @@ export default function UserManagerPage() {
   return (
     <div>
       <div className="admin-content-header">
-        <h1 className="admin-content-title">quản lý tài khoản</h1>
+        <h1 className="admin-content-title">Quản lý tài khoản</h1>
         <p className="admin-content-subtitle">Danh sách tất cả tài khoản trong hệ thống</p>
       </div>
 
