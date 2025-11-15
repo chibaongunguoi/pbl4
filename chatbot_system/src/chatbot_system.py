@@ -46,6 +46,7 @@ class ChatbotSystem:
                 llm_response = ""
                 async for token in llm_streamer():
                     llm_response += token
+                    print(token, end="", flush=True)
                     ret = {"type": "token", "token": token}
                     yield json.dumps(ret, ensure_ascii=False)
 
@@ -59,6 +60,10 @@ class ChatbotSystem:
                         break
 
                 if len(chat_history) > original_chat_history_len:
+                    print("\n\n")
+                    print(
+                        chat_history[original_chat_history_len:], end="\n\n", flush=True
+                    )
                     ret = {
                         "type": "chat_history",
                         "new_chat_history": chat_history[original_chat_history_len:],

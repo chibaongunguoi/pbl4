@@ -12,6 +12,8 @@ DB_CONNECTION_STRING = os.getenv(
 HOST = os.getenv("CHATBOT_SYSTEM_HOST", "localhost")
 PORT = int(os.getenv("CHATBOT_SYSTEM_PORT", 37002))
 
+print("DB_CONNECTION_STRING:", DB_CONNECTION_STRING)
+
 
 if __name__ == "__main__":
     app = FastAPI()

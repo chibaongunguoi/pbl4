@@ -73,10 +73,13 @@ class DatabaseTool(Tool):
             result = removeConsecutiveSpaces(result)
             result = result.replace("\\n", " ")
             result = result.replace("\n", " ")
+            print("\n\nKET QUA CSDL\n\n", flush=True)
+            print(result, flush=True)
+            print("\n\nEND KET QUA CSDL\n\n")
             return result
         except Exception:
             traceback.print_exc()
-            return {"result": "ERROR"}
+        return {"result": "ERROR"}
 
     def __call__(self, content: str):
         query = content
