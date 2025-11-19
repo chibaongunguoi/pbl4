@@ -30,7 +30,7 @@ export async function GET(req) {
     let jobs = [];
     if (jobIds.length > 0) {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/jobDetail`, {
+  const response = await fetch(`/api/jobDetail`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

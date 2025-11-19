@@ -16,7 +16,7 @@ class ChatbotSystem:
         self.llm_access = llm_access
         self.tools = tools
 
-        with open("data/system_message.txt", encoding="utf-8") as f:
+        with open("data/system_message_1.txt", encoding="utf-8") as f:
             self.system_message = f.read()
 
         app.add_api_route(

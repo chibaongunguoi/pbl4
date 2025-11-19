@@ -11,6 +11,8 @@ export default async function getUser() {
     return data;
 
   } catch (err) {
+    console.log("Error at /app/conn/conn.js:");
+    console.log(err);
     return null;
   }
 }

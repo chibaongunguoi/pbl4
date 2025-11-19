@@ -168,4 +168,4 @@ async function initDb() {
 
 }
 
-export default initDb;
+export default initDb
