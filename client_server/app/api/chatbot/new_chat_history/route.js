@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
+import getConfigs from "@/app/lib/config";
+
+const configs = getConfigs();
 
 export async function POST() {
   try {
-    const response = await fetch("http://localhost:37002/api/new_chat_history", {
+    const response = await fetch(`http://${configs.CHATBOT_SYSTEM_HOST}:${configs.CHATBOT_SYSTEM_PORT}/api/new_chat_history`, {
       method: "POST",
     });
 

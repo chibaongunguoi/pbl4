@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import connectDb from "@/app/lib/db";
 import ScrapeJob from "@/models/ScrapeJob";
+import getConfigs from "@/app/lib/config";
+
+const configs = getConfigs();
 
 export async function POST(req) {
   try {
     const { url } = await req.json();
     console.log(`Received url: ${url}`);
-    
+
     // Connect to database and create a job record
     await connectDb();
     const scrapeJob = await ScrapeJob.create({
@@ -18,13 +21,13 @@ export async function POST(req) {
     console.log(`Created scrape job with ID: ${jobId}`);
 
     // Start the scraping process (fire and forget)
-    fetch("http://localhost:37222/api/scrape", {
+    fetch(`http://${configs.SCRAPER_HOST}:${configs.SCRAPER_PORT}/api/scrape`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        urls: [url], 
+      body: JSON.stringify({
+        urls: [url],
         callback_url: "http://localhost:3000/api/scrape/result",
-        metadata: { 
+        metadata: {
           jobId,
           start_at: Date.now() / 1000 // Unix timestamp in seconds
         }

@@ -1,6 +1,0 @@
-beautifulsoup4
-colorama
-requests
-fastapi
-pydantic
-uvicorn

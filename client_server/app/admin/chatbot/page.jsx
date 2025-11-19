@@ -283,7 +283,7 @@ export default function ChatbotAdmin() {
           <div className="chat-messages">
             {displayMessages.map((msg, index) => (
               <div key={`${msg.role}-${index}`} className={`message ${msg.role}`}>
-                <div className="message-role">{msg.role === "user" ? "You" : "Assistant"}:</div>
+                <div className="message-role">{msg.role === "user" ? "Bạn" : "Trợ lí"}:</div>
                 <div className="message-content">{msg.content}</div>
               </div>
             ))}
