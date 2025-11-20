@@ -7,8 +7,8 @@ else
 fi
 
 cd ./scraper
-python main.py &
+python3 main.py &
 cd ../chatbot_system
-python main.py &
+python3 main.py &
 cd ../client_server
 node cluster.mjs
