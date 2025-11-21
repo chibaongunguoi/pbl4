@@ -1,9 +1,22 @@
 import { NextResponse } from "next/server";
 import connectDb from "@/app/lib/db";
 import ChatHistory from "@/models/ChatHistory";
+import { verifyToken } from '@/app/lib/auth';
 
 export async function GET(req, { params }) {
   try {
+    // Validate token and role
+    const token = req.cookies.get('auth')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized - No token' }, { status: 401 });
+    }
+    const decoded = await verifyToken(token);
+    if (!decoded) {
+      return NextResponse.json({ error: 'Unauthorized - Invalid token' }, { status: 401 });
+    }
+    if (decoded.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
+    }
     const { chatId } = await params;
     if (!chatId) {
       return NextResponse.json({ error: "Missing chatId" }, { status: 400 });
@@ -25,6 +38,18 @@ export async function GET(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
+    // Validate token and role
+    const token = req.cookies.get('auth')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized - No token' }, { status: 401 });
+    }
+    const decoded = await verifyToken(token);
+    if (!decoded) {
+      return NextResponse.json({ error: 'Unauthorized - Invalid token' }, { status: 401 });
+    }
+    if (decoded.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
+    }
     const { chatId } = await params;
     if (!chatId) {
       return NextResponse.json({ error: "Missing chatId" }, { status: 400 });
