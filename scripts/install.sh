@@ -3,9 +3,9 @@ if [ ! -d ".venv" ]; then
 fi
 
 if [ -d ".venv/Scripts" ]; then
-  .venv/Scripts/activate
+  sudo .venv/Scripts/activate
 elif [ -d ".venv/bin" ]; then
-  .venv/bin/activate
+  sudo .venv/bin/activate
 fi
 
 pip install -r requirements.txt
