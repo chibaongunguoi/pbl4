@@ -1,11 +1,11 @@
 if [ ! -d ".venv" ]; then
-  sudo python3 -m venv .venv
+  python3 -m venv .venv
 fi
 
 if [ -d ".venv/Scripts" ]; then
-  source .venv/Scripts/activate
+  .venv/Scripts/activate
 elif [ -d ".venv/bin" ]; then
-  source .venv/bin/activate
+  .venv/bin/activate
 fi
 
 pip install -r requirements.txt
