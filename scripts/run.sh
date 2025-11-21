@@ -1,12 +1,12 @@
 if [ -d ".venv/Scripts" ]; then
-  source .venv/Scripts/activate
-elif [ -d ".venv/Scripts" ]; then
-  source .venv/bin/activate
+  . .venv/Scripts/activate
+elif [ -d ".venv/bin" ]; then
+  . .venv/bin/activate
 else
   exit
 fi
 
-source scripts/env.sh
+. scripts/env.sh
 
 cd scraper
 python3 main.py &
