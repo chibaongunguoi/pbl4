@@ -1,3 +1,5 @@
+sudo apt install -y curl gnupg nodejs npm python3 python3.12-venv
+
 curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc |
   sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \
     --dearmor
