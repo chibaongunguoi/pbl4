@@ -9,6 +9,18 @@ const nextConfig = {
         pathname: "/**",
       },
       {
+        protocol: "http",
+        hostname: "localhost",
+        port: "37003",
+        pathname: "/**",
+      },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "37003",
+        pathname: "/**",
+      },
+      {
         protocol: "https",
         hostname: "static.devworks.jp",
         port: "",
@@ -21,6 +33,16 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
+  },
+  async rewrites() {
+    const host = process.env.FILE_SYSTEM_HOST || "localhost";
+    const port = process.env.FILE_SYSTEM_PORT || "37003";
+    return [
+      {
+        source: "/uploads/:path*",
+        destination: `http://${host}:${port}/files/:path*`,
+      },
+    ];
   },
 };
 

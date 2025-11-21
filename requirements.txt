@@ -1,15 +1,8 @@
-# scraper
 beautifulsoup4
 colorama
-requests
 fastapi
 pydantic
-uvicorn
-
-# chatbot_system
-fastapi
-uvicorn
-gradio
+python-multipart
+keyboard
 requests
-mdtex2html
-
+uvicorn

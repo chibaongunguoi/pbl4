@@ -9,8 +9,10 @@ fi
 . scripts/env.sh
 
 cd scraper
-python3 main.py &
+python main.py &
 cd ../chatbot_system
-python3 main.py &
+python main.py &
+cd ../file_system
+python main.py &
 cd ../client_server
 node cluster.mjs

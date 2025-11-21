@@ -13,3 +13,7 @@ export CHATBOT_SYSTEM_HOST="localhost"
 export CHATBOT_SYSTEM_PORT=37002
 export CHATBOT_SYSTEM_MODEL_NAME="qwen3/qwen3-8b"
 export LM_STUDIO_API="http://localhost:1234/v1/chat/completions"
+
+# File System
+export FILE_SYSTEM_HOST="localhost"
+export FILE_SYSTEM_PORT=37003

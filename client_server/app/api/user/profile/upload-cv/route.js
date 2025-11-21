@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyToken } from "@/app/lib/auth";
+import getConfigs from "@/app/lib/config";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { existsSync } from "fs";
@@ -29,7 +30,32 @@ export async function POST(req) {
       return NextResponse.json({ error: "File size must be less than 5MB" }, { status: 400 });
     }
 
-    // Create upload directory if it doesn't exist
+    // Try to forward to file system service when configured
+  const configs = getConfigs();
+  const fileSystemUrl = process.env.FILE_SYSTEM_URL || (configs.FILE_SYSTEM_HOST ? `http://${configs.FILE_SYSTEM_HOST}:${configs.FILE_SYSTEM_PORT || 37003}` : null);
+    if (fileSystemUrl) {
+      try {
+        const forwardForm = new FormData();
+        // Node/Next's File object should be usable in FormData append
+        forwardForm.append("file", file, `${decoded.username}_${Date.now()}.pdf`);
+  const owner = encodeURIComponent(decoded.username || "");
+  // Path tells the File System where to store the file. Keep legacy behavior under uploads/cv
+  const resp = await fetch(`${fileSystemUrl}/upload?owner=${owner}&path=uploads/cv`, { method: "POST", body: forwardForm });
+        const json = await resp.json();
+        if (!resp.ok) {
+          return NextResponse.json({ error: json.error || json.detail || "Upload failed" }, { status: resp.status });
+        }
+        // If url is relative (from file service), prefix with host
+        const returnedUrl = json.url || null;
+        const fullUrl = returnedUrl && returnedUrl.startsWith("/") ? `${fileSystemUrl}${returnedUrl}` : returnedUrl;
+        return NextResponse.json({ success: true, url: fullUrl }, { status: 200 });
+      } catch (forwardErr) {
+        console.error("Forward to file system failed:", forwardErr);
+        // fallthrough to fallback approach below
+      }
+    }
+
+    // Fallback: save to public/uploads/cv as before
     const uploadDir = path.join(process.cwd(), "public", "uploads", "cv");
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });

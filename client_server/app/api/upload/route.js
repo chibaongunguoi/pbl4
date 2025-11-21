@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+import getConfigs from "@/app/lib/config";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
 export async function POST(request) {
   try {
+    const configs = getConfigs();
     const formData = await request.formData();
     const file = formData.get("file");
 
@@ -39,7 +41,27 @@ export async function POST(request) {
     const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
     const filename = `${timestamp}_${originalName}`;
 
-    // Create uploads directory if it doesn't exist
+    // Try to forward to file system service when configured
+    const fileSystemUrl = process.env.FILE_SYSTEM_URL || (configs.FILE_SYSTEM_HOST ? `http://${configs.FILE_SYSTEM_HOST}:${configs.FILE_SYSTEM_PORT || 37003}` : null);
+    if (fileSystemUrl) {
+      try {
+        const forwardForm = new FormData();
+        forwardForm.append("file", file, filename);
+        const resp = await fetch(`${fileSystemUrl}/upload?path=uploads/logos`, { method: "POST", body: forwardForm });
+        const json = await resp.json();
+        if (!resp.ok) {
+          return NextResponse.json({ success: false, error: json.error || json.detail || "Upload failed" }, { status: resp.status });
+        }
+        const returnedUrl = json.url || null;
+        const fullUrl = returnedUrl && returnedUrl.startsWith("/") ? `${fileSystemUrl}${returnedUrl}` : returnedUrl;
+        return NextResponse.json({ success: true, logoUrl: fullUrl, message: "Upload ảnh thành công" }, { status: 200 });
+      } catch (err) {
+        console.error("Forward to file system failed:", err);
+        // fallthrough to fallback
+      }
+    }
+
+    // Create uploads directory if it doesn't exist (fallback)
     const uploadsDir = path.join(process.cwd(), "public", "uploads", "logos");
     try {
       await mkdir(uploadsDir, { recursive: true });
