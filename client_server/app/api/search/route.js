@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/app/lib/db';
+import connectDb from '@/app/lib/db';
 import JobDetail from '@/models/JobDetail';
 
 export async function GET(request) {
   try {
-    await dbConnect();
+    await connectDb();
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
@@ -17,14 +17,14 @@ export async function GET(request) {
     // Text search in multiple fields
     if (query && query.trim().length > 0) {
       const searchRegex = new RegExp(query.trim(), 'i');
-      
+
       // Get all jobs first to search in descriptions object
       const allJobs = await JobDetail.find().lean();
       const jobIdsMatchingDescriptions = allJobs
         .filter(job => {
           if (job.descriptions && typeof job.descriptions === 'object') {
             // Search in all values of descriptions object
-            return Object.values(job.descriptions).some(desc => 
+            return Object.values(job.descriptions).some(desc =>
               typeof desc === 'string' && searchRegex.test(desc)
             );
           }
@@ -90,10 +90,10 @@ export async function GET(request) {
   } catch (error) {
     console.error('Error searching jobs:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
-        message: 'Internal server error', 
-        error: error.message 
+        message: 'Internal server error',
+        error: error.message
       },
       { status: 500 }
     );

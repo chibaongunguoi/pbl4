@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/app/lib/db';
+import connectDb from '@/app/lib/db';
 import Notification from '@/models/Notification';
 import { verifyToken } from '@/app/lib/auth';
 
 // DELETE - Xóa thông báo (admin only)
 export async function DELETE(request, { params }) {
   try {
-    await dbConnect();
+    await connectDb();
 
     // Verify token
     const token = request.cookies.get('auth')?.value;

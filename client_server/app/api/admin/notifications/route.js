@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/app/lib/db';
+import connectDb from '@/app/lib/db';
 import Notification from '@/models/Notification';
 import UserProfile from '@/models/UserProfile';
 import { verifyToken } from '@/app/lib/auth';
@@ -7,7 +7,7 @@ import { verifyToken } from '@/app/lib/auth';
 // GET - Lấy tất cả thông báo (admin only)
 export async function GET(request) {
   try {
-    await dbConnect();
+    await connectDb();
 
     // Verify token
     const token = request.cookies.get('auth')?.value;
@@ -45,10 +45,10 @@ export async function GET(request) {
     const notificationsWithNames = await Promise.all(
       notifications.map(async (notification) => {
         if (notification.userID?.username) {
-          const userProfile = await UserProfile.findOne({ 
-            username: notification.userID.username 
+          const userProfile = await UserProfile.findOne({
+            username: notification.userID.username
           }).select('name').lean();
-          
+
           return {
             ...notification,
             userProfile: {
@@ -66,7 +66,7 @@ export async function GET(request) {
     );
 
     return NextResponse.json(
-      { 
+      {
         success: true,
         data: notificationsWithNames,
         count: notificationsWithNames.length

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import dbConnect from '@/app/lib/db';
+import connectDb from '@/app/lib/db';
 import Notification from '@/models/Notification';
 import { verifyToken } from '@/app/lib/auth';
 
@@ -21,7 +21,7 @@ export async function GET() {
     console.log('Decoded token:', decoded);
     console.log('User ID from token:', decoded.userId);
 
-    await dbConnect();
+    await connectDb();
 
     // Fetch notifications for the current user, sorted by newest first
     const notifications = await Notification.find({ userID: decoded.userId })

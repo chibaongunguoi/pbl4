@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import dbConnect from '@/app/lib/db';
+import connectDb from '@/app/lib/db';
 import Notification from '@/models/Notification';
 import { verifyToken } from '@/app/lib/auth';
 
@@ -18,7 +18,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
     }
 
-    await dbConnect();
+    await connectDb();
 
     const { id } = await params;
     const { status } = await request.json();

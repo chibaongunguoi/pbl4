@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/app/lib/db';
+import connectDb from '@/app/lib/db';
 import User_company from '@/models/User_company';
 import JobDetail from '@/models/JobDetail';
 import Notification from '@/models/Notification';
@@ -8,7 +8,7 @@ import { verifyToken } from '@/app/lib/auth';
 // DELETE - Xóa đơn ứng tuyển
 export async function DELETE(request, { params }) {
   try {
-    await dbConnect();
+    await connectDb();
 
     // Verify token
     const token = request.cookies.get('auth')?.value;
@@ -67,7 +67,7 @@ export async function DELETE(request, { params }) {
 // PUT - Update application status (approve/reject)
 export async function PUT(request, { params }) {
   try {
-    await dbConnect();
+    await connectDb();
 
     // Verify token
     const token = request.cookies.get('auth')?.value;
