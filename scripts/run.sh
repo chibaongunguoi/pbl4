@@ -6,7 +6,9 @@ else
   exit
 fi
 
-cd ./scraper
+source scripts/env.sh
+
+cd scraper
 python3 main.py &
 cd ../chatbot_system
 python3 main.py &
