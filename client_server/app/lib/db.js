@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import initDb from "./init_db";
+import getConfigs from "./config";
 
-const MONGODB_URI = process.env.DB_CONNECTION_STRING || "mongodb://localhost:27017/pbl4_db";
+const MONGODB_URI = getConfigs().MONGODB_URI;
 
 let cache = global.mongoose;
 
@@ -20,7 +20,6 @@ async function connectDb() {
   }
 
   cache.conn = await cache.promise;
-  await initDb();
   return cache.conn;
 }
 
