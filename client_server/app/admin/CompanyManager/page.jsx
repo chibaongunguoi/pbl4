@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import "../admin.css";
 import Pagination from "../components/Pagination";
 import CompanySearch from "../components/CompanySearch";
+import { getRawFileHref } from "@/app/lib/fileHelpers";
 
 export default function CompanyManagerPage() {
   const [companies, setCompanies] = useState([]);
@@ -563,7 +564,7 @@ export default function CompanyManagerPage() {
                   </label>
                   {logoPreview && (
                     <div className="logo-preview">
-                      <img src={logoPreview} alt="Logo preview" className="preview-image" />
+                      <img src={getRawFileHref(logoPreview)} alt="Logo preview" className="preview-image" />
                       <button 
                         type="button" 
                         className="remove-logo-btn"
@@ -841,7 +842,7 @@ export default function CompanyManagerPage() {
                   </label>
                   {logoPreview && (
                     <div className="logo-preview">
-                      <img src={logoPreview} alt="Logo preview" className="preview-image" />
+                      <img src={getRawFileHref(logoPreview)} alt="Logo preview" className="preview-image" />
                       <button 
                         type="button" 
                         className="remove-logo-btn"
@@ -1047,7 +1048,7 @@ export default function CompanyManagerPage() {
                           <div className="company-logo">
                             {company.logo ? (
                               <img 
-                                src={company.logo} 
+                                src={getRawFileHref(company.logo)} 
                                 alt={company.name}
                                 className="company-logo-img"
                               />

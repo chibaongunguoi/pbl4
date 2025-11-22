@@ -10,7 +10,8 @@ sudo apt install -y mongodb-org mongodb-database-tools
 sudo systemctl enable mongod
 sudo systemctl start mongod
 . scripts/env.sh
-mongorestore --db=pbl4_db --uri=$DB_CONNECTION_STRING --drop ./database/seed
+
+mongorestore --db=pbl4_db --uri=$DB_CONNECTION_STRING --drop ./database/seed/pbl4_db
 
 if [ ! -d ".venv" ]; then
   python3 -m venv .venv

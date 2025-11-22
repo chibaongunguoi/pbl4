@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import getUser from "@/app/conn/conn";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getRawFileHref } from "@/app/lib/fileHelpers";
 import Image from "next/image";
 import EditJobForm from "../../components/EditJobForm";
 import ApplySearch from "../../components/ApplySearch";
@@ -604,7 +605,7 @@ export default function UserInfoPage() {
               <div className="user-avatar">
                 {companyInfo.logo ? (
                   <img 
-                    src={companyInfo.logo} 
+                    src={getRawFileHref(companyInfo.logo)} 
                     alt={companyInfo.name}
                     className="company-logo-avatar"
                     onError={(e) => {
@@ -778,7 +779,7 @@ export default function UserInfoPage() {
                       <div className="detail-row">
                         <label>Logo:</label>
                         <span>
-                          <img src={companyInfo.logo} alt="Company Logo" style={{ maxWidth: '100px', borderRadius: '8px' }} />
+                          <img src={getRawFileHref(companyInfo.logo)} alt="Company Logo" style={{ maxWidth: '100px', borderRadius: '8px' }} />
                         </span>
                       </div>
                     )}
@@ -817,7 +818,7 @@ export default function UserInfoPage() {
                       <label>CV:</label>
                       <span>
                         {userProfile.cv ? (
-                          <a href={userProfile.cv} target="_blank" rel="noreferrer" className="cv-link">Xem CV</a>
+                          <a href={getRawFileHref(userProfile.cv)} target="_blank" rel="noreferrer" className="cv-link">Xem CV</a>
                         ) : 'Chưa có'}
                       </span>
                     </div>
@@ -878,7 +879,7 @@ export default function UserInfoPage() {
                     <div className="job-card-header">
                       <div className="company-logo-small">
                         <Image
-                          src={job.thumbnail}
+                          src={getRawFileHref(job.thumbnail)}
                           alt={job.company_name}
                           width={48}
                           height={48}
@@ -1076,7 +1077,7 @@ export default function UserInfoPage() {
                         <td>
                           {application.userProfile?.cv ? (
                             <a 
-                              href={application.userProfile.cv} 
+                              href={getRawFileHref(application.userProfile.cv)} 
                               target="_blank" 
                               rel="noopener noreferrer"
                               className="cv-link-table"
@@ -1279,7 +1280,7 @@ export default function UserInfoPage() {
                           <div className="job-logo-cell">
                             {job.thumbnail && (
                               <img 
-                                src={job.thumbnail} 
+                                src={getRawFileHref(job.thumbnail)} 
                                 alt={job.company_name}
                                 className="job-thumbnail"
                               />
@@ -1503,7 +1504,7 @@ export default function UserInfoPage() {
                     <label>CV:</label>
                     {selectedApplication.userProfile?.cv ? (
                       <a 
-                        href={selectedApplication.userProfile.cv} 
+                        href={getRawFileHref(selectedApplication.userProfile.cv)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="cv-download-link"

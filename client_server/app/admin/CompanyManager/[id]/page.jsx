@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import "../../admin.css";
 import "@/app/ui/components/JobCard.css";
 import JobCard from "@/app/ui/components/JobCard";
+import { getRawFileHref } from "@/app/lib/fileHelpers";
 
 export default function CompanyDetailPage() {
   const params = useParams();
@@ -193,7 +194,7 @@ export default function CompanyDetailPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               {company.logo ? (
                 <img 
-                  src={company.logo} 
+                  src={getRawFileHref(company.logo)} 
                   alt={company.name}
                   style={{
                     width: '80px',

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getRawFileHref } from "@/app/lib/fileHelpers";
 import "../profile.css";
 
 export default function EditUserProfile() {
@@ -223,7 +224,7 @@ export default function EditUserProfile() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                     <a 
-                      href={form.cv} 
+                      href={getRawFileHref(form.cv)} 
                       target="_blank" 
                       rel="noreferrer"
                       style={{ 
@@ -318,7 +319,7 @@ export default function EditUserProfile() {
                   <svg className="pdf-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
-                  <a href={form.cv} target="_blank" rel="noreferrer" className="cv-link">
+                  <a href={getRawFileHref(form.cv)} target="_blank" rel="noreferrer" className="cv-link">
                     Xem CV hiện tại
                   </a>
                 </div>

@@ -34,12 +34,13 @@ export async function POST(req) {
 
     const body = await req.json();
     // Ensure username from token is used
+
     const payload = {
       name: body.name || '',
       phone: body.phone || '',
       gender: body.gender || '',
       birthdate: body.birthdate ? new Date(body.birthdate) : undefined,
-      cv: body.cv || '',
+  cv: body.cv || '',
       description: body.description || '',
       username: decoded.username
     };

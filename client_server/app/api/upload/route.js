@@ -47,24 +47,36 @@ export async function POST(request) {
       try {
         const forwardForm = new FormData();
         forwardForm.append("file", file, filename);
-        const resp = await fetch(`${fileSystemUrl}/upload?path=uploads/logos`, { method: "POST", body: forwardForm });
+          const resp = await fetch(`${fileSystemUrl}/upload?path=logos`, { method: "POST", body: forwardForm });
         const json = await resp.json();
         if (!resp.ok) {
           return NextResponse.json({ success: false, error: json.error || json.detail || "Upload failed" }, { status: resp.status });
         }
-        const returnedUrl = json.url || null;
-        const fullUrl = returnedUrl && returnedUrl.startsWith("/") ? `${fileSystemUrl}${returnedUrl}` : returnedUrl;
-        return NextResponse.json({ success: true, logoUrl: fullUrl, message: "Upload ảnh thành công" }, { status: 200 });
+        let returnedUrl = json.url || null;
+        if (returnedUrl) {
+          try {
+            const u = new URL(returnedUrl);
+            returnedUrl = u.pathname;
+          } catch (e) {
+          }
+          if (returnedUrl.startsWith("/files/")) {
+            // Do not translate '/files/...' into another base path; keep the
+            // canonical '/files/...' path in client responses.
+              // Keep '/files/...' canonical in client responses; the viewer will
+              // map that to the UI view path. Do nothing to the returned value.
+          }
+        }
+        return NextResponse.json({ success: true, logoUrl: returnedUrl, message: "Upload ảnh thành công" }, { status: 200 });
       } catch (err) {
         console.error("Forward to file system failed:", err);
         // fallthrough to fallback
       }
     }
 
-    // Create uploads directory if it doesn't exist (fallback)
-    const uploadsDir = path.join(process.cwd(), "public", "uploads", "logos");
+  // Create public files directory if it doesn't exist (fallback)
+  const publicFilesDir = path.join(process.cwd(), "public", "files", "logos");
     try {
-      await mkdir(uploadsDir, { recursive: true });
+  await mkdir(publicFilesDir, { recursive: true });
     } catch (error) {
       if (error.code !== 'EEXIST') {
         throw error;
@@ -72,11 +84,11 @@ export async function POST(request) {
     }
 
     // Write file
-    const filePath = path.join(uploadsDir, filename);
+  const filePath = path.join(publicFilesDir, filename);
     await writeFile(filePath, buffer);
 
     // Return the public URL
-    const logoUrl = `/uploads/logos/${filename}`;
+    const logoUrl = `/files/logos/${filename}`;
 
     return NextResponse.json({ 
       success: true, 

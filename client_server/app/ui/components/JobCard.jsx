@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import './JobCard.css';
+import { getRawFileHref } from '@/app/lib/fileHelpers';
 
 export default function JobCard({ job, followCount = null, showFollowBadge = false, onClick }) {
   const hasFollowCount = showFollowBadge && followCount !== null && followCount > 0;
@@ -21,7 +22,7 @@ export default function JobCard({ job, followCount = null, showFollowBadge = fal
       <div className="job-header">
         <div className="company-logo">
           <Image
-            src={job.thumbnail}
+            src={getRawFileHref(job.thumbnail)}
             alt="img"
             width={64}
             height={64}

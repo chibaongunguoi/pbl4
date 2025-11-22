@@ -37,9 +37,9 @@ const nextConfig = {
   async rewrites() {
     const host = process.env.FILE_SYSTEM_HOST || "localhost";
     const port = process.env.FILE_SYSTEM_PORT || "37003";
-    return [
+      return [
       {
-        source: "/uploads/:path*",
+        source: "/files/:path*",
         destination: `http://${host}:${port}/files/:path*`,
       },
     ];

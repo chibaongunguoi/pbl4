@@ -51,7 +51,7 @@ export async function PUT(request, { params }) {
       profile.phone = phone || profile.phone;
       profile.gender = gender || profile.gender;
       profile.birthdate = birthdate || profile.birthdate;
-      profile.cv = cv !== undefined ? cv : profile.cv;
+  profile.cv = cv !== undefined ? cv : profile.cv;
       profile.description = description !== undefined ? description : profile.description;
 
       await profile.save();
@@ -63,7 +63,7 @@ export async function PUT(request, { params }) {
         phone,
         gender,
         birthdate,
-        cv,
+  cv,
         description
       });
 
