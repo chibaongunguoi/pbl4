@@ -254,7 +254,7 @@ export default function Header() {
                   </a>
                 </li>{" "}
                 <li>
-                  <a href="/dang-ky" className="btn-register btn-warning gradient">
+                  <a href="/register" className="btn-register btn-warning gradient">
                     Đăng ký tài khoản
                   </a>
                 </li>
