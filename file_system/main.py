@@ -165,6 +165,6 @@ if __name__ == "__main__":
     app.add_api_route("/upload", upload_file, methods=["POST"])
     app.add_api_route("/files/{file_path:path}", get_file, methods=["GET", "HEAD"])
     app.add_api_route("/viewer", viewer, methods=["GET"])
-    host = os.environ.get("FILE_SYSTEM_HOST", "0.0.0.0")
-    port = int(os.environ.get("FILE_SYSTEM_PORT", "8001"))
+    host = os.environ.get("FILE_SYSTEM_HOST", "localhost")
+    port = int(os.environ.get("FILE_SYSTEM_PORT", "37003"))
     uvicorn.run(app, host=host, port=port)

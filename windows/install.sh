@@ -8,6 +8,7 @@ else
   exit
 fi
 
+. scripts/env.sh
 mongorestore --db=pbl4_db --uri=$DB_CONNECTION_STRING --drop ./database/seed/pbl4_db
 
 pip install -r requirements.txt

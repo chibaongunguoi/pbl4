@@ -694,8 +694,6 @@ pbl4/
 ├── test/                   # File kiểm thử
 ├── ubuntu/                 # Triển khai Ubuntu
 ├── windows/                # Triển khai Windows
-├── ARCHITECTURE.md
-├── CHAPTER-2.md
 ├── README.md
 └── requirements.txt
 ```
