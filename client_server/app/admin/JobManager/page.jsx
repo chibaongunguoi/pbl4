@@ -226,7 +226,13 @@ export default function JobManagerPage() {
                         </td>
                         <td className="job-title-cell">
                           <div className="job-title-info">
-                            <span className="job-title">{job.job_title}</span>
+                            <a 
+                              href={`/job/${job._id}`} 
+                              className="job-title-link"
+                              title="Xem chi tiết công việc"
+                            >
+                              {job.job_title}
+                            </a>
                             <div className="job-skills">
                               {/* {job.skills && job.skills.slice(0, 2).map((skill, idx) => (
                                 <span key={idx} className="skill-tag-mini">{skill}</span>

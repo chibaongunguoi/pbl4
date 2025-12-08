@@ -7,14 +7,29 @@ const configs = getConfigs();
 
 export async function POST(req) {
   try {
-    const { url } = await req.json();
-    console.log(`Received url: ${url}`);
+    const { urls } = await req.json();
+    console.log(`Received urls: ${urls}`);
+
+    // Validate input - urls should be an array of strings
+    if (!Array.isArray(urls) || urls.length === 0) {
+      return NextResponse.json({ error: "URLs must be a non-empty array." }, { status: 400 });
+    }
+
+    // Filter out empty strings and trim whitespace
+    const validUrls = urls.filter(url => url && url.trim()).map(url => url.trim());
+
+    if (validUrls.length === 0) {
+      return NextResponse.json({ error: "No valid URLs provided." }, { status: 400 });
+    }
 
     // Connect to database and create a job record
     await connectDb();
     const scrapeJob = await ScrapeJob.create({
-      url,
+      urls: validUrls,
       status: 'processing',
+      totalUrls: validUrls.length,
+      processedUrls: 0,
+      progress: 0,
     });
 
     const jobId = scrapeJob._id.toString();
@@ -25,8 +40,9 @@ export async function POST(req) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        urls: [url],
+        urls: validUrls,
         callback_url: "http://localhost:3000/api/scrape/result",
+        progress_callback_url: "http://localhost:3000/api/scrape/progress",
         metadata: {
           jobId,
           start_at: Date.now() / 1000 // Unix timestamp in seconds

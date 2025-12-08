@@ -18,11 +18,16 @@ export async function GET(req, { params }) {
     return NextResponse.json({ 
       job: {
         id: job._id.toString(),
-        url: job.url,
+        urls: job.urls,
         status: job.status,
         jobCount: job.jobCount,
         errorMessage: job.errorMessage,
         metadata: job.metadata,
+        // Progress fields
+        totalUrls: job.totalUrls,
+        processedUrls: job.processedUrls,
+        currentUrl: job.currentUrl,
+        progress: job.progress,
         createdAt: job.createdAt,
         completedAt: job.completedAt,
       }

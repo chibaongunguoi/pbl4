@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 
 const ScrapeJobSchema = new mongoose.Schema({
-  url: {
+  urls: [{
     type: String,
     required: true,
-  },
+  }],
   status: {
     type: String,
     enum: ['pending', 'processing', 'completed', 'failed'],
@@ -21,6 +21,23 @@ const ScrapeJobSchema = new mongoose.Schema({
   metadata: {
     type: Object,
     default: {},
+  },
+  // Progress tracking fields
+  totalUrls: {
+    type: Number,
+    default: 0,
+  },
+  processedUrls: {
+    type: Number,
+    default: 0,
+  },
+  currentUrl: {
+    type: String,
+    default: null,
+  },
+  progress: {
+    type: Number, // 0-100
+    default: 0,
   },
   createdAt: {
     type: Date,

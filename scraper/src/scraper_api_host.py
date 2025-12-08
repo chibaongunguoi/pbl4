@@ -12,6 +12,7 @@ from .strategies.strategy import ScrapeStrategy
 class ValidateCrawlInput(BaseModel):
     urls: list[str]
     callback_url: str | None = None
+    progress_callback_url: str | None = None
     metadata: dict = {}
 
 
@@ -57,6 +58,7 @@ class ScraperApiHost(ApiHost):
                     self.scrape_manager.scrapeUrlsWithCallback,
                     validated_input.urls,
                     validated_input.callback_url,
+                    validated_input.progress_callback_url,
                     validated_input.metadata,
                 )
 

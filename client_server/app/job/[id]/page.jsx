@@ -229,9 +229,12 @@ export default function CardDetail() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-700 mb-4">Không tìm thấy công việc</h2>
-          <Link href="/" className="text-blue-600 hover:text-blue-800">
-            ← Quay lại trang chủ
-          </Link>
+          <button 
+            onClick={() => window.history.back()} 
+            className="text-blue-600 hover:text-blue-800"
+          >
+            ← Quay lại
+          </button>
         </div>
       </div>
     );
@@ -240,9 +243,12 @@ export default function CardDetail() {
   return (
     <div className="job-detail-container">
       {/* Back Button */}
-      <Link href="/" className="back-button">
+      <button 
+        onClick={() => window.history.back()} 
+        className="back-button"
+      >
         ← Quay lại
-      </Link>
+      </button>
       
       {/* Header */}
       <div className="job-detail-header">

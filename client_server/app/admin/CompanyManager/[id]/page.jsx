@@ -139,10 +139,10 @@ export default function CompanyDetailPage() {
         <div className="error-container">
           <p>Công ty không tồn tại hoặc đã bị xóa.</p>
           <button 
-            onClick={() => router.push('/admin/CompanyManager')}
+            onClick={() => window.history.back()}
             className="back-btn"
           >
-            Quay lại danh sách
+            Quay lại
           </button>
         </div>
       </div>
@@ -153,7 +153,7 @@ export default function CompanyDetailPage() {
     <div>
       <div className="admin-content-header" style={{ marginBottom: '16px' }}>
         <button 
-          onClick={() => router.push('/admin/CompanyManager')}
+          onClick={() => window.history.back()}
           className="back-button"
           style={{ 
             display: 'flex', 

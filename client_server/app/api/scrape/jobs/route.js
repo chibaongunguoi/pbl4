@@ -14,11 +14,17 @@ export async function GET(req) {
     
     const transformedJobs = jobs.map(job => ({
       id: job._id.toString(),
-      url: job.url,
+      urls: job.urls,
+      url: job.urls?.[0] || '', // For backward compatibility
       status: job.status,
       jobCount: job.jobCount,
       errorMessage: job.errorMessage,
       metadata: job.metadata,
+      // Progress fields
+      totalUrls: job.totalUrls,
+      processedUrls: job.processedUrls,
+      currentUrl: job.currentUrl,
+      progress: job.progress,
       createdAt: job.createdAt,
       completedAt: job.completedAt,
     }));

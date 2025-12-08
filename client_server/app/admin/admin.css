@@ -582,6 +582,25 @@
   overflow: hidden;
 }
 
+.job-title-link {
+  font-weight: 600;
+  color: #2563eb;
+  font-size: 15px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.job-title-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
 .job-skills {
   display: flex;
   flex-wrap: wrap;

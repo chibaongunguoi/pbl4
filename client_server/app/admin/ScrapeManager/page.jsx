@@ -4,13 +4,14 @@ import { useState, useEffect, useRef } from "react";
 import "../admin.css";
 
 export default function ScrapeManagerPage() {
-  const [scrapeUrl, setScrapeUrl] = useState("");
+  const [scrapeUrls, setScrapeUrls] = useState("");
   const [scrapeButtonActive, setScrapeButtonActive] = useState(true);
   const [loadingScrape, setLoadingScrape] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [currentJobId, setCurrentJobId] = useState(null);
   const [recentJobs, setRecentJobs] = useState([]);
   const [toast, setToast] = useState({ show: false, type: '', message: '' });
+  const [viewModal, setViewModal] = useState({ show: false, job: null });
   const pollingIntervalRef = useRef(null);
 
   // Show toast notification
@@ -39,6 +40,17 @@ export default function ScrapeManagerPage() {
           return [job, ...prev];
         });
 
+        // Update progress message if job is processing
+        if (job.status === 'processing' && job.totalUrls > 0) {
+          const progressPercent = job.progress || 0;
+          const processed = job.processedUrls || 0;
+          const total = job.totalUrls || 0;
+          setMessage({ 
+            type: 'info', 
+            text: `Đang xử lý... ${processed}/${total} URL (${progressPercent}%)` 
+          });
+        }
+
         // If job is completed or failed, stop polling and show notification
         if (job.status === 'completed' || job.status === 'failed') {
           if (currentJobId === jobId) {
@@ -47,9 +59,9 @@ export default function ScrapeManagerPage() {
             setLoadingScrape(false);
             
             if (job.status === 'completed') {
-              showToast('success', `Cào dữ liệu thành công! Đã thu thập ${job.jobCount} công việc.`);
-              setMessage({ type: 'success', text: `Hoàn thành! Đã thu thập ${job.jobCount} công việc.` });
-              setScrapeUrl("");
+              showToast('success', `Cào dữ liệu thành công! Đã thu thập ${job.jobCount} công việc từ ${job.totalUrls} URL.`);
+              setMessage({ type: 'success', text: `Hoàn thành! Đã thu thập ${job.jobCount} công việc từ ${job.totalUrls} URL.` });
+              setScrapeUrls("");
             } else {
               showToast('error', `Cào dữ liệu thất bại: ${job.errorMessage || 'Lỗi không xác định'}`);
               setMessage({ type: 'error', text: job.errorMessage || 'Có lỗi xảy ra khi cào dữ liệu!' });
@@ -106,6 +118,23 @@ export default function ScrapeManagerPage() {
     };
   }, [currentJobId]);
 
+  // Handle modal keyboard events
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && viewModal.show) {
+        closeViewModal();
+      }
+    };
+
+    if (viewModal.show) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [viewModal.show]);
+
   const handleScrapeSubmit = async (e) => {
     e.preventDefault();
     setScrapeButtonActive(false);
@@ -113,19 +142,29 @@ export default function ScrapeManagerPage() {
     setMessage({ type: '', text: '' });
     
     const form_data = new FormData(e.currentTarget);
-    const url = form_data.get("url");
+    const urlsText = form_data.get("urls");
+    
+    // Split by newlines and filter out empty lines
+    const urls = urlsText.split('\n').map(url => url.trim()).filter(url => url);
+    
+    if (urls.length === 0) {
+      setMessage({ type: 'error', text: 'Vui lòng nhập ít nhất một URL hợp lệ!' });
+      setScrapeButtonActive(true);
+      setLoadingScrape(false);
+      return;
+    }
     
     try {
       const response = await fetch("/api/scrape/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ urls }),
       });
 
       if (response.ok) {
         const { jobId } = await response.json();
         setCurrentJobId(jobId);
-        setMessage({ type: 'info', text: 'Đang xử lý yêu cầu cào dữ liệu...' });
+        setMessage({ type: 'info', text: `Đang xử lý ${urls.length} URL...` });
         // Polling will be handled by useEffect
       } else {
         setMessage({ type: 'error', text: 'Có lỗi xảy ra khi gửi yêu cầu!' });
@@ -179,6 +218,14 @@ export default function ScrapeManagerPage() {
       console.error('Error fetching job detail:', error);
       showToast('error', 'Có lỗi xảy ra');
     }
+  };
+
+  const handleViewJobUrls = (job) => {
+    setViewModal({ show: true, job });
+  };
+
+  const closeViewModal = () => {
+    setViewModal({ show: false, job: null });
   };
 
   const handleDeleteJob = async (jobId) => {
@@ -244,18 +291,18 @@ export default function ScrapeManagerPage() {
         <div className="scrape-form-container">
           <form onSubmit={handleScrapeSubmit} className="scrape-form">
             <div className="form-group">
-              <label htmlFor="url" className="form-label">
-                URL cần cào dữ liệu:
+              <label htmlFor="urls" className="form-label">
+                URLs cần cào dữ liệu (mỗi URL một dòng):
               </label>
               <div className="input-group">
-                <input
-                  type="url"
-                  name="url"
-                  id="url"
-                  value={scrapeUrl}
-                  onChange={(e) => setScrapeUrl(e.target.value)}
-                  placeholder="Nhập URL (ví dụ: https://www.topcv.vn/tim-viec-lam)..."
+                <textarea
+                  name="urls"
+                  id="urls"
+                  value={scrapeUrls}
+                  onChange={(e) => setScrapeUrls(e.target.value)}
+                  placeholder="Nhập các URL, mỗi URL trên một dòng&#10;Ví dụ:&#10;https://www.topcv.vn/tim-viec-lam&#10;https://www.vietnamworks.com/tim-viec-lam"
                   className="url-input"
+                  rows="6"
                   required
                 />
                 <button 
@@ -280,8 +327,8 @@ export default function ScrapeManagerPage() {
         <div className="scrape-instructions">
           <h3>Hướng dẫn sử dụng:</h3>
           <ul>
-            <li>Nhập URL của trang web chứa thông tin việc làm</li>
-            <li>Hệ thống sẽ tự động phân tích và trích xuất dữ liệu</li>
+            <li>Nhập các URL của trang web chứa thông tin việc làm, mỗi URL trên một dòng</li>
+            <li>Hệ thống sẽ tự động phân tích và trích xuất dữ liệu từ tất cả các URL</li>
             <li>Dữ liệu sau khi cào sẽ được lưu vào hệ thống</li>
             <li>Kiểm tra tab "Quản lý công việc" để xem kết quả</li>
           </ul>
@@ -305,6 +352,7 @@ export default function ScrapeManagerPage() {
                 <tr>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>URL</th>
                   <th className="badge-text" style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Trạng thái</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Tiến độ</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Thời gian tạo</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Hoàn thành</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Thao tác</th>
@@ -313,13 +361,56 @@ export default function ScrapeManagerPage() {
               <tbody>
                 {recentJobs.map((job, index) => (
                   <tr key={job.id} style={{ borderTop: index > 0 ? '1px solid #e5e7eb' : 'none' }}>
-                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#374151', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      <a href={job.url} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none' }}>
-                        {job.url}
-                      </a>
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#374151', maxWidth: '300px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {job.urls && job.urls.length > 0 ? (
+                          <>
+                            <div style={{ fontWeight: '500' }}>{job.urls.length} URL</div>
+                            <div style={{ fontSize: '12px', color: '#6b7280', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {job.urls[0]}
+                              {job.urls.length > 1 && ` +${job.urls.length - 1} more`}
+                            </div>
+                          </>
+                        ) : (
+                          <a href={job.url} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none' }}>
+                            {job.url}
+                          </a>
+                        )}
+                      </div>
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       {getStatusBadge(job.status)}
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      {job.status === 'processing' && job.totalUrls > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '120px' }}>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                            {job.processedUrls || 0}/{job.totalUrls} URL
+                          </div>
+                          <div style={{ width: '100%', backgroundColor: '#e5e7eb', borderRadius: '4px', height: '6px' }}>
+                            <div 
+                              style={{ 
+                                width: `${job.progress || 0}%`, 
+                                backgroundColor: '#3b82f6', 
+                                height: '6px', 
+                                borderRadius: '4px',
+                                transition: 'width 0.3s ease'
+                              }}
+                            />
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#6b7280' }}>
+                            {job.progress || 0}%
+                          </div>
+                        </div>
+                      ) : job.status === 'completed' ? (
+                        <div style={{ fontSize: '12px', color: '#10b981' }}>
+                          {job.jobCount} công việc
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                          -
+                        </div>
+                      )}
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '14px', color: '#6b7280' }}>
                       {formatDate(job.createdAt)}
@@ -329,9 +420,9 @@ export default function ScrapeManagerPage() {
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        {job.status === 'completed' && job.jobCount === 1 ? (
+                        {job.status === 'completed' && job.jobCount > 0 ? (
                           <button
-                            onClick={() => handleViewDetail(job.url)}
+                            onClick={() => handleViewJobUrls(job)}
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
@@ -386,6 +477,145 @@ export default function ScrapeManagerPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* View URLs Modal */}
+      {viewModal.show && viewModal.job && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}
+          onClick={closeViewModal}
+        >
+          <div 
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '24px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '80vh',
+              overflow: 'auto',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+                Danh sách URL đã cào ({viewModal.job.jobCount} công việc)
+              </h3>
+              <button
+                onClick={closeViewModal}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  padding: '4px',
+                  borderRadius: '4px',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '12px' }}>
+                Thời gian hoàn thành: {formatDate(viewModal.job.completedAt)}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {viewModal.job.urls && viewModal.job.urls.map((url, index) => (
+                <div key={index} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  backgroundColor: '#f9fafb'
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: '14px',
+                      color: '#3b82f6',
+                      textDecoration: 'none',
+                      wordBreak: 'break-all',
+                      marginBottom: '4px'
+                    }}>
+                      {url}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                      URL {index + 1}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleViewDetail(url)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '8px 16px',
+                      backgroundColor: '#10b981',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      flexShrink: 0
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+                  >
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Xem công việc
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+              <button
+                onClick={closeViewModal}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4b5563'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6b7280'}
+              >
+                Đóng
+              </button>
+            </div>
           </div>
         </div>
       )}

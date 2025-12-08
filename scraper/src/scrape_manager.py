@@ -172,11 +172,99 @@ class ScrapeManager:
             print(f"[!! ERROR !!] ScrapeManager.crawl_urls: {e}")
             return []
 
+    def sendProgressUpdate(self, progress_callback_url: str, jobId: str, processed: int, total: int, current_url: str = None):
+        """Send progress update to callback URL"""
+        if not progress_callback_url or not jobId:
+            return
+
+        try:
+            import requests
+
+            progress_percentage = int((processed / total) * 100) if total > 0 else 0
+
+            payload = {
+                "jobId": jobId,
+                "processedUrls": processed,
+                "currentUrl": current_url,
+                "progress": progress_percentage,
+            }
+
+            print(f"Sending progress update: {processed}/{total} ({progress_percentage}%) - {current_url}")
+            response = requests.post(
+                progress_callback_url,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=10,
+            )
+            response.raise_for_status()
+            print(f"Progress update sent successfully")
+
+        except Exception as e:
+            print(f"Error sending progress update: {e}")
+
+    def scrapeUrlsWithProgress(self, urls: list[str], progress_callback_url: str = None, metadata: dict = {}) -> list:
+        """Crawl the provided URLs with progress updates"""
+        if not urls:
+            print(
+                Fore.CYAN + "[-- INFO --] ScrapeManager.scrapeUrlsWithProgress: No URLs provided."
+            )
+            return []
+
+        print(
+            Fore.CYAN
+            + f"[-- INFO --] ScrapeManager.scrapeUrlsWithProgress: {len(urls)} URL(s) provided."
+        )
+
+        jobId = metadata.get("jobId")
+        total_urls = len(urls)
+        processed_count = 0
+
+        try:
+            from concurrent.futures import ThreadPoolExecutor, as_completed
+
+            batch_result = []
+            with ThreadPoolExecutor(max_workers=min(len(urls), 4)) as executor:
+                future_to_url = {
+                    executor.submit(self.scrapeSingle, url): url for url in urls
+                }
+                for future in as_completed(future_to_url):
+                    url = future_to_url[future]
+                    try:
+                        result = future.result()
+                        processed_count += 1
+
+                        # Send progress update
+                        self.sendProgressUpdate(progress_callback_url, jobId, processed_count, total_urls, url)
+
+                        if self.aggregation_mode == AggregationMode.flatten:
+                            assert isinstance(result, list)
+                            for record in result:
+                                if record not in batch_result:
+                                    batch_result.append(record)
+
+                        else:
+                            if result is not None:
+                                batch_result.append(result)
+                    except Exception as e:
+                        processed_count += 1
+                        print(
+                            f"[ERROR at ScrapeManager.scrapeUrlsWithProgress] Error processing {url}: {str(e)}"
+                        )
+                        # Send progress update even on error
+                        self.sendProgressUpdate(progress_callback_url, jobId, processed_count, total_urls, url)
+                        traceback.print_exc()
+
+            return batch_result
+
+        except Exception as e:
+            print(f"[!! ERROR !!] ScrapeManager.scrapeUrlsWithProgress: {e}")
+            return []
+
     def scrapeUrlsWithCallback(
-        self, urls: list[str], callback_url: str, metadata: dict = {}
+        self, urls: list[str], callback_url: str, progress_callback_url: str = None, metadata: dict = {}
     ):
         try:
-            data = self.scrapeUrls(urls)
+            data = self.scrapeUrlsWithProgress(urls, progress_callback_url, metadata)
             sendCallback(callback_url=callback_url, data=data, metadata=metadata)
 
         except Exception:
