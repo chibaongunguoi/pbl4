@@ -9,6 +9,7 @@ export default function ChatbotAdmin() {
   const [currentChatId, setCurrentChatId] = useState(null);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const messagesEndRef = useRef(null);
   const chatHistoryRef = useRef(chatHistory);
 
@@ -260,25 +261,27 @@ export default function ChatbotAdmin() {
         <p className="admin-content-subtitle">Tra cứu việc làm</p>
       </div>
 
-      <div className="chatbot-layout">
-        <div className="chat-sidebar">
+      {/* Chat Header with Action Buttons */}
+      <div className="chat-header">
+        <div className="chat-actions">
+          <button 
+            onClick={() => setShowHistoryModal(true)} 
+            className="history-btn"
+            title="Lịch sử hội thoại"
+          >
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd"/>
+            </svg>
+            Lịch sử
+          </button>
           <button onClick={newChat} className="new-chat-btn">
+            <span className="plus-icon">+</span>
             Hội thoại mới
           </button>
-          <div className="chat-list">
-            {chatHistories.map((chat) => (
-              <div key={chat.id} className={`chat-item ${currentChatId === chat.id ? "active" : ""}`}>
-                <button onClick={() => selectChat(chat.id)} className="chat-select">
-                  {chat.title || `Chat ${chat.id}`}
-                </button>
-                <button onClick={() => deleteChat(chat.id)} className="chat-delete">
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
         </div>
+      </div>
 
+      <div className="chatbot-layout">
         <div className="chat-main">
           <div className="chat-messages">
             {displayMessages.map((msg, index) => (
@@ -305,6 +308,48 @@ export default function ChatbotAdmin() {
           </form>
         </div>
       </div>
+
+      {/* History Modal */}
+      {showHistoryModal && (
+        <div className="modal-overlay" onClick={() => setShowHistoryModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Lịch sử hội thoại</h3>
+              <button 
+                onClick={() => setShowHistoryModal(false)}
+                className="modal-close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="chat-list-modal">
+                {chatHistories.map((chat) => (
+                  <div key={chat.id} className={`chat-item ${currentChatId === chat.id ? "active" : ""}`}>
+                    <button 
+                      onClick={() => {
+                        selectChat(chat.id);
+                        setShowHistoryModal(false);
+                      }} 
+                      className="chat-select"
+                    >
+                      {chat.title || `Chat ${chat.id}`}
+                    </button>
+                    <button onClick={() => deleteChat(chat.id)} className="chat-delete">
+                      ×
+                    </button>
+                  </div>
+                ))}
+                {chatHistories.length === 0 && (
+                  <div className="no-chats">
+                    Chưa có hội thoại nào
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
