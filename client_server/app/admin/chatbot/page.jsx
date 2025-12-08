@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import "../admin.css";
 
 export default function ChatbotAdmin() {
@@ -10,8 +13,43 @@ export default function ChatbotAdmin() {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [isQuerying, setIsQuerying] = useState(false);
   const messagesEndRef = useRef(null);
   const chatHistoryRef = useRef(chatHistory);
+  const isQueryingRef = useRef(false);
+
+  // Function to filter out hidden tags from content
+  const filterHiddenTags = (content) => {
+    if (!content) return content;
+    
+    let filtered = content;
+    const hiddenTags = ['think', 'result', 'reasoning', 'internal', 'query'];
+    
+    for (const tag of hiddenTags) {
+      const openingRegex = new RegExp(`<${tag}>`, 'gi');
+      const closingRegex = new RegExp(`</${tag}>`, 'gi');
+      
+      // Remove content between tags
+      filtered = filtered.replace(new RegExp(`<${tag}>[\\s\\S]*?</${tag}>`, 'gi'), '');
+      
+      // Remove any remaining opening or closing tags
+      filtered = filtered.replace(openingRegex, '');
+      filtered = filtered.replace(closingRegex, '');
+    }
+    
+    return filtered.trim();
+  };
+
+  // Function to ensure message content ends with period
+  const formatMessageContent = (content) => {
+    if (!content) return content;
+    let formatted = content.trim();
+    // Replace any trailing punctuation with period
+    formatted = formatted.replace(/[.!?;:]+$/, '.');
+    // Also replace any standalone colons in the content with periods
+    formatted = formatted.replace(/:(\s|$)/g, '. ');
+    return formatted.trim();
+  };
 
   const displayMessages = useMemo(
     () => chatHistory.filter((msg) => msg.role === "user" || msg.role === "assistant"),
@@ -155,6 +193,10 @@ export default function ChatbotAdmin() {
       const decoder = new TextDecoder();
       let buffer = "";
       let pending = "";
+      let hiddenTags = new Set(['think', 'result', 'reasoning', 'internal', 'query']); // Add or remove tags to hide during generation
+      let inHiddenTag = false;
+      let currentHiddenTag = null;
+      let queryTags = new Set(['query']); // Tags that indicate querying state
 
       const appendChatHistory = (newDialogs) => {
         setChatHistoryWithRef((prev) => {
@@ -204,6 +246,31 @@ export default function ChatbotAdmin() {
                 const msg = JSON.parse(chunk);
                 if (msg.type === "token" && msg.token) {
                   buffer += msg.token;
+                  
+                  // Check for query tags to update querying state
+                  const queryOpeningRegex = /<(\w+)>/g;
+                  let queryMatch;
+                  while ((queryMatch = queryOpeningRegex.exec(msg.token)) !== null) {
+                    const tagName = queryMatch[1].toLowerCase();
+                    if (queryTags.has(tagName)) {
+                      isQueryingRef.current = true;
+                      setIsQuerying(true);
+                      break;
+                    }
+                  }
+                  
+                  // Check for closing query tags
+                  if (isQueryingRef.current) {
+                    for (const queryTag of queryTags) {
+                      const queryClosingRegex = new RegExp(`</${queryTag}>`, 'g');
+                      if (queryClosingRegex.test(msg.token)) {
+                        isQueryingRef.current = false;
+                        setIsQuerying(false);
+                        break;
+                      }
+                    }
+                  }
+                  
                   setChatHistoryWithRef((prev) => {
                     if (!prev.length) return prev;
                     const lastIndex = prev.length - 1;
@@ -237,6 +304,16 @@ export default function ChatbotAdmin() {
 
       pending = consumeJsonChunks(pending);
 
+      // Update final message with complete buffer (including hidden content) for saving
+      setChatHistoryWithRef((prev) => {
+        if (!prev.length) return prev;
+        const lastIndex = prev.length - 1;
+        const lastEntry = prev[lastIndex];
+        if (lastEntry.role !== "assistant") return prev;
+        const updated = { ...lastEntry, content: buffer };
+        return [...prev.slice(0, lastIndex), updated];
+      });
+
       void saveChatHistory(currentChatId);
       void fetchChatHistories();
     } catch (error) {
@@ -251,6 +328,8 @@ export default function ChatbotAdmin() {
       });
     } finally {
       setIsStreaming(false);
+      setIsQuerying(false);
+      isQueryingRef.current = false;
     }
   };
 
@@ -284,12 +363,33 @@ export default function ChatbotAdmin() {
       <div className="chatbot-layout">
         <div className="chat-main">
           <div className="chat-messages">
-            {displayMessages.map((msg, index) => (
-              <div key={`${msg.role}-${index}`} className={`message ${msg.role}`}>
-                <div className="message-role">{msg.role === "user" ? "Bạn" : "Trợ lí"}:</div>
-                <div className="message-content">{msg.content}</div>
-              </div>
-            ))}
+            {displayMessages.map((msg, index) => {
+              const isLastAssistantMessage = msg.role === "assistant" && index === displayMessages.length - 1;
+              const showQueryingStatus = isLastAssistantMessage && isQueryingRef.current && isStreaming;
+              const showQueryResultStatus = msg.role === "user" && (msg.content.includes('Kết quả truy vấn') || (msg.content.includes('<result>') && msg.content.includes('</result>')));
+              
+              let roleText = msg.role === "user" ? "Bạn" : "Trợ lí";
+              if (showQueryingStatus) {
+                roleText = "Trợ lí ảo đang truy vấn";
+              } else if (showQueryResultStatus) {
+                roleText = "Đã có kết quả truy vấn";
+              }
+              
+              return (
+                <div key={`${msg.role}-${index}`} className={`message ${msg.role}`}>
+                  <div className="message-role">{roleText}.</div>
+                  <div className="message-content">
+                    {msg.role === "assistant" ? (
+                      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                        {formatMessageContent(filterHiddenTags(msg.content))}
+                      </ReactMarkdown>
+                    ) : (
+                      formatMessageContent(filterHiddenTags(msg.content))
+                    )}
+                  </div>
+                </div>
+              );
+            })}
             <div ref={messagesEndRef} />
           </div>
 
