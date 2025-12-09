@@ -2355,8 +2355,13 @@
 }
 
 .message-content {
-  white-space: pre-wrap;
+  /* white-space: pre-wrap; */
   word-wrap: break-word;
+}
+
+.message-content a {
+  color: blue;
+  text-decoration: underline;
 }
 
 .chat-input-form {
