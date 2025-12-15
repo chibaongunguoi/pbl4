@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import User from "@/models/User";
 import connectDb from "@/app/lib/db";
+import { hashPassword } from "@/app/lib/passwordUtil";
 
 export async function POST(request) {
   try {
@@ -43,9 +44,10 @@ export async function POST(request) {
     }
 
     // Create new user
+    const hashedPassword = await hashPassword(password);
     const newUser = new User({
       username: username.trim(),
-      password: password,
+      password: hashedPassword,
       role: "user" // Default role for regular users
     });
 

@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import User from "@/models/User"
 import connectDb from "@/app/lib/db";
 import { signToken } from "@/app/lib/auth";
+import { verifyPassword } from "@/app/lib/passwordUtil";
 
 export async function POST(req) {
   try {
     await connectDb();
     const { username, password } = await req.json();
-    const user = await User.findOne({ username: username, password: password });
-    if (!user) {
+    const user = await User.findOne({ username: username });
+    if (!user || !(await verifyPassword(password, user.password))) {
       return NextResponse.json({ error: "Bad credentials." }, { status: 401 });
     }
 
