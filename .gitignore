@@ -43,5 +43,5 @@ next-env.d.ts
 
 # python
 .__pycache__
-__pycache__
+/**/__pycache__
 .venv
