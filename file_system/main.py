@@ -27,13 +27,9 @@ ALLOWED_MIMETYPES = {
 }
 
 
-def _ensure_dirs():
+def startup_event():
     if not VAR_DIR.exists():
         VAR_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def startup_event():
-    _ensure_dirs()
 
 
 app.add_event_handler("startup", startup_event)
@@ -87,7 +83,6 @@ async def upload_file(
 
 
 async def get_file(file_path: str):
-    requested = Path(file_path)
     segments = [seg for seg in file_path.split("/") if seg != ""]
     if any(seg == ".." for seg in segments):
         raise HTTPException(status_code=400, detail="Invalid path")
