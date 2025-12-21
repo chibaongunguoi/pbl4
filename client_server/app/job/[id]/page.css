@@ -140,6 +140,32 @@
   height: 20px;
 }
 
+.original-url-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  color: #374151;
+  border: 2px solid #d1d5db;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.original-url-button:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+  color: #1f2937;
+}
+
+.external-link-icon {
+  width: 20px;
+  height: 20px;
+}
+
 .save-button {
   background: white;
   color: #6b7280;
