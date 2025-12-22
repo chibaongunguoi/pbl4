@@ -73,6 +73,7 @@ class DatabaseTool(Tool):
             result = removeConsecutiveSpaces(result)
             result = result.replace("\\n", " ")
             result = result.replace("\n", " ")
+            print(result)
             return result
         except Exception:
             traceback.print_exc()

@@ -375,16 +375,21 @@ export default function ChatbotAdmin() {
                 roleText = "Đã có kết quả truy vấn";
               }
               
+              const filtered_content = formatMessageContent(filterHiddenTags(msg.content));
+              if (!filtered_content)
+                return (
+                  <div></div>
+              );
               return (
                 <div key={`${msg.role}-${index}`} className={`message ${msg.role}`}>
                   <div className="message-role">{roleText}.</div>
                   <div className="message-content">
                     {msg.role === "assistant" ? (
                       <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-                        {formatMessageContent(filterHiddenTags(msg.content))}
+                       {filtered_content}
                       </ReactMarkdown>
                     ) : (
-                      formatMessageContent(filterHiddenTags(msg.content))
+                      filtered_content
                     )}
                   </div>
                 </div>
