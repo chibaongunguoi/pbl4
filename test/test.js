@@ -9,10 +9,10 @@ export const options = {
   ]
 }
 
-const HOST = __ENV.CLIENT_SERVER_HOST;
-const PORT = __ENV.CLIENT_SERVER_PORT;
+// const HOST = __ENV.CLIENT_SERVER_HOST;
+// const PORT = __ENV.CLIENT_SERVER_PORT;
 
 export default () => {
-  http.get(`http://${HOST}:${PORT}`)
+  http.get(`http://192.168.137.1:3000`)
   sleep(1);
 };
