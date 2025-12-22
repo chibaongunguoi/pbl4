@@ -433,8 +433,8 @@ select option {
 
 .notification-badge {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 5px;
+  right: -4px;
   background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
   color: white;
   font-size: 10px;
@@ -445,7 +445,6 @@ select option {
   text-align: center;
   line-height: 1.2;
   box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
-  animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
