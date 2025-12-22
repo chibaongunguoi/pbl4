@@ -2032,7 +2032,7 @@
 }
 
 .status-modal-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: cornflowerblue;
   padding: 24px 28px;
   display: flex;
   justify-content: space-between;
@@ -2160,7 +2160,7 @@
 
 .status-btn-confirm {
   padding: 4px 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: cornflowerblue;
   color: white;
   border: none;
   border-radius: 10px;
