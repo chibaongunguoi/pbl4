@@ -27,5 +27,5 @@ pip install -r requirements.txt
 
 cd client_server
 rm -rf node_modules
-sudo npm install
-sudo npm run build
+npm install
+npm run build
